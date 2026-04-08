@@ -87,3 +87,9 @@ display:
       path: patient/%patient/visits
     cache_metadata:
       max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
