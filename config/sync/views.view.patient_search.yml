@@ -51,8 +51,8 @@ display:
           label: 'Date of Birth'
         municipality:
           id: municipality
-          table: patient__municipality
-          field: municipality_target_id
+          table: patient
+          field: municipality
           relationship: none
           plugin_id: field
           label: Municipality
@@ -142,3 +142,9 @@ display:
         context: ''
     cache_metadata:
       max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
