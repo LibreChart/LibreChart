@@ -24,7 +24,7 @@ versioned_properties:
     settings:
       default_settings:
         id: 'system_menu_block:main'
-        label: 'Navegación principal'
+        label: 'Main navigation'
         label_display: '0'
         provider: system
         level: 1

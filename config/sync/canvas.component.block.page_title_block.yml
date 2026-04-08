@@ -17,7 +17,7 @@ versioned_properties:
     settings:
       default_settings:
         id: page_title_block
-        label: 'Título de la página'
+        label: 'Page title'
         label_display: '0'
         provider: core
     fallback_metadata:

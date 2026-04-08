@@ -1,5 +1,5 @@
 uuid: d7e543c4-e90f-4c27-8a36-72b5ecd34548
-langcode: es
+langcode: en
 status: false
 dependencies:
   module:
@@ -17,7 +17,7 @@ base_field: fid
 display:
   default:
     id: default
-    display_title: 'Por defecto'
+    display_title: Master
     display_plugin: default
     position: 0
     display_options:
@@ -233,7 +233,7 @@ display:
           entity_type: file
           entity_field: status
           plugin_id: field
-          label: Estado
+          label: Status
           exclude: false
           alter:
             alter_text: false
@@ -475,7 +475,7 @@ display:
           admin_label: ''
           entity_type: file
           plugin_id: entity_operations
-          label: Operaciones
+          label: Operations
           exclude: false
           alter:
             alter_text: false
@@ -526,8 +526,8 @@ display:
           total_pages: 0
           id: 0
           tags:
-            next: 'Siguiente >'
-            previous: '‹ Anterior'
+            next: 'Next ›'
+            previous: '‹ Previous'
           expose:
             items_per_page: false
             items_per_page_label: 'Elementos por página'
@@ -539,10 +539,10 @@ display:
       exposed_form:
         type: basic
         options:
-          submit_button: Filtro
+          submit_button: Filter
           reset_button: false
-          reset_button_label: Restablecer
-          exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
           expose_sort_order: true
           sort_asc_label: Asc
           sort_desc_label: Desc
@@ -660,7 +660,7 @@ display:
           exposed: true
           expose:
             operator_id: status_op
-            label: Estado
+            label: Status
             description: ''
             use_operator: false
             operator: status_op
@@ -1057,8 +1057,8 @@ display:
           total_pages: 0
           id: 0
           tags:
-            next: 'Siguiente >'
-            previous: '‹ Anterior'
+            next: 'Next ›'
+            previous: '‹ Previous'
           expose:
             items_per_page: false
             items_per_page_label: 'Elementos por página'

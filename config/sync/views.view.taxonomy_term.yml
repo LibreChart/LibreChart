@@ -1,5 +1,5 @@
 uuid: 41e5f5f1-e0fd-4027-b63f-5fea23bff47f
-langcode: es
+langcode: en
 status: true
 dependencies:
   config:
@@ -20,7 +20,7 @@ base_field: nid
 display:
   default:
     id: default
-    display_title: 'Por defecto'
+    display_title: Master
     display_plugin: default
     position: 0
     display_options:
@@ -49,8 +49,8 @@ display:
         options:
           submit_button: Aplicar
           reset_button: false
-          reset_button_label: Restablecer
-          exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
           expose_sort_order: true
           sort_asc_label: Asc
           sort_desc_label: Desc
@@ -300,7 +300,7 @@ display:
       tags: {  }
   page_1:
     id: page_1
-    display_title: Página
+    display_title: Page
     display_plugin: page
     position: 1
     display_options:

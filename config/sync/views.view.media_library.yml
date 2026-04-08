@@ -1,5 +1,5 @@
 uuid: 8cf046ee-cd49-49a1-9a58-26a83b027f0f
-langcode: es
+langcode: en
 status: true
 dependencies:
   config:
@@ -25,7 +25,7 @@ base_field: mid
 display:
   default:
     id: default
-    display_title: 'Por defecto'
+    display_title: Master
     display_plugin: default
     position: 0
     display_options:
@@ -159,8 +159,8 @@ display:
         options:
           submit_button: 'Aplicar filtros'
           reset_button: false
-          reset_button_label: Restablecer
-          exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
           expose_sort_order: false
           sort_asc_label: Asc
           sort_desc_label: Desc
@@ -247,7 +247,7 @@ display:
           exposed: true
           expose:
             operator_id: ''
-            label: 'Estado de publicación'
+            label: 'Publication status'
             description: null
             use_operator: false
             operator: status_op
@@ -261,7 +261,7 @@ display:
               authenticated: authenticated
           is_grouped: true
           group_info:
-            label: Publicado
+            label: Published
             description: ''
             identifier: status
             optional: true
@@ -272,11 +272,11 @@ display:
             default_group_multiple: {  }
             group_items:
               1:
-                title: Publicado
+                title: Published
                 operator: '='
                 value: '1'
               2:
-                title: 'Sin publicar'
+                title: Unpublished
                 operator: '='
                 value: '0'
         name:
@@ -418,7 +418,7 @@ display:
           exposed: true
           expose:
             operator_id: langcode_op
-            label: Idioma
+            label: Language
             description: ''
             use_operator: false
             operator: langcode_op
@@ -482,7 +482,7 @@ display:
       tags: {  }
   page:
     id: page
-    display_title: Página
+    display_title: Page
     display_plugin: page
     position: 1
     display_options:
@@ -1146,7 +1146,7 @@ display:
           entity_type: media
           entity_field: uid
           plugin_id: field
-          label: Autor
+          label: Author
           type: entity_reference_label
           settings:
             link: true
@@ -1158,7 +1158,7 @@ display:
           entity_type: media
           entity_field: changed
           plugin_id: field
-          label: Actualizado
+          label: Updated
           type: timestamp
           settings:
             date_format: short

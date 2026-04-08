@@ -1,5 +1,5 @@
 uuid: a2b6dc1a-c95a-49fa-9ea0-a0b232cc2b33
-langcode: es
+langcode: en
 status: false
 dependencies:
   config:
@@ -221,7 +221,7 @@ display:
           entity_type: media
           entity_field: uid
           plugin_id: field
-          label: Autor
+          label: Author
           exclude: false
           alter:
             alter_text: false
@@ -286,7 +286,7 @@ display:
           entity_type: media
           entity_field: status
           plugin_id: field
-          label: Estado
+          label: Status
           exclude: false
           alter:
             alter_text: false
@@ -331,8 +331,8 @@ display:
           type: boolean
           settings:
             format: custom
-            format_custom_false: 'Sin publicar'
-            format_custom_true: Publicado
+            format_custom_false: Unpublished
+            format_custom_true: Published
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -486,7 +486,7 @@ display:
           admin_label: ''
           entity_type: media
           plugin_id: entity_operations
-          label: Operaciones
+          label: Operations
           exclude: false
           alter:
             alter_text: false
@@ -551,10 +551,10 @@ display:
       exposed_form:
         type: basic
         options:
-          submit_button: Filtro
+          submit_button: Filter
           reset_button: true
-          reset_button_label: Restablecer
-          exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
           expose_sort_order: true
           sort_asc_label: Asc
           sort_desc_label: Desc
@@ -717,7 +717,7 @@ display:
           exposed: true
           expose:
             operator_id: ''
-            label: Estado
+            label: Status
             description: ''
             use_operator: false
             operator: status_op
@@ -731,7 +731,7 @@ display:
               authenticated: authenticated
           is_grouped: true
           group_info:
-            label: 'Estado de publicación'
+            label: 'Publication status'
             description: ''
             identifier: status
             optional: true
@@ -742,11 +742,11 @@ display:
             default_group_multiple: {  }
             group_items:
               1:
-                title: Publicado
+                title: Published
                 operator: '='
                 value: '1'
               2:
-                title: 'Sin publicar'
+                title: Unpublished
                 operator: '='
                 value: '0'
         langcode:
@@ -765,7 +765,7 @@ display:
           exposed: true
           expose:
             operator_id: langcode_op
-            label: Idioma
+            label: Language
             description: ''
             use_operator: false
             operator: langcode_op

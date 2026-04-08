@@ -1,5 +1,5 @@
 uuid: 03f60422-7740-4e56-9754-da8d9d26508e
-langcode: es
+langcode: en
 status: true
 dependencies:
   module:
@@ -17,11 +17,11 @@ base_field: nid
 display:
   default:
     id: default
-    display_title: 'Por defecto'
+    display_title: Master
     display_plugin: default
     position: 0
     display_options:
-      title: Contenido
+      title: Content
       fields:
         node_bulk_form:
           id: node_bulk_form
@@ -46,7 +46,7 @@ display:
           entity_type: node
           entity_field: title
           plugin_id: field
-          label: Título
+          label: Title
           exclude: false
           alter:
             alter_text: false
@@ -69,7 +69,7 @@ display:
           entity_type: node
           entity_field: type
           plugin_id: field
-          label: 'Tipo de contenido'
+          label: 'Content type'
           exclude: false
           alter:
             alter_text: false
@@ -132,7 +132,7 @@ display:
           entity_type: user
           entity_field: name
           plugin_id: field
-          label: Autor
+          label: Author
           exclude: false
           alter:
             alter_text: false
@@ -150,7 +150,7 @@ display:
           entity_type: node
           entity_field: status
           plugin_id: field
-          label: Estado
+          label: Status
           exclude: false
           alter:
             alter_text: false
@@ -163,8 +163,8 @@ display:
           type: boolean
           settings:
             format: custom
-            format_custom_false: 'Sin publicar'
-            format_custom_true: Publicado
+            format_custom_false: Unpublished
+            format_custom_true: Published
         changed:
           id: changed
           table: node_field_data
@@ -172,7 +172,7 @@ display:
           entity_type: node
           entity_field: changed
           plugin_id: field
-          label: Actualizado
+          label: Updated
           exclude: false
           alter:
             alter_text: false
@@ -206,7 +206,7 @@ display:
           entity_type: node
           entity_field: langcode
           plugin_id: field_language
-          label: Idioma
+          label: Language
           exclude: false
           alter:
             alter_text: false
@@ -270,7 +270,7 @@ display:
           group_type: group
           admin_label: ''
           plugin_id: entity_operations
-          label: Operaciones
+          label: Operations
           exclude: false
           alter:
             alter_text: false
@@ -318,17 +318,17 @@ display:
           pagination_heading_level: h4
           items_per_page: 50
           tags:
-            next: 'Siguiente >'
-            previous: '‹ Anterior'
-            first: '« Primero'
-            last: 'Último »'
+            next: 'Next ›'
+            previous: '‹ Previous'
+            first: '« First'
+            last: 'Last »'
       exposed_form:
         type: basic
         options:
-          submit_button: Filtro
+          submit_button: Filter
           reset_button: true
-          reset_button_label: Restablecer
-          exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
           expose_sort_order: true
           sort_asc_label: Asc
           sort_desc_label: Desc
@@ -365,7 +365,7 @@ display:
           exposed: true
           expose:
             operator_id: title_op
-            label: Título
+            label: Title
             description: ''
             use_operator: false
             operator: title_op
@@ -405,7 +405,7 @@ display:
           exposed: true
           expose:
             operator_id: type_op
-            label: 'Tipo de contenido'
+            label: 'Content type'
             description: ''
             use_operator: false
             operator: type_op
@@ -446,7 +446,7 @@ display:
           exposed: true
           expose:
             operator_id: ''
-            label: Estado
+            label: Status
             description: ''
             use_operator: false
             operator: status_op
@@ -460,7 +460,7 @@ display:
               authenticated: authenticated
           is_grouped: true
           group_info:
-            label: 'Estado de publicación'
+            label: 'Publication status'
             description: ''
             identifier: status
             optional: true
@@ -471,11 +471,11 @@ display:
             default_group_multiple: {  }
             group_items:
               1:
-                title: Publicado
+                title: Published
                 operator: '='
                 value: '1'
               2:
-                title: 'Sin publicar'
+                title: Unpublished
                 operator: '='
                 value: '0'
         langcode:
@@ -494,7 +494,7 @@ display:
           exposed: true
           expose:
             operator_id: langcode_op
-            label: Idioma
+            label: Language
             description: ''
             use_operator: false
             operator: langcode_op
@@ -656,7 +656,7 @@ display:
       tags: {  }
   page_1:
     id: page_1
-    display_title: Página
+    display_title: Page
     display_plugin: page
     position: 1
     display_options:
@@ -664,14 +664,14 @@ display:
       path: admin/content/node
       menu:
         type: 'default tab'
-        title: Contenido
+        title: Content
         description: ''
         weight: -10
         menu_name: admin
         context: ''
       tab_options:
         type: normal
-        title: Contenido
+        title: Content
         description: 'Find and manage content'
         weight: -10
         menu_name: admin
