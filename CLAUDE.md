@@ -158,3 +158,4 @@ When working in this codebase, prioritize adherence to Drupal patterns and conve
 
 ## Recent Changes
 - 001-emr-rebuild: Added PHP 8.3+
+- 002-main-menu-nav-links: Implemented — updated views.view.patient_search (menu: normal, menu_name: main) and created views.view.visits (/visits, menu: main). Views use custom entity base tables (patient, visit). Permissions: view patient entities / view visit entities.

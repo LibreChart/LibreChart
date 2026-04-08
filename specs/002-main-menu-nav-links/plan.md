@@ -17,7 +17,8 @@ Add two top-level links to the Drupal main navigation menu (`system.menu.main`) 
 **Project Type**: Drupal web application — configuration-driven feature
 **Performance Goals**: Standard Drupal page load; no elevated performance targets
 **Constraints**: Config-managed only (no hardcoded links or UI-only changes), no external CDN or cloud dependencies, LAN-only deployment
-**Scale/Scope**: 2 new Views + 2 menu links; <50 concurrent clinic staff users
+**Scale/Scope**: 1 updated view + 1 new view + 2 menu links; <50 concurrent clinic staff users
+**Access**: `view patient entities` (librechart_patient), `view visit entities` (librechart_visit) — custom entity permissions; not `access content` (node permission). Views use `base_table: patient` / `base_table: visit` (custom entities), not `node_field_data`.
 
 ## Constitution Check
 
@@ -42,13 +43,16 @@ specs/002-main-menu-nav-links/
 
 ```text
 config/sync/
-├── views.view.patients.yml        # Patient listing view + menu link (new)
+├── views.view.patient_search.yml  # Patient listing view — UPDATED to add main menu link + municipality field
 └── views.view.visits.yml          # Visit listing view + menu link (new)
+
+web/modules/custom/librechart_visit/tests/src/Functional/
+└── MainMenuNavLinksTest.php       # Functional test stub (new)
 ```
 
-No custom module code is required. If access control for the views cannot be satisfied by Drupal's built-in permissions from 001-emr-rebuild, a custom permission declaration in the EMR module may be needed.
+No custom module code is required. Access control uses the existing custom entity permissions `view patient entities` and `view visit entities` defined by `librechart_patient` and `librechart_visit` modules respectively.
 
-**Structure Decision**: Config-only. Both views are exported as standard Drupal Views YAML configuration and committed to `config/sync/`. This is consistent with the project's configuration-first development approach.
+**Structure Decision**: Config-only. Both views use custom entity base tables (`patient`, `visit`) — not `node_field_data` as originally specced. The patient listing reuses and extends `views.view.patient_search` (which already served `/patients`) rather than introducing a conflicting new view. The visit listing is a new view. All changes are exported as standard Drupal Views YAML and committed to `config/sync/`.
 
 ## Complexity Tracking
 
