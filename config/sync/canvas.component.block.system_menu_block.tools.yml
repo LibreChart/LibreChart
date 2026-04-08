@@ -6,9 +6,21 @@ dependencies:
     - system.menu.tools
   module:
     - system
-active_version: 22835977e991ea1f
+active_version: 0d232cd53210971e
 versioned_properties:
   active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:tools'
+        label: Tools
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  22835977e991ea1f:
     settings:
       default_settings:
         id: 'system_menu_block:tools'
@@ -44,7 +56,7 @@ versioned_properties:
         expand_all_items: false
     fallback_metadata:
       slot_definitions: null
-label: Herramientas
+label: Tools
 id: block.system_menu_block.tools
 provider: system
 source: block

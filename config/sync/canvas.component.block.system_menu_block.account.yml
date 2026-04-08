@@ -6,9 +6,21 @@ dependencies:
     - system.menu.account
   module:
     - system
-active_version: b981d60846b5c0e1
+active_version: a7ba38fb6eb3c0ef
 versioned_properties:
   active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:account'
+        label: 'User account menu'
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  b981d60846b5c0e1:
     settings:
       default_settings:
         id: 'system_menu_block:account'
@@ -44,7 +56,7 @@ versioned_properties:
         expand_all_items: false
     fallback_metadata:
       slot_definitions: null
-label: 'Menú de cuenta de usuario'
+label: 'User account menu'
 id: block.system_menu_block.account
 provider: system
 source: block

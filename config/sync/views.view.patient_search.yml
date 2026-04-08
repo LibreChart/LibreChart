@@ -49,6 +49,13 @@ display:
           relationship: none
           plugin_id: field
           label: 'Date of Birth'
+        municipality:
+          id: municipality
+          table: patient__municipality
+          field: municipality_target_id
+          relationship: none
+          plugin_id: field
+          label: Municipality
         pid:
           id: pid
           table: patient
@@ -127,8 +134,11 @@ display:
     display_options:
       path: patients
       menu:
-        type: menu
+        type: normal
         title: Patients
+        description: ''
         weight: 0
+        menu_name: main
+        context: ''
     cache_metadata:
       max-age: -1

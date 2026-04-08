@@ -6,9 +6,21 @@ dependencies:
     - system.menu.content
   module:
     - system
-active_version: 3c3381756c5d491c
+active_version: 08902ada87f08791
 versioned_properties:
   active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:content'
+        label: Content
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  3c3381756c5d491c:
     settings:
       default_settings:
         id: 'system_menu_block:content'

@@ -6,9 +6,21 @@ dependencies:
     - system.menu.admin
   module:
     - system
-active_version: 2c545af469ff7052
+active_version: e93e596e69b0b12c
 versioned_properties:
   active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:admin'
+        label: Administration
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  2c545af469ff7052:
     settings:
       default_settings:
         id: 'system_menu_block:admin'
@@ -44,7 +56,7 @@ versioned_properties:
         expand_all_items: false
     fallback_metadata:
       slot_definitions: null
-label: Administración
+label: Administration
 id: block.system_menu_block.admin
 provider: system
 source: block

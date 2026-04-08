@@ -1,0 +1,130 @@
+uuid: a3f8c2d1-7b4e-4a9c-b1e5-2d6f3a8c5b0e
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_visit
+id: visits
+label: Visits
+module: views
+description: 'All visit records with filters for date, clinic site, and status.'
+tag: ''
+base_table: visit
+base_field: vid
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: Visits
+      fields:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: field
+          label: Date
+        patient:
+          id: patient
+          table: visit__patient
+          field: patient_target_id
+          relationship: none
+          plugin_id: field
+          label: Patient
+        clinic_site:
+          id: clinic_site
+          table: visit__clinic_site
+          field: clinic_site_target_id
+          relationship: none
+          plugin_id: field
+          label: 'Clinic Site'
+        status:
+          id: status
+          table: visit
+          field: status
+          relationship: none
+          plugin_id: field
+          label: Status
+      pager:
+        type: full
+        options:
+          items_per_page: 25
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      cache:
+        type: tag
+      sorts:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          plugin_id: date
+          order: DESC
+      filters:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: datetime
+          operator: between
+          value:
+            min: now
+            max: '+1 day'
+            type: offset
+          exposed: true
+          expose:
+            operator_id: visit_date_op
+            label: Date
+            identifier: visit_date
+            required: false
+        clinic_site:
+          id: clinic_site
+          table: visit__clinic_site
+          field: clinic_site_target_id
+          relationship: none
+          plugin_id: numeric
+          exposed: true
+          expose:
+            operator_id: clinic_site_op
+            label: 'Clinic Site'
+            identifier: clinic_site
+            required: false
+        status:
+          id: status
+          table: visit
+          field: status
+          relationship: none
+          plugin_id: string
+          exposed: true
+          expose:
+            operator_id: status_op
+            label: Status
+            identifier: status
+            required: false
+      style:
+        type: table
+      row:
+        type: fields
+  page_1:
+    id: page_1
+    display_title: Page
+    display_plugin: page
+    position: 1
+    display_options:
+      path: visits
+      menu:
+        type: normal
+        title: Visits
+        description: ''
+        weight: 10
+        menu_name: main
+        context: ''
+    cache_metadata:
+      max-age: -1

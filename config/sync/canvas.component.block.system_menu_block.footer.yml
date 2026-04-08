@@ -6,9 +6,21 @@ dependencies:
     - system.menu.footer
   module:
     - system
-active_version: 72bb01f7f75a5849
+active_version: e5ef7f3e493f51fa
 versioned_properties:
   active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:footer'
+        label: Footer
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  72bb01f7f75a5849:
     settings:
       default_settings:
         id: 'system_menu_block:footer'
@@ -44,7 +56,7 @@ versioned_properties:
         expand_all_items: false
     fallback_metadata:
       slot_definitions: null
-label: 'Pie de página'
+label: Footer
 id: block.system_menu_block.footer
 provider: system
 source: block
