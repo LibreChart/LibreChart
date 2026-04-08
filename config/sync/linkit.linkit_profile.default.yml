@@ -6,7 +6,7 @@ dependencies:
     - node
 _core:
   default_config_hash: BK71CAhdqkCn5KTXHSohFG2hjhkr5H0K3uwnW6XzeXI
-label: 'Por defecto'
+label: Default
 id: default
 description: 'A default Linkit profile'
 matchers:

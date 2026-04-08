@@ -24,7 +24,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: Páginas
+      title: Pages
       fields:
         edit_canvas_page:
           id: edit_canvas_page
@@ -923,7 +923,7 @@ display:
       path: admin/content/pages
       menu:
         type: tab
-        title: Páginas
+        title: Pages
         description: ''
         weight: 0
         expanded: false
