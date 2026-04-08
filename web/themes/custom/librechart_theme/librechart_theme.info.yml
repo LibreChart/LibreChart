@@ -1,0 +1,8 @@
+name: Librechart Theme
+type: theme
+description: 'Librechart EMR admin theme — Gin subtheme for clinic branding and station form styling.'
+package: Custom
+core_version_requirement: ^11
+base theme: gin
+libraries:
+  - librechart_theme/global

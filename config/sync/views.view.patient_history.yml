@@ -1,0 +1,216 @@
+uuid: 25746bf3-9485-43c6-b7f5-b45f9adab097
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_visit
+    - user
+id: patient_history
+label: 'Patient Visit History'
+module: views
+description: 'Chronological list of all visits for a patient with diagnosis and status summary.'
+tag: report
+base_table: visit
+base_field: vid
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Patient History'
+      fields:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: field
+          label: 'Visit Date'
+        clinic_site:
+          id: clinic_site
+          table: visit
+          field: clinic_site
+          relationship: none
+          plugin_id: field
+          label: 'Clinic Site'
+          type: entity_reference_label
+          settings:
+            link: false
+        status:
+          id: status
+          table: visit
+          field: status
+          relationship: none
+          plugin_id: field
+          label: Status
+        dx_write_in:
+          id: dx_write_in
+          table: visit
+          field: dx_write_in__value
+          relationship: none
+          plugin_id: field
+          label: Diagnoses
+        edit_visit:
+          id: edit_visit
+          table: visit
+          field: edit_visit
+          relationship: none
+          plugin_id: entity_link_edit
+          label: Edit
+      pager:
+        type: full
+        options:
+          items_per_page: 25
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      cache:
+        type: tag
+        options: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No visits found for this patient.'
+          tokenize: false
+      sorts:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: standard
+          order: DESC
+      filters:
+        patient:
+          id: patient
+          table: visit
+          field: patient
+          relationship: none
+          plugin_id: numeric
+          exposed: false
+          is_grouped: false
+      style:
+        type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          columns:
+            visit_date: visit_date
+            clinic_site: clinic_site
+            status: status
+            dx_write_in: dx_write_in
+            edit_visit: edit_visit
+          info:
+            visit_date:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            clinic_site:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            status:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            dx_write_in:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            edit_visit:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: false
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
+      use_more: false
+      use_more_always: false
+      use_more_text: more
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  page_patient_history:
+    id: page_patient_history
+    display_title: 'Patient History Page'
+    display_plugin: page
+    position: 1
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      path: patient/%patient/history
+      contextual_filters:
+        patient:
+          id: patient
+          table: visit
+          field: patient
+          relationship: none
+          plugin_id: numeric
+          default_action: empty
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: false
+          title: ''
+          limit: false
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: true
+          validate:
+            type: numeric
+            fail: empty
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }

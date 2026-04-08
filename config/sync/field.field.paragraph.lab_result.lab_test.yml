@@ -1,0 +1,21 @@
+uuid: 2752223c-91b9-466d-9c9f-fa38ddf228b4
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_test
+    - paragraphs.paragraphs_type.lab_result
+  module:
+    - options
+id: paragraph.lab_result.lab_test
+field_name: lab_test
+entity_type: paragraph
+bundle: lab_result
+label: 'Lab Test'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

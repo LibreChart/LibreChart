@@ -1,0 +1,14 @@
+uuid: e5564967-a33e-49fc-881c-fcaf170e3380
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.lab_technician
+  module:
+    - user
+id: user_add_role_action.lab_technician
+label: 'Añade el rol Lab Technician al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: lab_technician

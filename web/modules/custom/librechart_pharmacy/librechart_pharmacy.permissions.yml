@@ -1,0 +1,39 @@
+administer prescription_item entities:
+  title: 'Administer prescription items'
+  restrict access: true
+
+create prescription_item entities:
+  title: 'Create prescription items'
+
+edit any prescription_item entities:
+  title: 'Edit any prescription item'
+
+delete any prescription_item entities:
+  title: 'Delete any prescription item'
+  restrict access: true
+
+view prescription_item entities:
+  title: 'View prescription items'
+
+administer drug_inventory entities:
+  title: 'Administer drug inventory'
+  restrict access: true
+
+create drug_inventory entities:
+  title: 'Create drug inventory records'
+
+edit any drug_inventory entities:
+  title: 'Edit any drug inventory record'
+
+view drug_inventory entities:
+  title: 'View drug inventory'
+
+administer inventory_receipt entities:
+  title: 'Administer inventory receipts'
+  restrict access: true
+
+create inventory_receipt entities:
+  title: 'Create inventory receipts'
+
+view inventory_receipt entities:
+  title: 'View inventory receipts'

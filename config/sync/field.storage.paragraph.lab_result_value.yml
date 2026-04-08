@@ -1,0 +1,21 @@
+uuid: ded85ae8-c30d-49b6-b0c5-bd9c2a950cf9
+langcode: es
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.lab_result_value
+field_name: lab_result_value
+entity_type: paragraph
+type: string
+settings:
+  max_length: 256
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

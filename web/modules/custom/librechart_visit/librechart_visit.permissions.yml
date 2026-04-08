@@ -1,0 +1,25 @@
+administer visit entities:
+  title: 'Administer visit entities'
+  description: 'Create, edit, delete, and view all visit records.'
+  restrict access: true
+
+create visit entities:
+  title: 'Create visit records'
+  description: 'Create new visit records for patients.'
+
+edit any visit entities:
+  title: 'Edit any visit record'
+  description: 'Edit any visit record regardless of author.'
+
+delete any visit entities:
+  title: 'Delete any visit record'
+  description: 'Delete any visit record.'
+  restrict access: true
+
+view visit entities:
+  title: 'View visit records'
+  description: 'View visit records and clinical data.'
+
+view visit entity revisions:
+  title: 'View visit record revisions'
+  description: 'View the revision history of visit records.'

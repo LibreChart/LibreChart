@@ -1,0 +1,89 @@
+uuid: 008753bb-05c4-47cc-92ba-3fd3ba839c32
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_visit
+id: patient_visits
+label: 'Patient Visit History'
+module: views
+description: 'Chronological visit history for a patient.'
+tag: ''
+base_table: visit
+base_field: vid
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Visit History'
+      fields:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: field
+          label: 'Visit Date'
+        clinic_site:
+          id: clinic_site
+          table: visit__clinic_site
+          field: clinic_site_target_id
+          relationship: none
+          plugin_id: field
+          label: 'Clinic Site'
+        status:
+          id: status
+          table: visit
+          field: status
+          relationship: none
+          plugin_id: field
+          label: Status
+      pager:
+        type: full
+        options:
+          items_per_page: 25
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      cache:
+        type: tag
+      sorts:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          plugin_id: date
+          order: DESC
+      filters:
+        patient:
+          id: patient
+          table: visit__patient
+          field: patient_target_id
+          relationship: none
+          plugin_id: numeric
+          value: ''
+          exposed: false
+      style:
+        type: table
+      row:
+        type: fields
+  page_1:
+    id: page_1
+    display_title: Page
+    display_plugin: page
+    position: 1
+    display_options:
+      arguments:
+        patient:
+          id: patient
+          table: visit__patient
+          field: patient_target_id
+          plugin_id: numeric
+      path: patient/%patient/visits
+    cache_metadata:
+      max-age: -1

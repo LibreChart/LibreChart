@@ -1,0 +1,14 @@
+langcode: es
+enable_globally: 0
+enable_globally_on_admin_routes: false
+default_challenge: friendlycaptcha/friendlycaptcha
+description: 'Esta pregunta es para comprobar si usted es un visitante humano y prevenir envíos de spam automatizado.'
+title: CAPTCHA
+administration_mode: false
+administration_mode_on_admin_routes: false
+whitelist_ips: ''
+wrong_captcha_response_message: 'La respuesta que ingresó para el código de verificación no fue correcta.'
+default_validation: 1
+persistence: 1
+enable_stats: false
+log_wrong_responses: false

@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * @file
+ * Librechart Pharmacy module hooks for inventory management.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_postsave().
+ *
+ * Decrements DrugInventory.quantity_on_hand when a PrescriptionItem is filled.
+ * Increments DrugInventory.quantity_on_hand when an InventoryReceipt is saved.
+ */
+function librechart_pharmacy_entity_postsave(EntityInterface $entity, string $op): void {
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  if ($entity->getEntityTypeId() === 'prescription_item' && $op !== 'delete') {
+    librechart_pharmacy_handle_prescription_fill($entity);
+  }
+
+  if ($entity->getEntityTypeId() === 'inventory_receipt' && $op !== 'delete') {
+    librechart_pharmacy_handle_inventory_receipt($entity);
+  }
+}
+
+/**
+ * Decrements DrugInventory when a prescription is filled.
+ *
+ * @param \Drupal\Core\Entity\ContentEntityInterface $prescription
+ *   The PrescriptionItem entity being saved.
+ */
+function librechart_pharmacy_handle_prescription_fill(ContentEntityInterface $prescription): void {
+  if (!$prescription->get('prescription_filled')->value) {
+    return;
+  }
+
+  $quantity = (int) $prescription->get('quantity_dispensed')->value;
+  if ($quantity <= 0) {
+    return;
+  }
+
+  $drug_id = $prescription->get('drug')->target_id;
+  $visit = $prescription->get('visit')->entity;
+  if (!$visit instanceof ContentEntityInterface) {
+    return;
+  }
+  $clinic_site_id = $visit->get('clinic_site')->target_id;
+
+  $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
+  $query = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('drug', $drug_id)
+    ->condition('clinic_site', $clinic_site_id);
+  $ids = $query->execute();
+
+  if (empty($ids)) {
+    return;
+  }
+
+  /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
+  $inventory = $storage->load(reset($ids));
+  $current = (int) $inventory->get('quantity_on_hand')->value;
+  $inventory->set('quantity_on_hand', max(0, $current - $quantity));
+  $inventory->save();
+}
+
+/**
+ * Increments DrugInventory when an inventory receipt is saved.
+ *
+ * @param \Drupal\Core\Entity\ContentEntityInterface $receipt
+ *   The InventoryReceipt entity being saved.
+ */
+function librechart_pharmacy_handle_inventory_receipt(ContentEntityInterface $receipt): void {
+  $quantity = (int) $receipt->get('quantity_received')->value;
+  if ($quantity <= 0) {
+    return;
+  }
+
+  $drug_id = $receipt->get('drug')->target_id;
+  $clinic_site_id = $receipt->get('clinic_site')->target_id;
+
+  $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
+  $query = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('drug', $drug_id)
+    ->condition('clinic_site', $clinic_site_id);
+  $ids = $query->execute();
+
+  if (!empty($ids)) {
+    /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
+    $inventory = $storage->load(reset($ids));
+  }
+  else {
+    /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
+    $inventory = \Drupal::entityTypeManager()->getStorage('drug_inventory')->create([
+      'drug' => $drug_id,
+      'clinic_site' => $clinic_site_id,
+      'quantity_on_hand' => 0,
+    ]);
+  }
+
+  $current = (int) $inventory->get('quantity_on_hand')->value;
+  $inventory->set('quantity_on_hand', $current + $quantity);
+  $inventory->save();
+}
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Validates PrescriptionItem before fill — low-stock warning.
+ *
+ * @throws \Drupal\Core\Entity\EntityStorageException
+ *   When stock is insufficient and no override reason is provided.
+ */
+function librechart_pharmacy_entity_presave(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() !== 'prescription_item') {
+    return;
+  }
+
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  if (!$entity->get('prescription_filled')->value) {
+    return;
+  }
+
+  $quantity = (int) $entity->get('quantity_dispensed')->value;
+  $drug_id = $entity->get('drug')->target_id;
+  $visit = $entity->get('visit')->entity;
+  if (!$visit instanceof ContentEntityInterface || !$drug_id) {
+    return;
+  }
+  $clinic_site_id = $visit->get('clinic_site')->target_id;
+
+  $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
+  $query = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('drug', $drug_id)
+    ->condition('clinic_site', $clinic_site_id);
+  $ids = $query->execute();
+
+  if (empty($ids)) {
+    return;
+  }
+
+  /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
+  $inventory = $storage->load(reset($ids));
+  $on_hand = (int) $inventory->get('quantity_on_hand')->value;
+  $override_reason = $entity->get('override_reason')->value;
+
+  if ($quantity > $on_hand && empty($override_reason)) {
+    $drug_label = $entity->get('drug')->entity->label() ?? 'Unknown drug';
+    throw new \Drupal\Core\Entity\EntityStorageException(
+      (string) t('Insufficient stock — @drug has @count on hand. Enter a reason to override.', [
+        '@drug' => $drug_label,
+        '@count' => $on_hand,
+      ])
+    );
+  }
+
+  if ($quantity > $on_hand && !empty($override_reason)) {
+    \Drupal::logger('librechart_pharmacy')->warning(
+      'Pharmacy override: @drug dispensed @qty (on hand: @onhand). Reason: @reason',
+      [
+        '@drug' => $entity->get('drug')->entity->label() ?? 'Unknown',
+        '@qty' => $quantity,
+        '@onhand' => $on_hand,
+        '@reason' => $override_reason,
+      ]
+    );
+  }
+}

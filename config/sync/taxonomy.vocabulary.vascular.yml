@@ -1,0 +1,9 @@
+uuid: 1db23700-df57-40ef-8983-41b89c23b73a
+langcode: es
+status: true
+dependencies: {  }
+name: Vascular
+vid: vascular
+description: null
+weight: 0
+new_revision: false

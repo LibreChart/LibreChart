@@ -1,0 +1,7 @@
+name: Librechart Dictation
+type: module
+description: 'Speech-to-text dictation via whisper.cpp for clinical text fields in the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - librechart_visit:librechart_visit

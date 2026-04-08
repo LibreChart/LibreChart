@@ -1,0 +1,23 @@
+uuid: b7f1cf53-8d55-4ab0-8dbe-07333d2b5669
+langcode: es
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_pharmacy
+    - librechart_visit
+id: pharmacist
+label: Pharmacist
+weight: 9
+is_admin: false
+permissions:
+  - 'create prescription_item entities'
+  - 'delete any prescription_item entities'
+  - 'edit any drug_inventory entities'
+  - 'edit any prescription_item entities'
+  - 'edit any visit entities'
+  - 'view drug_inventory entities'
+  - 'view inventory_receipt entities'
+  - 'view patient entities'
+  - 'view prescription_item entities'
+  - 'view visit entities'

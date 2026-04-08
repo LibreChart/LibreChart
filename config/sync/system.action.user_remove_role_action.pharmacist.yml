@@ -1,0 +1,14 @@
+uuid: 58d4166e-7dac-4772-9d90-14d2859dc01c
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.pharmacist
+  module:
+    - user
+id: user_remove_role_action.pharmacist
+label: 'Elimina el rol Pharmacist al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: pharmacist

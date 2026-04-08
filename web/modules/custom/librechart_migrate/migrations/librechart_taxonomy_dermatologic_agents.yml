@@ -1,0 +1,19 @@
+id: librechart_taxonomy_dermatologic_agents
+label: 'Import dermatologic_agents taxonomy'
+migration_group: librechart_taxonomy
+source:
+  plugin: librechart_legacy_taxonomy
+  source_table: list_options
+  id_field: option_id
+  label_field: title
+  filter_field: list_id
+  filter_value: DERMATOLOGIC_AGENTS
+  key: migrate
+process:
+  name: title
+  vid:
+    plugin: default_value
+    default_value: dermatologic_agents
+destination:
+  plugin: entity:taxonomy_term
+migration_dependencies: {}

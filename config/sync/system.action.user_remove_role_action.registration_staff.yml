@@ -1,0 +1,14 @@
+uuid: 288d799c-cf2f-4d8e-9039-16422b0e2399
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.registration_staff
+  module:
+    - user
+id: user_remove_role_action.registration_staff
+label: 'Elimina el rol Registration Staff al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: registration_staff

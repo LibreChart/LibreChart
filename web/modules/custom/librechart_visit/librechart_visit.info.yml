@@ -1,0 +1,10 @@
+name: Librechart Visit
+type: module
+description: 'Visit entity with station fields and optimistic locking for the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - librechart_patient:librechart_patient
+  - drupal:taxonomy
+  - drupal:user
+  - drupal:paragraphs

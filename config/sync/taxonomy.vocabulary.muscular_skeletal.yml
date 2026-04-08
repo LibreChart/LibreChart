@@ -1,0 +1,9 @@
+uuid: ce030f12-8102-4b0c-9266-f351051afff5
+langcode: es
+status: true
+dependencies: {  }
+name: Musculoskeletal
+vid: muscular_skeletal
+description: null
+weight: 0
+new_revision: false

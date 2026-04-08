@@ -1,0 +1,9 @@
+uuid: 6fd70414-3c89-4e21-870f-156a222b5c2f
+langcode: es
+status: true
+dependencies: {  }
+name: 'Vitamins / Nutrients'
+vid: vitamins_nutrients_lv
+description: null
+weight: 0
+new_revision: false

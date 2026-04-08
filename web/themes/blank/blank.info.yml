@@ -1,0 +1,30 @@
+regions:
+  footer: Footer
+  header: Header
+  content: Content
+name: blank
+type: theme
+'base theme': stable9
+version: 1.0.0
+libraries:
+  - blank/base
+  - blank/messages
+  - core/normalize
+libraries-extend:
+  user/drupal.user:
+    - blank/user
+  core/drupal.dropbutton:
+    - blank/dropbutton
+  core/drupal.dialog:
+    - blank/dialog
+  file/drupal.file:
+    - blank/file
+  core/drupal.item-list:
+    - blank/item-list
+  core/drupal.progress:
+    - blank/progress
+  core/drupal.tablesort:
+    - blank/drupal.tablesort
+description: ''
+core_version_requirement: ^11
+generator: 'starterkit_theme:11.3.5'

@@ -1,0 +1,18 @@
+uuid: 922d7873-08cf-4169-899d-e013a2dbfd96
+langcode: es
+status: true
+dependencies:
+  module:
+    - librechart_dictation
+    - librechart_patient
+    - librechart_visit
+id: physical_therapist
+label: 'Physical Therapist'
+weight: 8
+is_admin: false
+permissions:
+  - 'edit any visit entities'
+  - 'use dictation'
+  - 'view patient entities'
+  - 'view prescription_item entities'
+  - 'view visit entities'

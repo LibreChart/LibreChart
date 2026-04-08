@@ -1,0 +1,276 @@
+uuid: ec4b91c0-dcc5-46b5-aea9-e01cca3ba951
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_visit
+    - user
+id: diagnoses_report
+label: 'Diagnosis Frequency Report'
+module: views
+description: 'Most common diagnoses by body system, filterable by clinic site and date range.'
+tag: report
+base_table: visit
+base_field: vid
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Diagnosis Frequency Report'
+      fields:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: field
+          label: 'Visit Date'
+        clinic_site:
+          id: clinic_site
+          table: visit
+          field: clinic_site
+          relationship: none
+          plugin_id: field
+          label: 'Clinic Site'
+          type: entity_reference_label
+          settings:
+            link: false
+        patient:
+          id: patient
+          table: visit
+          field: patient
+          relationship: none
+          plugin_id: field
+          label: Patient
+          type: entity_reference_label
+          settings:
+            link: true
+        dx_write_in:
+          id: dx_write_in
+          table: visit
+          field: dx_write_in__value
+          relationship: none
+          plugin_id: field
+          label: 'Diagnosis (Write-in)'
+        status:
+          id: status
+          table: visit
+          field: status
+          relationship: none
+          plugin_id: field
+          label: Status
+      pager:
+        type: full
+        options:
+          items_per_page: 50
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      cache:
+        type: tag
+        options: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No visit records found for the selected criteria.'
+          tokenize: false
+      sorts:
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: standard
+          order: DESC
+      filters:
+        clinic_site:
+          id: clinic_site
+          table: visit
+          field: clinic_site
+          relationship: none
+          plugin_id: numeric
+          exposed: true
+          expose:
+            operator_id: clinic_site_op
+            label: 'Clinic Site'
+            description: ''
+            use_operator: false
+            operator: clinic_site_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: clinic_site
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+          is_grouped: false
+        visit_date:
+          id: visit_date
+          table: visit
+          field: visit_date
+          relationship: none
+          plugin_id: date
+          operator: between
+          value:
+            min: ''
+            max: ''
+            value: ''
+            type: date
+          exposed: true
+          expose:
+            operator_id: visit_date_op
+            label: 'Date Range'
+            description: ''
+            use_operator: true
+            operator: visit_date_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: visit_date
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+          is_grouped: false
+      style:
+        type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          columns:
+            visit_date: visit_date
+            clinic_site: clinic_site
+            patient: patient
+            dx_write_in: dx_write_in
+            status: status
+          info:
+            visit_date:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            clinic_site:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            patient:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            dx_write_in:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            status:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: false
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
+      use_more: false
+      use_more_always: false
+      use_more_text: more
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  data_export_diagnoses:
+    id: data_export_diagnoses
+    display_title: 'CSV Export'
+    display_plugin: data_export
+    position: 2
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      style:
+        type: data_export
+        options:
+          formats:
+            - csv
+          csv_settings:
+            delimiter: ','
+            enclosure: '"'
+            escape_char: \
+            strip_tags: true
+            trim: true
+            encoding: UTF-8
+            utf8_bom: ''
+            use_serializer_encode_only: false
+            output_header: true
+      path: reports/diagnoses/export.csv
+      filename: diagnoses-report.csv
+      automatic_download: false
+      export_method: default
+      export_batch_size: 0
+      export_limit: 0
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  page_diagnoses_report:
+    id: page_diagnoses_report
+    display_title: 'Diagnoses Report Page'
+    display_plugin: page
+    position: 1
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view visit entities'
+      path: reports/diagnoses
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }

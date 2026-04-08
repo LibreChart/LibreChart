@@ -1,0 +1,14 @@
+uuid: bccb0d16-4098-45b7-a1cc-ca594f9bf60d
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.clinician
+  module:
+    - user
+id: user_remove_role_action.clinician
+label: 'Elimina el rol Clinician al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: clinician

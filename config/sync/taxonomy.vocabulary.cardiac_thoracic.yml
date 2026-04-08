@@ -1,0 +1,9 @@
+uuid: 9eac88e0-4771-4aa7-bcd5-06d454de37d2
+langcode: es
+status: true
+dependencies: {  }
+name: 'Cardiac / Thoracic'
+vid: cardiac_thoracic
+description: null
+weight: 0
+new_revision: false

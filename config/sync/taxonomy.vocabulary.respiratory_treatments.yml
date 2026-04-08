@@ -1,0 +1,9 @@
+uuid: fc2035c1-90f9-4bd4-8daa-fad5106edf24
+langcode: es
+status: true
+dependencies: {  }
+name: 'Respiratory Treatments'
+vid: respiratory_treatments
+description: null
+weight: 0
+new_revision: false

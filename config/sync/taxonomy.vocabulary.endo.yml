@@ -1,0 +1,9 @@
+uuid: ec297d59-a32d-45f0-862e-b724d87aeaf0
+langcode: es
+status: true
+dependencies: {  }
+name: Endocrinology
+vid: endo
+description: null
+weight: 0
+new_revision: false

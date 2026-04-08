@@ -1,0 +1,256 @@
+uuid: 073a32d0-20cd-429a-bf11-3f3c54aa405d
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_pharmacy
+    - user
+    - views_data_export
+id: inventory_report
+label: 'Inventory Report'
+module: views
+description: 'Drug inventory levels by clinic site, with low-stock highlighting.'
+tag: report
+base_table: drug_inventory
+base_field: id
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Inventory Report'
+      fields:
+        clinic_site:
+          id: clinic_site
+          table: drug_inventory
+          field: clinic_site
+          relationship: none
+          plugin_id: field
+          label: 'Clinic Site'
+          type: entity_reference_label
+          settings:
+            link: false
+        drug:
+          id: drug
+          table: drug_inventory
+          field: drug
+          relationship: none
+          plugin_id: field
+          label: Drug
+          type: entity_reference_label
+          settings:
+            link: false
+        quantity_on_hand:
+          id: quantity_on_hand
+          table: drug_inventory
+          field: quantity_on_hand
+          relationship: none
+          plugin_id: field
+          label: 'On Hand'
+        low_stock_threshold:
+          id: low_stock_threshold
+          table: drug_inventory
+          field: low_stock_threshold
+          relationship: none
+          plugin_id: field
+          label: 'Low Stock Threshold'
+        edit_drug_inventory:
+          id: edit_drug_inventory
+          table: drug_inventory
+          field: edit_drug_inventory
+          relationship: none
+          plugin_id: entity_link_edit
+          label: Edit
+      pager:
+        type: full
+        options:
+          items_per_page: 50
+      access:
+        type: perm
+        options:
+          perm: 'view drug_inventory entities'
+      cache:
+        type: tag
+        options: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No inventory records found.'
+          tokenize: false
+      sorts:
+        clinic_site:
+          id: clinic_site
+          table: drug_inventory
+          field: clinic_site
+          relationship: none
+          plugin_id: standard
+          order: ASC
+        drug:
+          id: drug
+          table: drug_inventory
+          field: drug
+          relationship: none
+          plugin_id: standard
+          order: ASC
+      filters:
+        clinic_site:
+          id: clinic_site
+          table: drug_inventory
+          field: clinic_site
+          relationship: none
+          plugin_id: numeric
+          exposed: true
+          expose:
+            operator_id: clinic_site_op
+            label: 'Clinic Site'
+            description: ''
+            use_operator: false
+            operator: clinic_site_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: clinic_site
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+          is_grouped: false
+      style:
+        type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          columns:
+            clinic_site: clinic_site
+            drug: drug
+            quantity_on_hand: quantity_on_hand
+            low_stock_threshold: low_stock_threshold
+            edit_drug_inventory: edit_drug_inventory
+          info:
+            clinic_site:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            drug:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            quantity_on_hand:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            low_stock_threshold:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            edit_drug_inventory:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: false
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
+      use_more: false
+      use_more_always: false
+      use_more_text: more
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  data_export_inventory:
+    id: data_export_inventory
+    display_title: 'CSV Export'
+    display_plugin: data_export
+    position: 2
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view drug_inventory entities'
+      style:
+        type: data_export
+        options:
+          formats:
+            - csv
+          csv_settings:
+            delimiter: ','
+            enclosure: '"'
+            escape_char: \
+            strip_tags: true
+            trim: true
+            encoding: UTF-8
+            utf8_bom: ''
+            use_serializer_encode_only: false
+            output_header: true
+      path: reports/inventory/export.csv
+      filename: inventory-report.csv
+      automatic_download: false
+      export_method: default
+      export_batch_size: 0
+      export_limit: 0
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  page_inventory_report:
+    id: page_inventory_report
+    display_title: 'Inventory Report Page'
+    display_plugin: page
+    position: 1
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view drug_inventory entities'
+      path: reports/inventory
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }

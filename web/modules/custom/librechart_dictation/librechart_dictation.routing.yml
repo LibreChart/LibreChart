@@ -1,0 +1,16 @@
+librechart_dictation.transcribe:
+  path: '/api/dictation/transcribe'
+  defaults:
+    _controller: '\Drupal\librechart_dictation\Controller\DictationController::transcribe'
+    _title: 'Dictation Transcribe'
+  requirements:
+    _permission: 'use dictation'
+  methods: [POST]
+
+librechart_dictation.settings:
+  path: '/admin/config/librechart/dictation'
+  defaults:
+    _form: '\Drupal\librechart_dictation\Form\DictationSettingsForm'
+    _title: 'Dictation Settings'
+  requirements:
+    _permission: 'administer site configuration'

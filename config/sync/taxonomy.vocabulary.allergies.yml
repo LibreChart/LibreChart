@@ -1,0 +1,9 @@
+uuid: fc927571-c8f5-4507-b48e-4c28aa9e86d9
+langcode: es
+status: true
+dependencies: {  }
+name: Allergies
+vid: allergies
+description: null
+weight: 0
+new_revision: false

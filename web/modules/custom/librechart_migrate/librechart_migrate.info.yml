@@ -1,0 +1,10 @@
+name: Librechart Migrate
+type: module
+description: 'Legacy taxonomy data migration from OpenEMR database for the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - drupal:migrate
+  - drupal:migrate_plus
+  - drupal:migrate_tools
+  - drupal:taxonomy

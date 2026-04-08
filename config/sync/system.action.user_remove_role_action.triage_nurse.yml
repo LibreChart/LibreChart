@@ -1,0 +1,14 @@
+uuid: 105d4a5f-5578-4cb1-9d78-8a21d68fe314
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.triage_nurse
+  module:
+    - user
+id: user_remove_role_action.triage_nurse
+label: 'Elimina el rol Triage Nurse al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: triage_nurse

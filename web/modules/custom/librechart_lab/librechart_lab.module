@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Librechart Lab module hooks for LabResult paragraph field access.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Session\AccountInterface;
+
+/**
+ * Implements hook_entity_field_access().
+ *
+ * Enforces role-based edit access on LabResult paragraph sub-fields.
+ *
+ * Field to role mapping:
+ *   lab_test, lab_ordered: triage_nurse, clinician (who orders the test)
+ *   lab_result_value, lab_result_notes: lab_technician (who enters results)
+ *
+ * @param string $operation
+ *   The field operation (view, edit).
+ * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+ *   The field definition.
+ * @param \Drupal\Core\Session\AccountInterface $account
+ *   The current user account.
+ * @param \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\FieldItemInterface>|null $items
+ *   The field items, if available.
+ *
+ * @return \Drupal\Core\Access\AccessResult
+ *   The access result.
+ */
+function librechart_lab_entity_field_access(
+  string $operation,
+  FieldDefinitionInterface $field_definition,
+  AccountInterface $account,
+  ?FieldItemListInterface $items = NULL,
+): AccessResult {
+  // Only restrict edit on LabResult paragraph fields.
+  if ($operation !== 'edit' || $field_definition->getTargetEntityTypeId() !== 'paragraph') {
+    return AccessResult::neutral();
+  }
+
+  $bundle = $field_definition->getTargetBundle();
+  if ($bundle !== 'lab_result') {
+    return AccessResult::neutral();
+  }
+
+  // Administrators bypass field-level restrictions.
+  if ($account->hasPermission('administer paragraphs types')) {
+    return AccessResult::neutral()->addCacheContexts(['user.permissions']);
+  }
+
+  $field_name = $field_definition->getName();
+  $roles = $account->getRoles();
+  $cache = ['user.roles'];
+
+  // Lab ordering fields — editable by triage_nurse and clinician.
+  if (in_array($field_name, ['lab_test', 'lab_ordered'], TRUE)) {
+    foreach (['triage_nurse', 'clinician'] as $role) {
+      if (in_array($role, $roles, TRUE)) {
+        return AccessResult::neutral()->addCacheContexts($cache);
+      }
+    }
+    return AccessResult::forbidden('Only triage nurses and clinicians may order lab tests.')
+      ->addCacheContexts($cache);
+  }
+
+  // Lab result entry fields — editable by lab_technician only.
+  if (in_array($field_name, ['lab_result_value', 'lab_result_notes'], TRUE)) {
+    if (in_array('lab_technician', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only lab technicians may enter lab results.')
+      ->addCacheContexts($cache);
+  }
+
+  return AccessResult::neutral();
+}

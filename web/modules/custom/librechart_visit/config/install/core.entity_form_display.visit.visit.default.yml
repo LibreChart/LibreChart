@@ -1,0 +1,943 @@
+uuid: 73f7b4b6-2bd5-4170-b049-70de4349ac36
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.visit.visit.lab_results
+  module:
+    - conditional_fields
+    - field_group
+    - paragraphs
+    - text
+id: visit.visit.default
+targetEntityType: visit
+bundle: visit
+mode: default
+content:
+  # ---- Core visit header fields (ungrouped, always visible) ----
+  patient:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  visit_date:
+    type: datetime_default
+    weight: 2
+    region: content
+    settings:
+      increment: 1
+    third_party_settings: {}
+  patient_type:
+    type: options_select
+    weight: 3
+    region: content
+    settings: {}
+    third_party_settings: {}
+  clinic_site:
+    type: options_select
+    weight: 4
+    region: content
+    settings: {}
+    third_party_settings: {}
+  status:
+    type: options_select
+    weight: 5
+    region: content
+    settings: {}
+    third_party_settings: {}
+
+  # ---- Triage fields ----
+  vital_temperature:
+    type: number
+    weight: 20
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_pulse:
+    type: number
+    weight: 21
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_respiration:
+    type: number
+    weight: 22
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_systolic:
+    type: number
+    weight: 23
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_diastolic:
+    type: number
+    weight: 24
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_height:
+    type: number
+    weight: 25
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_weight:
+    type: number
+    weight: 26
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  vital_bmi:
+    type: number
+    weight: 27
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  complaint:
+    type: text_textarea
+    weight: 28
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {}
+  past_medical_history:
+    type: text_textarea
+    weight: 29
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {}
+  allergies:
+    type: entity_reference_autocomplete_tags
+    weight: 30
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  current_medications:
+    type: string_textarea
+    weight: 31
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {}
+  # Pediatric-hidden fields: visible only when patient_type = adult.
+  pregnancy_history:
+    type: text_textarea
+    weight: 32
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: patient_type
+              options:
+                condition: value
+                values_set: 0
+                values:
+                  blank: ''
+                value: adult
+                grouping: AND
+                state: visible
+                effect: show
+  lmp:
+    type: string_textfield
+    weight: 33
+    region: content
+    settings:
+      size: 20
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: patient_type
+              options:
+                condition: value
+                values_set: 0
+                values:
+                  blank: ''
+                value: adult
+                grouping: AND
+                state: visible
+                effect: show
+  breastfeeding:
+    type: options_select
+    weight: 34
+    region: content
+    settings: {}
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: patient_type
+              options:
+                condition: value
+                values_set: 0
+                values:
+                  blank: ''
+                value: adult
+                grouping: AND
+                state: visible
+                effect: show
+
+  # ---- Lab Orders & Results ----
+  lab_results:
+    type: paragraphs
+    weight: 40
+    region: content
+    settings:
+      title: Lab Result
+      title_plural: Lab Results
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+      features:
+        duplicate: '1'
+        collapse_edit_all: '1'
+        add_above: '0'
+    third_party_settings: {}
+
+  # ---- Clinical Evaluation fields ----
+  clinician_name:
+    type: string_textfield
+    weight: 51
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  clinical_notes:
+    type: text_textarea
+    weight: 52
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {}
+  dx_write_in:
+    type: text_textarea
+    weight: 53
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {}
+  orders:
+    type: entity_reference_autocomplete_tags
+    weight: 54
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  referrals:
+    type: entity_reference_autocomplete_tags
+    weight: 55
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  pt_referral:
+    type: boolean_checkbox
+    weight: 56
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+
+  # Body systems — sys_gyn_ob hidden for pediatric patients.
+  sys_cardiac:
+    type: boolean_checkbox
+    weight: 60
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_derm:
+    type: boolean_checkbox
+    weight: 61
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_endo:
+    type: boolean_checkbox
+    weight: 62
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_ent:
+    type: boolean_checkbox
+    weight: 63
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_eye:
+    type: boolean_checkbox
+    weight: 64
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_gi:
+    type: boolean_checkbox
+    weight: 65
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_gyn_ob:
+    type: boolean_checkbox
+    weight: 66
+    region: content
+    settings:
+      display_label: true
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: patient_type
+              options:
+                condition: value
+                values_set: 0
+                values:
+                  blank: ''
+                value: adult
+                grouping: AND
+                state: visible
+                effect: show
+  sys_mental_health:
+    type: boolean_checkbox
+    weight: 67
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_musculoskeletal:
+    type: boolean_checkbox
+    weight: 68
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_neuro:
+    type: boolean_checkbox
+    weight: 69
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_respiratory:
+    type: boolean_checkbox
+    weight: 70
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_uro_genital:
+    type: boolean_checkbox
+    weight: 71
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_vascular:
+    type: boolean_checkbox
+    weight: 72
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sys_wound_ostomy:
+    type: boolean_checkbox
+    weight: 73
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+
+  # Diagnosis fields
+  dx_chronic_diseases:
+    type: entity_reference_autocomplete_tags
+    weight: 80
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_cardiac:
+    type: entity_reference_autocomplete_tags
+    weight: 81
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_derm:
+    type: entity_reference_autocomplete_tags
+    weight: 82
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_endo:
+    type: entity_reference_autocomplete_tags
+    weight: 83
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_ent:
+    type: entity_reference_autocomplete_tags
+    weight: 84
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_eye:
+    type: entity_reference_autocomplete_tags
+    weight: 85
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_gi:
+    type: entity_reference_autocomplete_tags
+    weight: 86
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_gyn_ob:
+    type: entity_reference_autocomplete_tags
+    weight: 87
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_mental_health:
+    type: entity_reference_autocomplete_tags
+    weight: 88
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_muscular_skeletal:
+    type: entity_reference_autocomplete_tags
+    weight: 89
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_neuro:
+    type: entity_reference_autocomplete_tags
+    weight: 90
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_opthalmic_otic:
+    type: entity_reference_autocomplete_tags
+    weight: 91
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_resp:
+    type: entity_reference_autocomplete_tags
+    weight: 92
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_uro_genital:
+    type: entity_reference_autocomplete_tags
+    weight: 93
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_vascular:
+    type: entity_reference_autocomplete_tags
+    weight: 94
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_wound_ostomy:
+    type: entity_reference_autocomplete_tags
+    weight: 95
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_pain:
+    type: entity_reference_autocomplete_tags
+    weight: 96
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_pt_treatment:
+    type: entity_reference_autocomplete_tags
+    weight: 97
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_vitamins:
+    type: entity_reference_autocomplete_tags
+    weight: 98
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_anti_infective:
+    type: entity_reference_autocomplete_tags
+    weight: 99
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  dx_misc:
+    type: entity_reference_autocomplete_tags
+    weight: 100
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+
+  # ---- Physical Therapy fields — visible only when pt_referral is checked ----
+  pt_notes:
+    type: text_textarea
+    weight: 110
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: pt_referral
+              options:
+                condition: value
+                values_set: 1
+                values:
+                  blank: ''
+                value: '1'
+                grouping: AND
+                state: visible
+                effect: show
+  pt_interventions:
+    type: entity_reference_autocomplete_tags
+    weight: 111
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: pt_referral
+              options:
+                condition: value
+                values_set: 1
+                values:
+                  blank: ''
+                value: '1'
+                grouping: AND
+                state: visible
+                effect: show
+  pt_name:
+    type: string_textfield
+    weight: 112
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          - condition:
+              dependee: pt_referral
+              options:
+                condition: value
+                values_set: 1
+                values:
+                  blank: ''
+                value: '1'
+                grouping: AND
+                state: visible
+                effect: show
+
+  # ---- Teaching & Referrals fields ----
+  teaching_topics:
+    type: entity_reference_autocomplete_tags
+    weight: 120
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  external_referral:
+    type: string_textarea
+    weight: 121
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {}
+  diagnostic_referral:
+    type: string_textfield
+    weight: 122
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+
+  # ---- Pharmacy fields ----
+  pharmacist_name:
+    type: string_textfield
+    weight: 130
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  notes_to_pharmacist:
+    type: text_textarea
+    weight: 131
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {}
+
+hidden: {}
+third_party_settings:
+  field_group:
+    group_triage:
+      children:
+        - vital_temperature
+        - vital_pulse
+        - vital_respiration
+        - vital_systolic
+        - vital_diastolic
+        - vital_height
+        - vital_weight
+        - vital_bmi
+        - complaint
+        - past_medical_history
+        - allergies
+        - current_medications
+        - pregnancy_history
+        - lmp
+        - breastfeeding
+      parent_name: ''
+      label: Triage
+      format_type: details
+      format_settings:
+        open: true
+        description: ''
+        required_fields: false
+        id: ''
+        classes: 'field-group-triage'
+      region: content
+      weight: 10
+    group_lab:
+      children:
+        - lab_results
+      parent_name: ''
+      label: 'Lab Orders & Results'
+      format_type: details
+      format_settings:
+        open: true
+        description: ''
+        required_fields: false
+        id: ''
+        classes: 'field-group-lab'
+      region: content
+      weight: 20
+    group_clinical:
+      children:
+        - clinician_name
+        - clinical_notes
+        - sys_cardiac
+        - sys_derm
+        - sys_endo
+        - sys_ent
+        - sys_eye
+        - sys_gi
+        - sys_gyn_ob
+        - sys_mental_health
+        - sys_musculoskeletal
+        - sys_neuro
+        - sys_respiratory
+        - sys_uro_genital
+        - sys_vascular
+        - sys_wound_ostomy
+        - dx_chronic_diseases
+        - dx_cardiac
+        - dx_derm
+        - dx_endo
+        - dx_ent
+        - dx_eye
+        - dx_gi
+        - dx_gyn_ob
+        - dx_mental_health
+        - dx_muscular_skeletal
+        - dx_neuro
+        - dx_opthalmic_otic
+        - dx_resp
+        - dx_uro_genital
+        - dx_vascular
+        - dx_wound_ostomy
+        - dx_pain
+        - dx_pt_treatment
+        - dx_vitamins
+        - dx_anti_infective
+        - dx_misc
+        - dx_write_in
+        - orders
+        - referrals
+        - pt_referral
+      parent_name: ''
+      label: 'Clinical Evaluation'
+      format_type: details
+      format_settings:
+        open: false
+        description: ''
+        required_fields: false
+        id: ''
+        classes: 'field-group-clinical'
+      region: content
+      weight: 30
+    group_pt:
+      children:
+        - pt_notes
+        - pt_interventions
+        - pt_name
+      parent_name: ''
+      label: 'Physical Therapy'
+      format_type: details
+      format_settings:
+        open: false
+        description: ''
+        required_fields: false
+        id: ''
+        classes: 'field-group-pt'
+      region: content
+      weight: 40
+    group_teaching:
+      children:
+        - teaching_topics
+        - external_referral
+        - diagnostic_referral
+      parent_name: ''
+      label: 'Teaching & Referrals'
+      format_type: details
+      format_settings:
+        open: false
+        description: ''
+        required_fields: false
+        id: ''
+        classes: 'field-group-teaching'
+      region: content
+      weight: 50
+    group_pharmacy:
+      children:
+        - pharmacist_name
+        - notes_to_pharmacist
+      parent_name: ''
+      label: Pharmacy
+      format_type: details
+      format_settings:
+        open: false
+        description: ''
+        required_fields: false
+        id: ''
+        classes: 'field-group-pharmacy'
+      region: content
+      weight: 60
+  conditional_fields:
+    pregnancy_history:
+      patient_type:
+        condition: value
+        values_set: 0
+        values:
+          blank: ''
+        value: adult
+        grouping: AND
+        state: visible
+        effect: show
+    lmp:
+      patient_type:
+        condition: value
+        values_set: 0
+        values:
+          blank: ''
+        value: adult
+        grouping: AND
+        state: visible
+        effect: show
+    breastfeeding:
+      patient_type:
+        condition: value
+        values_set: 0
+        values:
+          blank: ''
+        value: adult
+        grouping: AND
+        state: visible
+        effect: show
+    sys_gyn_ob:
+      patient_type:
+        condition: value
+        values_set: 0
+        values:
+          blank: ''
+        value: adult
+        grouping: AND
+        state: visible
+        effect: show
+    pt_notes:
+      pt_referral:
+        condition: value
+        values_set: 1
+        values:
+          blank: ''
+        value: '1'
+        grouping: AND
+        state: visible
+        effect: show
+    pt_interventions:
+      pt_referral:
+        condition: value
+        values_set: 1
+        values:
+          blank: ''
+        value: '1'
+        grouping: AND
+        state: visible
+        effect: show
+    pt_name:
+      pt_referral:
+        condition: value
+        values_set: 1
+        values:
+          blank: ''
+        value: '1'
+        grouping: AND
+        state: visible
+        effect: show

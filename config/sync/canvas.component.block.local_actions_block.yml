@@ -1,0 +1,47 @@
+uuid: 5769f5f4-61a1-45cb-9a01-74dceeedade6
+langcode: en
+status: false
+dependencies: {  }
+active_version: 474d93e6cd156fc9
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: local_actions_block
+        label: 'Primary admin actions'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+  6ccfaeba5f3f91e9:
+    settings:
+      default_settings:
+        id: local_actions_block
+        label: 'Acciones principales de administración'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+  474d93e6cd156fc9:
+    settings:
+      default_settings:
+        id: local_actions_block
+        label: 'Primary admin actions'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+  29753123eb31b8ab:
+    settings:
+      default_settings:
+        id: local_actions_block
+        label: 'Primary admin actions'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+label: 'Primary admin actions'
+id: block.local_actions_block
+provider: core
+source: block
+source_local_id: local_actions_block

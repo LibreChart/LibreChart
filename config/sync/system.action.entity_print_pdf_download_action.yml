@@ -1,0 +1,14 @@
+uuid: 54082243-61d5-4748-a0f2-31f8d64b36e3
+langcode: es
+status: true
+dependencies:
+  module:
+    - entity_print
+_core:
+  default_config_hash: '-1tKqx12tWtYmD0zG5XJIem7pCyfpZ3zyS9BNWbjlFk'
+id: entity_print_pdf_download_action
+label: 'Descargar PDF'
+type: node
+plugin: entity_print_download_action
+configuration:
+  export_type: pdf

@@ -1,0 +1,61 @@
+uuid: 479d9398-e8f0-4798-8087-56fc25f0f71d
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+active_version: 15138d91b6ae5339
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: system_branding_block
+        label: 'Site branding'
+        label_display: '0'
+        provider: system
+        use_site_logo: true
+        use_site_name: true
+        use_site_slogan: true
+    fallback_metadata:
+      slot_definitions: null
+  7eb368c19ceec43b:
+    settings:
+      default_settings:
+        id: system_branding_block
+        label: 'Marca del sitio'
+        label_display: '0'
+        provider: system
+        use_site_logo: true
+        use_site_name: true
+        use_site_slogan: true
+    fallback_metadata:
+      slot_definitions: null
+  15138d91b6ae5339:
+    settings:
+      default_settings:
+        id: system_branding_block
+        label: 'Site branding'
+        label_display: '0'
+        provider: system
+        use_site_logo: true
+        use_site_name: true
+        use_site_slogan: true
+    fallback_metadata:
+      slot_definitions: null
+  b168140fdcaebae5:
+    settings:
+      default_settings:
+        id: system_branding_block
+        label: 'Site branding'
+        label_display: '0'
+        provider: system
+        use_site_logo: true
+        use_site_name: true
+        use_site_slogan: true
+    fallback_metadata:
+      slot_definitions: null
+label: 'Site branding'
+id: block.system_branding_block
+provider: system
+source: block
+source_local_id: system_branding_block

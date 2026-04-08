@@ -1,0 +1,155 @@
+<?php
+
+/**
+ * @file
+ * Librechart Visit module hooks and functions.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Adds patient type change warning and data-dictation-enabled attributes.
+ */
+function librechart_visit_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (!in_array($form_id, ['visit_add_form', 'visit_edit_form'], TRUE)) {
+    return;
+  }
+
+  // Attach patient type change warning (US10).
+  $form['#attached']['library'][] = 'librechart_visit/patient_type_warning';
+}
+
+/**
+ * Implements hook_entity_field_access().
+ *
+ * Enforces per-station edit access on Visit base fields. All clinical roles
+ * can view all fields. Only the designated station role can edit its section.
+ * Administrators bypass all restrictions (handled by entity access handler).
+ *
+ * Station to role mapping:
+ *   Triage: triage_nurse
+ *   Lab Orders: triage_nurse, clinician (ordered); lab_technician (results)
+ *   Clinical Eval: clinician
+ *   Physical Therapy: physical_therapist
+ *   Teaching: teaching_coordinator
+ *   Pharmacy: pharmacist
+ *
+ * @param string $operation
+ *   The field operation (view, edit).
+ * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+ *   The field definition.
+ * @param \Drupal\Core\Session\AccountInterface $account
+ *   The current user account.
+ * @param \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\FieldItemInterface>|null $items
+ *   The field items, if available.
+ *
+ * @return \Drupal\Core\Access\AccessResult
+ *   The access result.
+ */
+function librechart_visit_entity_field_access(
+  string $operation,
+  FieldDefinitionInterface $field_definition,
+  AccountInterface $account,
+  ?FieldItemListInterface $items = NULL,
+): AccessResult {
+  // Only restrict edit operations on Visit entity fields.
+  if ($operation !== 'edit' || $field_definition->getTargetEntityTypeId() !== 'visit') {
+    return AccessResult::neutral();
+  }
+
+  // Administrators bypass all field-level restrictions.
+  if ($account->hasPermission('administer visit entities')) {
+    return AccessResult::neutral()->addCacheContexts(['user.permissions']);
+  }
+
+  $field_name = $field_definition->getName();
+  $roles = $account->getRoles();
+  $cache = ['user.roles'];
+
+  // Triage fields — editable only by triage_nurse.
+  $triage_fields = [
+    'vital_temperature', 'vital_pulse', 'vital_respiration',
+    'vital_systolic', 'vital_diastolic', 'vital_height', 'vital_weight',
+    'vital_bmi', 'complaint', 'past_medical_history', 'allergies',
+    'current_medications', 'pregnancy_history', 'lmp', 'breastfeeding',
+  ];
+  if (in_array($field_name, $triage_fields, TRUE)) {
+    if (in_array('triage_nurse', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only triage nurses may edit triage fields.')
+      ->addCacheContexts($cache);
+  }
+
+  // Lab results field — triage_nurse and clinician order; lab_technician enters
+  // results. The paragraph widget controls sub-field access within the paragraph.
+  if ($field_name === 'lab_results') {
+    foreach (['triage_nurse', 'clinician', 'lab_technician'] as $role) {
+      if (in_array($role, $roles, TRUE)) {
+        return AccessResult::neutral()->addCacheContexts($cache);
+      }
+    }
+    return AccessResult::forbidden('Only lab roles may edit lab results.')
+      ->addCacheContexts($cache);
+  }
+
+  // Clinical Evaluation fields — editable only by clinician.
+  $clinical_fields = [
+    'clinician_name', 'clinical_notes', 'dx_write_in', 'orders', 'referrals',
+    'pt_referral', 'sys_cardiac', 'sys_derm', 'sys_endo', 'sys_ent',
+    'sys_eye', 'sys_gi', 'sys_gyn_ob', 'sys_mental_health',
+    'sys_musculoskeletal', 'sys_neuro', 'sys_respiratory', 'sys_uro_genital',
+    'sys_vascular', 'sys_wound_ostomy', 'dx_chronic_diseases', 'dx_cardiac',
+    'dx_derm', 'dx_endo', 'dx_ent', 'dx_eye', 'dx_gi', 'dx_gyn_ob',
+    'dx_mental_health', 'dx_muscular_skeletal', 'dx_neuro', 'dx_opthalmic_otic',
+    'dx_resp', 'dx_uro_genital', 'dx_vascular', 'dx_wound_ostomy', 'dx_pain',
+    'dx_pt_treatment', 'dx_vitamins', 'dx_anti_infective', 'dx_misc',
+  ];
+  if (in_array($field_name, $clinical_fields, TRUE)) {
+    if (in_array('clinician', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only clinicians may edit clinical evaluation fields.')
+      ->addCacheContexts($cache);
+  }
+
+  // Physical Therapy fields — editable only by physical_therapist.
+  $pt_fields = ['pt_notes', 'pt_interventions', 'pt_name'];
+  if (in_array($field_name, $pt_fields, TRUE)) {
+    if (in_array('physical_therapist', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only physical therapists may edit PT fields.')
+      ->addCacheContexts($cache);
+  }
+
+  // Teaching & Referrals fields — editable only by teaching_coordinator.
+  $teaching_fields = ['teaching_topics', 'external_referral', 'diagnostic_referral'];
+  if (in_array($field_name, $teaching_fields, TRUE)) {
+    if (in_array('teaching_coordinator', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only teaching coordinators may edit teaching fields.')
+      ->addCacheContexts($cache);
+  }
+
+  // Pharmacy fields — editable only by pharmacist.
+  $pharmacy_fields = ['pharmacist_name', 'notes_to_pharmacist'];
+  if (in_array($field_name, $pharmacy_fields, TRUE)) {
+    if (in_array('pharmacist', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only pharmacists may edit pharmacy fields.')
+      ->addCacheContexts($cache);
+  }
+
+  return AccessResult::neutral();
+}

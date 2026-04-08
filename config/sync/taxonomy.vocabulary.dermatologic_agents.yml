@@ -1,0 +1,9 @@
+uuid: 711fd450-fd5e-4139-ac27-8294bdebe788
+langcode: es
+status: true
+dependencies: {  }
+name: 'Dermatologic Agents'
+vid: dermatologic_agents
+description: null
+weight: 0
+new_revision: false

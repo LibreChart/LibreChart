@@ -1,0 +1,21 @@
+uuid: fd90ab39-00de-40d6-a087-ff881d754726
+langcode: es
+status: true
+dependencies:
+  module:
+    - entity_reference_revisions
+    - librechart_visit
+    - paragraphs
+id: visit.lab_results
+field_name: lab_results
+entity_type: visit
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,7 @@
+whisper_server_url: 'http://127.0.0.1:8080'
+language: es
+max_audio_duration: 300
+enabled_roles:
+  clinician: clinician
+  triage_nurse: triage_nurse
+  physical_therapist: physical_therapist

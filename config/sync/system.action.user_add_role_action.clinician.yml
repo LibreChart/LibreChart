@@ -1,0 +1,14 @@
+uuid: 2d3f2874-5312-4235-9abe-f32c76c0cc4d
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.clinician
+  module:
+    - user
+id: user_add_role_action.clinician
+label: 'Añade el rol Clinician al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: clinician

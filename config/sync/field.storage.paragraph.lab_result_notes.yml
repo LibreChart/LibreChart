@@ -1,0 +1,19 @@
+uuid: 8c54db6a-813f-4412-bb58-56c216705781
+langcode: es
+status: true
+dependencies:
+  module:
+    - paragraphs
+    - text
+id: paragraph.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

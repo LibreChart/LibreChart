@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Librechart">
+  <description>Drupal coding standards for the Librechart EMR project.</description>
+
+  <!-- Check only custom modules and themes. -->
+  <file>web/modules/custom</file>
+  <file>web/themes/custom</file>
+
+  <!-- Use Drupal coding standards. -->
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+
+  <!-- Line length: 120 characters for code, 80 for comments (Drupal standard). -->
+  <rule ref="Drupal.Files.LineLength">
+    <properties>
+      <property name="lineLimit" value="120"/>
+      <property name="absoluteLineLimit" value="0"/>
+    </properties>
+  </rule>
+
+  <!-- Exclude generated files, contrib, and JavaScript files (JS has its own linting). -->
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>web/modules/contrib/*</exclude-pattern>
+  <exclude-pattern>web/themes/contrib/*</exclude-pattern>
+  <exclude-pattern>web/core/*</exclude-pattern>
+  <exclude-pattern>*.js</exclude-pattern>
+
+  <!-- PHP version. -->
+  <config name="php_version" value="80300"/>
+</ruleset>

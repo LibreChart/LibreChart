@@ -1,0 +1,93 @@
+label: 'Scheduled Media'
+description: 'Find and manage scheduled media.'
+display:
+  default:
+    display_title: Master
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Filter
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Items per page'
+            items_per_page_options_all_label: '- All -'
+            offset_label: Offset
+          tags:
+            previous: '‹ previous'
+            next: 'next ›'
+            first: '« first'
+            last: 'last »'
+      fields:
+        media_bulk_form:
+          label: 'Bulk update'
+          action_title: Action
+        name:
+          label: 'Media Name'
+          separator: ', '
+        bundle:
+          label: 'Media type'
+          separator: ', '
+        uid:
+          label: Author
+          separator: ', '
+        status:
+          label: Status
+          settings:
+            format_custom_true: Published
+            format_custom_false: Unpublished
+          separator: ', '
+        publish_on:
+          label: 'Publish on'
+          separator: ', '
+        unpublish_on:
+          label: 'Unpublish on'
+          separator: ', '
+        operations:
+          label: Operations
+      filters:
+        name:
+          expose:
+            label: 'Media name'
+        bundle:
+          expose:
+            label: Type
+        status:
+          expose:
+            label: Status
+          group_info:
+            label: 'Published status'
+            group_items:
+              1:
+                title: Published
+              2:
+                title: Unpublished
+        langcode:
+          expose:
+            label: Language
+      title: 'Scheduled Media'
+      empty:
+        area_text_custom:
+          content: 'No scheduled media.'
+  overview:
+    display_title: 'Media Overview'
+    display_options:
+      display_description: 'Overview of all scheduled media, via main admin content page'
+      menu:
+        title: 'Scheduled Media'
+        description: 'Media items that are scheduled for publishing or unpublishing'
+  user_page:
+    display_title: User
+    display_options:
+      display_description: "Scheduled media on user profile, showing just that user's scheduled media"
+      menu:
+        title: 'Scheduled Media'
+        description: 'Scheduled Media by this user'
+      empty:
+        area_text_custom:
+          content: 'No scheduled media for user {{ arguments.uid }}'
+      display_comment: 'Access to the user view is controlled via SchedulerRouteSubscriber::alterRoutes(). The high-level permission "view media" is added to satisfy the security_review module'

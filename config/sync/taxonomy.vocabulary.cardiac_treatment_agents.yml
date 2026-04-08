@@ -1,0 +1,9 @@
+uuid: bb0377fe-0b57-4fcf-9295-41622ac1a3c4
+langcode: es
+status: true
+dependencies: {  }
+name: 'Cardiac Treatment Agents'
+vid: cardiac_treatment_agents
+description: null
+weight: 0
+new_revision: false

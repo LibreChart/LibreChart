@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Librechart Dictation module — attaches whisper.cpp speech-to-text to forms.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Attaches the dictation library for users with the 'use dictation' permission.
+ */
+function librechart_dictation_page_attachments(array &$attachments): void {
+  if (!\Drupal::currentUser()->hasPermission('use dictation')) {
+    return;
+  }
+
+  $attachments['#attached']['library'][] = 'librechart_dictation/dictation';
+
+  $config = \Drupal::config('librechart_dictation.settings');
+  $attachments['#attached']['drupalSettings']['librechartDictation'] = [
+    'transcribeUrl' => '/api/dictation/transcribe',
+    'language' => $config->get('language') ?? 'es',
+    'maxAudioDuration' => $config->get('max_audio_duration') ?? 300,
+  ];
+}
+
+/**
+ * Implements hook_preprocess_field().
+ *
+ * Adds data-dictation-enabled attribute to designated text_long fields.
+ */
+function librechart_dictation_preprocess_field(array &$variables): void {
+  if (!\Drupal::currentUser()->hasPermission('use dictation')) {
+    return;
+  }
+
+  $dictation_fields = [
+    'complaint',
+    'past_medical_history',
+    'clinical_notes',
+    'pt_notes',
+  ];
+
+  if (!in_array($variables['field_name'], $dictation_fields, TRUE)) {
+    return;
+  }
+
+  foreach (Element::children($variables['items']) as $delta) {
+    $variables['items'][$delta]['content']['#attributes']['data-dictation-enabled'] = TRUE;
+  }
+}

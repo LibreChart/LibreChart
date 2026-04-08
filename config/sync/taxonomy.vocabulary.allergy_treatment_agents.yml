@@ -1,0 +1,9 @@
+uuid: 458d4164-591f-4803-b696-9c24b0063fb4
+langcode: es
+status: true
+dependencies: {  }
+name: 'Allergy Treatment Agents'
+vid: allergy_treatment_agents
+description: null
+weight: 0
+new_revision: false

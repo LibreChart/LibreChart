@@ -1,0 +1,281 @@
+uuid: 92b7d7bc-1841-43d4-8627-619a1a5d4151
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_pharmacy
+    - user
+id: visit_prescriptions
+label: 'Visit Prescriptions'
+module: views
+description: 'Lists prescription items for a given visit, grouped by drug category.'
+tag: ''
+base_table: prescription_item
+base_field: id
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: Prescriptions
+      fields:
+        drug_category:
+          id: drug_category
+          table: prescription_item
+          field: drug_category
+          relationship: none
+          plugin_id: field
+          label: Category
+        drug:
+          id: drug
+          table: prescription_item
+          field: drug
+          relationship: none
+          plugin_id: field
+          label: Drug
+          type: entity_reference_label
+          settings:
+            link: true
+        dosage:
+          id: dosage
+          table: prescription_item
+          field: dosage
+          relationship: none
+          plugin_id: field
+          label: Dosage
+        quantity_dispensed:
+          id: quantity_dispensed
+          table: prescription_item
+          field: quantity_dispensed
+          relationship: none
+          plugin_id: field
+          label: Quantity
+        prescription_filled:
+          id: prescription_filled
+          table: prescription_item
+          field: prescription_filled
+          relationship: none
+          plugin_id: field
+          label: Filled
+          type: boolean
+          settings:
+            format: yes-no
+            format_custom_false: ''
+            format_custom_true: ''
+        dispensed_by:
+          id: dispensed_by
+          table: prescription_item
+          field: dispensed_by
+          relationship: none
+          plugin_id: field
+          label: 'Dispensed By'
+        edit_prescription_item:
+          id: edit_prescription_item
+          table: prescription_item
+          field: edit_prescription_item
+          relationship: none
+          plugin_id: entity_link_edit
+          label: Edit
+        delete_prescription_item:
+          id: delete_prescription_item
+          table: prescription_item
+          field: delete_prescription_item
+          relationship: none
+          plugin_id: entity_link_delete
+          label: Delete
+      pager:
+        type: none
+        options: {  }
+      access:
+        type: perm
+        options:
+          perm: 'view prescription_item entities'
+      cache:
+        type: tag
+        options: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No prescriptions recorded for this visit.'
+          tokenize: false
+      sorts:
+        drug_category:
+          id: drug_category
+          table: prescription_item
+          field: drug_category
+          relationship: none
+          plugin_id: standard
+          order: ASC
+        drug:
+          id: drug
+          table: prescription_item
+          field: drug
+          relationship: none
+          plugin_id: standard
+          order: ASC
+      filters:
+        visit:
+          id: visit
+          table: prescription_item
+          field: visit
+          relationship: none
+          plugin_id: numeric
+          value:
+            min: ''
+            max: ''
+            value: ''
+          exposed: false
+          is_grouped: false
+      style:
+        type: table
+        options:
+          grouping:
+            -
+              field: drug_category
+              rendered: true
+              rendered_strip: false
+          row_class: ''
+          default_row_class: true
+          columns:
+            drug_category: drug_category
+            drug: drug
+            dosage: dosage
+            quantity_dispensed: quantity_dispensed
+            prescription_filled: prescription_filled
+            dispensed_by: dispensed_by
+            edit_prescription_item: edit_prescription_item
+            delete_prescription_item: delete_prescription_item
+          info:
+            drug_category:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            drug:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            dosage:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            quantity_dispensed:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            prescription_filled:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            dispensed_by:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            edit_prescription_item:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            delete_prescription_item:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: false
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
+      use_more: false
+      use_more_always: false
+      use_more_text: more
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  page_visit_prescriptions:
+    id: page_visit_prescriptions
+    display_title: 'Visit Prescriptions Page'
+    display_plugin: page
+    position: 1
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view prescription_item entities'
+      path: visit/%visit/prescriptions
+      menu:
+        type: none
+      contextual_filters:
+        visit:
+          id: visit
+          table: prescription_item
+          field: visit
+          relationship: none
+          plugin_id: numeric
+          default_action: empty
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: false
+          title: ''
+          limit: false
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: true
+          validate:
+            type: numeric
+            fail: empty
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }

@@ -1,0 +1,14 @@
+uuid: 677bf576-d5e1-46f2-baf2-171a0bef93ee
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.triage_nurse
+  module:
+    - user
+id: user_add_role_action.triage_nurse
+label: 'Añade el rol Triage Nurse al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: triage_nurse

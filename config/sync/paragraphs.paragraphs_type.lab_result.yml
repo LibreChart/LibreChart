@@ -1,0 +1,10 @@
+uuid: bd9974a9-c739-497f-8e8d-32ba8c908948
+langcode: es
+status: true
+dependencies: {  }
+id: lab_result
+label: 'Lab Result'
+icon_uuid: null
+icon_default: null
+description: 'A lab test order and result entry.'
+behavior_plugins: {  }

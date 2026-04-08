@@ -1,0 +1,9 @@
+uuid: 75364bba-ded8-4dbe-8c54-c066cd858ad1
+langcode: es
+status: true
+dependencies: {  }
+name: 'Ophthalmic / Otic'
+vid: opthalmic_otic
+description: null
+weight: 0
+new_revision: false

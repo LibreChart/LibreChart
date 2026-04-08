@@ -1,0 +1,16 @@
+uuid: 63da7bb9-9b48-4918-8349-16727664bd96
+langcode: es
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_visit
+id: lab_technician
+label: 'Lab Technician'
+weight: 6
+is_admin: false
+permissions:
+  - 'edit any visit entities'
+  - 'view patient entities'
+  - 'view prescription_item entities'
+  - 'view visit entities'

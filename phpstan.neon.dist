@@ -1,0 +1,25 @@
+parameters:
+  level: 6
+  paths:
+    - web/modules/custom
+    - web/themes/custom
+  excludePaths:
+    - web/modules/custom/*/vendor/*
+  phpVersion: 80300
+  treatPhpDocTypesAsCertain: false
+  ignoreErrors:
+    # Drupal hook parameters are untyped arrays by convention.
+    - '#has parameter \$attachments with no value type specified in iterable type array#'
+    - '#has parameter \$variables with no value type specified in iterable type array#'
+    - '#has parameter \$form with no value type specified in iterable type array#'
+    - '#has parameter \$context with no value type specified in iterable type array#'
+    - '#return type has no value type specified in iterable type array#'
+    # new static() is standard Drupal dependency injection pattern in ControllerBase.
+    - '#Unsafe usage of new static\(\)#'
+    # MigrateSource attribute $source_module is a valid optional parameter not typed in older stubs.
+    - message: '#Unknown parameter \$source_module#'
+      path: web/modules/custom/librechart_migrate/src/Plugin/migrate/source/LegacyTaxonomySource.php
+
+# Extensions auto-loaded by phpstan/extension-installer.
+# Do not add vendor/mglaman/phpstan-drupal/extension.neon here — it is already
+# loaded automatically via extension-installer to avoid duplicate inclusion errors.

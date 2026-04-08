@@ -1,0 +1,18 @@
+uuid: dd65d988-cede-4f14-96dd-d3a51cf4c19c
+langcode: es
+status: true
+dependencies:
+  module:
+    - librechart_dictation
+    - librechart_patient
+    - librechart_visit
+id: triage_nurse
+label: 'Triage Nurse'
+weight: 5
+is_admin: false
+permissions:
+  - 'edit any visit entities'
+  - 'use dictation'
+  - 'view patient entities'
+  - 'view prescription_item entities'
+  - 'view visit entities'

@@ -1,0 +1,14 @@
+uuid: 74042c4b-6342-49af-8478-9d1be5aec1ba
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.physical_therapist
+  module:
+    - user
+id: user_add_role_action.physical_therapist
+label: 'Añade el rol Physical Therapist al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: physical_therapist

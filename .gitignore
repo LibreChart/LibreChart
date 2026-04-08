@@ -1,0 +1,30 @@
+# Drupal project root ignores
+
+# Dependencies managed by Composer.
+/recipes
+/vendor
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# PHP & IDE
+*.log
+*.cache
+*.swp
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.*

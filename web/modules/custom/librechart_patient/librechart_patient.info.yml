@@ -1,0 +1,8 @@
+name: Librechart Patient
+type: module
+description: 'Patient entity with revision history for the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - drupal:taxonomy
+  - drupal:user

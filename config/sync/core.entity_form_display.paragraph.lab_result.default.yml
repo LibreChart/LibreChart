@@ -1,0 +1,101 @@
+uuid: 91f6b2cc-0728-446d-8711-30ddaa9fa9f2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_result.lab_ordered
+    - field.field.paragraph.lab_result.lab_result_notes
+    - field.field.paragraph.lab_result.lab_result_value
+    - field.field.paragraph.lab_result.lab_test
+    - paragraphs.paragraphs_type.lab_result
+  module:
+    - conditional_fields
+third_party_settings:
+  conditional_fields:
+    lab_result_value:
+      lab_ordered:
+        condition: value
+        values_set: 1
+        values:
+          blank: ''
+        value: '1'
+        grouping: AND
+        state: visible
+        effect: show
+    lab_result_notes:
+      lab_ordered:
+        condition: value
+        values_set: 1
+        values:
+          blank: ''
+        value: '1'
+        grouping: AND
+        state: visible
+        effect: show
+id: paragraph.lab_result.default
+targetEntityType: paragraph
+bundle: lab_result
+mode: default
+content:
+  lab_ordered:
+    type: boolean_checkbox
+    weight: 2
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  lab_result_notes:
+    type: text_textarea
+    weight: 4
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          -
+            condition:
+              dependee: lab_ordered
+              options:
+                condition: value
+                values_set: 1
+                values:
+                  blank: ''
+                value: '1'
+                grouping: AND
+                state: visible
+                effect: show
+  lab_result_value:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        conditional_fields_enabled: 1
+        conditional_fields_conditions:
+          -
+            condition:
+              dependee: lab_ordered
+              options:
+                condition: value
+                values_set: 1
+                values:
+                  blank: ''
+                value: '1'
+                grouping: AND
+                state: visible
+                effect: show
+  lab_test:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

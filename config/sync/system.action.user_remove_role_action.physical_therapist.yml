@@ -1,0 +1,14 @@
+uuid: c0752f60-8e82-467a-8ea1-98e27d922145
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.physical_therapist
+  module:
+    - user
+id: user_remove_role_action.physical_therapist
+label: 'Elimina el rol Physical Therapist al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: physical_therapist

@@ -1,0 +1,9 @@
+uuid: bd6c5cc8-987a-4342-a360-9eb425d8f8a4
+langcode: es
+status: true
+dependencies: {  }
+name: 'Village / Town'
+vid: village_town
+description: null
+weight: 0
+new_revision: false

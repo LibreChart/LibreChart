@@ -1,0 +1,9 @@
+uuid: 4f13da6a-fd04-4050-88fc-2897c9012dfd
+langcode: es
+status: true
+dependencies: {  }
+name: User
+configEntityTypeId: component
+weight: 0
+items:
+  - block.autologout_warning_block

@@ -1,0 +1,9 @@
+uuid: a578ba0b-683c-412c-a7bf-9d883d337e35
+langcode: es
+status: true
+dependencies: {  }
+name: 'Gastrointestinal Treatment Agents'
+vid: gastrointestinal_treatment_agent
+description: null
+weight: 0
+new_revision: false

@@ -1,0 +1,9 @@
+name: Librechart Reports
+type: module
+description: 'Demographic, diagnosis, and patient history reporting for the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - librechart_visit:librechart_visit
+  - librechart_pharmacy:librechart_pharmacy
+  - drupal:views

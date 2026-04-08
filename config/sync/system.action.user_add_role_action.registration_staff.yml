@@ -1,0 +1,14 @@
+uuid: e5c6df9f-a2a8-467b-8b46-41de4959b24c
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.registration_staff
+  module:
+    - user
+id: user_add_role_action.registration_staff
+label: 'Añade el rol Registration Staff al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: registration_staff

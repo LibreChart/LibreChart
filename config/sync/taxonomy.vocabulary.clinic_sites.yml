@@ -1,0 +1,9 @@
+uuid: c8ee9b86-ec85-43a9-b4fa-aa386a180620
+langcode: es
+status: true
+dependencies: {  }
+name: 'Clinic Sites'
+vid: clinic_sites
+description: null
+weight: 0
+new_revision: false

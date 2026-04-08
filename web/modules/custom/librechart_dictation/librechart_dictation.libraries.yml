@@ -1,0 +1,9 @@
+dictation:
+  version: VERSION
+  js:
+    js/dictation.js:
+      attributes:
+        defer: true
+  dependencies:
+    - core/drupal
+    - core/drupalSettings

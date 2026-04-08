@@ -1,0 +1,8 @@
+name: Librechart Pharmacy
+type: module
+description: 'Prescription, inventory, and dispensing management for the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - librechart_visit:librechart_visit
+  - drupal:taxonomy

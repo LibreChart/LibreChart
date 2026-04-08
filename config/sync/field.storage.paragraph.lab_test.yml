@@ -1,0 +1,48 @@
+uuid: 6e3ebdff-605d-487d-984f-3a071ab3bbcd
+langcode: es
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.lab_test
+field_name: lab_test
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: glucose
+      label: Glucose
+    -
+      value: hgba1c
+      label: HgbA1c
+    -
+      value: hgb
+      label: Hemoglobin
+    -
+      value: leukocytes
+      label: Leukocytes
+    -
+      value: ketone
+      label: Ketone
+    -
+      value: blood
+      label: Blood
+    -
+      value: protein
+      label: Protein
+    -
+      value: urinalysis
+      label: Urinalysis
+    -
+      value: pregnancy_test
+      label: 'Pregnancy Test'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

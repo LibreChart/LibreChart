@@ -1,0 +1,30 @@
+uuid: 7da7764f-efc7-4b80-9dd4-f51f22198cb6
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.visit.lab_results
+    - paragraphs.paragraphs_type.lab_result
+  module:
+    - entity_reference_revisions
+    - librechart_visit
+id: visit.visit.lab_results
+field_name: lab_results
+entity_type: visit
+bundle: visit
+label: 'Lab Orders & Results'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      lab_result: lab_result
+    target_bundles_drag_drop:
+      lab_result:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

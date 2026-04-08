@@ -1,0 +1,14 @@
+uuid: 23db7947-f586-4b39-a3ec-1f16dcb59870
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.teaching_coordinator
+  module:
+    - user
+id: user_add_role_action.teaching_coordinator
+label: 'Añade el rol Teaching Coordinator al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: teaching_coordinator

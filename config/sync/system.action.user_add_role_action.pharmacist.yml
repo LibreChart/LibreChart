@@ -1,0 +1,14 @@
+uuid: 6ee73ba3-fb2a-4721-8f68-fe311df6845a
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.pharmacist
+  module:
+    - user
+id: user_add_role_action.pharmacist
+label: 'Añade el rol Pharmacist al(los) usuario(s) seleccionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: pharmacist

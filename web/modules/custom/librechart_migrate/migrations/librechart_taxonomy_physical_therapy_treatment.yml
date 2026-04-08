@@ -1,0 +1,19 @@
+id: librechart_taxonomy_physical_therapy_treatment
+label: 'Import physical_therapy_treatment taxonomy'
+migration_group: librechart_taxonomy
+source:
+  plugin: librechart_legacy_taxonomy
+  source_table: list_options
+  id_field: option_id
+  label_field: title
+  filter_field: list_id
+  filter_value: PHYSICAL_THERAPY_TREATMENT
+  key: migrate
+process:
+  name: title
+  vid:
+    plugin: default_value
+    default_value: physical_therapy_treatment
+destination:
+  plugin: entity:taxonomy_term
+migration_dependencies: {}

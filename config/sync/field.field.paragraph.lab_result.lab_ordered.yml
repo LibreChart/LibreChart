@@ -1,0 +1,21 @@
+uuid: 33d40da6-2bee-4135-b506-42725026940d
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_result
+id: paragraph.lab_result.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_result
+label: Ordered
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Activado
+  off_label: Desactivado
+field_type: boolean

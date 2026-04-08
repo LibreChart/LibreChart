@@ -1,0 +1,31 @@
+uuid: 264f6b81-a27a-42c9-9af8-d5026e70e347
+langcode: en
+status: false
+dependencies:
+  module:
+    - dashboard
+active_version: 04f0698e45d876f4
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: dashboard_site_status
+        label: 'Site Status'
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  0b51e33f5f49694c:
+    settings:
+      default_settings:
+        id: dashboard_site_status
+        label: 'Site Status'
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+label: 'Site Status'
+id: block.dashboard_site_status
+provider: dashboard
+source: block
+source_local_id: dashboard_site_status

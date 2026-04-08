@@ -1,0 +1,31 @@
+uuid: 3b6e5c68-a6e0-44ef-88c0-f229e58a8b15
+langcode: en
+status: false
+dependencies:
+  module:
+    - announcements_feed
+active_version: 370a9ae608f6c7e1
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: announce_block
+        label: 'Announcements Feed'
+        label_display: '0'
+        provider: announcements_feed
+    fallback_metadata:
+      slot_definitions: null
+  d2ee7918676f072c:
+    settings:
+      default_settings:
+        id: announce_block
+        label: 'Announcements Feed'
+        label_display: '0'
+        provider: announcements_feed
+    fallback_metadata:
+      slot_definitions: null
+label: 'Announcements Feed'
+id: block.announce_block
+provider: announcements_feed
+source: block
+source_local_id: announce_block

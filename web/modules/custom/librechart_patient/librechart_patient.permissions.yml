@@ -1,0 +1,25 @@
+administer patient entities:
+  title: 'Administer patient entities'
+  description: 'Create, edit, delete, and view all patient records.'
+  restrict access: true
+
+create patient entities:
+  title: 'Create patient records'
+  description: 'Create new patient records.'
+
+edit any patient entities:
+  title: 'Edit any patient record'
+  description: 'Edit any patient record regardless of author.'
+
+delete any patient entities:
+  title: 'Delete any patient record'
+  description: 'Delete any patient record.'
+  restrict access: true
+
+view patient entities:
+  title: 'View patient records'
+  description: 'View patient records and demographic information.'
+
+view patient entity revisions:
+  title: 'View patient record revisions'
+  description: 'View the revision history of patient records.'

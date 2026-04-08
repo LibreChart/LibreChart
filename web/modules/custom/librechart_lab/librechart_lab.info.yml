@@ -1,0 +1,9 @@
+name: Librechart Lab
+type: module
+description: 'LabResult paragraph type for lab orders and results in the Librechart EMR system.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - librechart_visit:librechart_visit
+  - drupal:paragraphs
+  - drupal:entity_reference_revisions

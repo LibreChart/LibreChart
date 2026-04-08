@@ -1,0 +1,5 @@
+services:
+  librechart_patient.duplicate_checker:
+    class: Drupal\librechart_patient\Service\PatientDuplicateChecker
+    arguments:
+      - '@entity_type.manager'

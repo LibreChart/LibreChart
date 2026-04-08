@@ -1,0 +1,289 @@
+uuid: 7d0fe1c6-4a9f-440a-9318-bb043c0a8e4c
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - user
+id: demographics_report
+label: 'Demographics Report'
+module: views
+description: 'Patient demographic breakdown by age group, sex, and municipality.'
+tag: report
+base_table: patient
+base_field: pid
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Demographics Report'
+      fields:
+        first_name:
+          id: first_name
+          table: patient
+          field: first_name
+          relationship: none
+          plugin_id: field
+          label: 'First Name'
+        last_name:
+          id: last_name
+          table: patient
+          field: last_name
+          relationship: none
+          plugin_id: field
+          label: 'Last Name'
+        sex:
+          id: sex
+          table: patient
+          field: sex
+          relationship: none
+          plugin_id: field
+          label: Sex
+        date_of_birth:
+          id: date_of_birth
+          table: patient
+          field: date_of_birth
+          relationship: none
+          plugin_id: field
+          label: 'Date of Birth'
+        municipality:
+          id: municipality
+          table: patient
+          field: municipality
+          relationship: none
+          plugin_id: field
+          label: Municipality
+          type: entity_reference_label
+          settings:
+            link: false
+        cedula:
+          id: cedula
+          table: patient
+          field: cedula
+          relationship: none
+          plugin_id: field
+          label: Cedula
+      pager:
+        type: full
+        options:
+          items_per_page: 50
+      access:
+        type: perm
+        options:
+          perm: 'view patient entities'
+      cache:
+        type: tag
+        options: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No patient records found.'
+          tokenize: false
+      sorts:
+        last_name:
+          id: last_name
+          table: patient
+          field: last_name
+          relationship: none
+          plugin_id: standard
+          order: ASC
+        first_name:
+          id: first_name
+          table: patient
+          field: first_name
+          relationship: none
+          plugin_id: standard
+          order: ASC
+      filters:
+        sex:
+          id: sex
+          table: patient
+          field: sex
+          relationship: none
+          plugin_id: string
+          exposed: true
+          expose:
+            operator_id: sex_op
+            label: Sex
+            description: ''
+            use_operator: false
+            operator: sex_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: sex
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+          is_grouped: false
+        municipality:
+          id: municipality
+          table: patient
+          field: municipality
+          relationship: none
+          plugin_id: numeric
+          exposed: true
+          expose:
+            operator_id: municipality_op
+            label: Municipality
+            description: ''
+            use_operator: false
+            operator: municipality_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: municipality
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+          is_grouped: false
+      style:
+        type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          columns:
+            first_name: first_name
+            last_name: last_name
+            sex: sex
+            date_of_birth: date_of_birth
+            municipality: municipality
+            cedula: cedula
+          info:
+            first_name:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            last_name:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            sex:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            date_of_birth:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            municipality:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            cedula:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: false
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
+      use_more: false
+      use_more_always: false
+      use_more_text: more
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  data_export_demographics:
+    id: data_export_demographics
+    display_title: 'CSV Export'
+    display_plugin: data_export
+    position: 2
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view patient entities'
+      style:
+        type: data_export
+        options:
+          formats:
+            - csv
+          csv_settings:
+            delimiter: ','
+            enclosure: '"'
+            escape_char: \
+            strip_tags: true
+            trim: true
+            encoding: UTF-8
+            utf8_bom: ''
+            use_serializer_encode_only: false
+            output_header: true
+      path: reports/demographics/export.csv
+      filename: demographics-report.csv
+      automatic_download: false
+      export_method: default
+      export_batch_size: 0
+      export_limit: 0
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }
+  page_demographics_report:
+    id: page_demographics_report
+    display_title: 'Demographics Report Page'
+    display_plugin: page
+    position: 1
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'view patient entities'
+      path: reports/demographics
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - user.permissions
+      tags: {  }

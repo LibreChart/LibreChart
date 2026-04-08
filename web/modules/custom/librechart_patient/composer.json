@@ -1,0 +1,9 @@
+{
+  "name": "drupal/librechart_patient",
+  "type": "drupal-module",
+  "description": "Patient entity with revision history for the Librechart EMR system.",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=8.3"
+  }
+}

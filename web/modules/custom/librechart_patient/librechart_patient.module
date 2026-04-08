@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Librechart Patient module hooks and functions.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\librechart_patient\Service\PatientDuplicateChecker;
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Adds a duplicate patient warning on the patient add form.
+ */
+function librechart_patient_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if ($form_id !== 'patient_add_form') {
+    return;
+  }
+
+  $form['#validate'][] = 'librechart_patient_form_patient_validate_duplicates';
+}
+
+/**
+ * Form validation handler — checks for potential duplicate patients.
+ */
+function librechart_patient_form_patient_validate_duplicates(array &$form, FormStateInterface $form_state): void {
+  $last_name = $form_state->getValue(['last_name', 0, 'value']);
+  $dob = $form_state->getValue(['date_of_birth', 0, 'value']);
+
+  if (empty($last_name) || empty($dob)) {
+    return;
+  }
+
+  /** @var \Drupal\librechart_patient\Service\PatientDuplicateChecker $checker */
+  $checker = \Drupal::service('librechart_patient.duplicate_checker');
+  $matches = $checker->findPotentialDuplicates($last_name, $dob);
+
+  if (!empty($matches)) {
+    $items = [];
+    foreach ($matches as $patient) {
+      $items[] = $patient->getLastName() . ', ' . $patient->getFirstName()
+        . ' — ' . $patient->getCedula()
+        . ' — ' . $patient->getDateOfBirth();
+    }
+    $list = implode('; ', $items);
+    \Drupal::messenger()->addWarning(t(
+      'Potential duplicate patients found: @list. Please verify before saving.',
+      ['@list' => $list]
+    ));
+  }
+}

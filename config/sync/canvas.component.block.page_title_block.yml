@@ -1,0 +1,47 @@
+uuid: 41f4783f-255c-4fa6-a892-c6dd7f9e5a78
+langcode: en
+status: false
+dependencies: {  }
+active_version: e6ca3d14a999d680
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: page_title_block
+        label: 'Page title'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+  11237776580983ae:
+    settings:
+      default_settings:
+        id: page_title_block
+        label: 'Título de la página'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+  e6ca3d14a999d680:
+    settings:
+      default_settings:
+        id: page_title_block
+        label: 'Page title'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+  90ce139b2d3e2601:
+    settings:
+      default_settings:
+        id: page_title_block
+        label: 'Page title'
+        label_display: '0'
+        provider: core
+    fallback_metadata:
+      slot_definitions: null
+label: 'Page title'
+id: block.page_title_block
+provider: core
+source: block
+source_local_id: page_title_block

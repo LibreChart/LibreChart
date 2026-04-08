@@ -1,0 +1,2 @@
+message: 'We are about to log you out for inactivity. If we do, you will lose any unsaved work. Do you need more time?'
+inactivity_message: 'You have been logged out due to inactivity.'

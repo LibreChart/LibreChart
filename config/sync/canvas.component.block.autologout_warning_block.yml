@@ -1,0 +1,22 @@
+uuid: 708f1666-d807-47ad-93fa-414b268424f9
+langcode: es
+status: true
+dependencies:
+  module:
+    - autologout
+active_version: 5a3526597258c522
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: autologout_warning_block
+        label: 'Automated logout info'
+        label_display: '0'
+        provider: autologout
+    fallback_metadata:
+      slot_definitions: null
+label: 'Automated logout info'
+id: block.autologout_warning_block
+provider: autologout
+source: block
+source_local_id: autologout_warning_block

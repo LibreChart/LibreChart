@@ -1,0 +1,3 @@
+use dictation:
+  title: 'Use speech-to-text dictation'
+  description: 'Allows users to dictate text using the whisper.cpp server.'

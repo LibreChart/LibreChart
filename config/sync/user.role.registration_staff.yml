@@ -1,0 +1,18 @@
+uuid: dd4221d8-8913-4008-8476-d841f10d0fdd
+langcode: es
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_visit
+id: registration_staff
+label: 'Registration Staff'
+weight: 4
+is_admin: false
+permissions:
+  - 'create patient entities'
+  - 'create visit entities'
+  - 'edit any patient entities'
+  - 'view patient entities'
+  - 'view prescription_item entities'
+  - 'view visit entities'

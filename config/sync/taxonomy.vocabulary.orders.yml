@@ -1,0 +1,9 @@
+uuid: 27c83bc7-ac8c-447f-a619-46200f5835f7
+langcode: es
+status: true
+dependencies: {  }
+name: Orders
+vid: orders
+description: null
+weight: 0
+new_revision: false

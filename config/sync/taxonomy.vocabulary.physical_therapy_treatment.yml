@@ -1,0 +1,9 @@
+uuid: 8ba65d30-f787-4011-b8f0-8991bb89117b
+langcode: es
+status: true
+dependencies: {  }
+name: 'Physical Therapy Treatments'
+vid: physical_therapy_treatment
+description: null
+weight: 0
+new_revision: false

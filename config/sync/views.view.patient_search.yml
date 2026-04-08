@@ -1,0 +1,134 @@
+uuid: 22f53d9d-9ec1-4fc3-8c99-d17715a01fce
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - user
+id: patient_search
+label: 'Patient Search'
+module: views
+description: 'Search patients by name, cédula, or date of birth.'
+tag: ''
+base_table: patient
+base_field: pid
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Patient Search'
+      fields:
+        last_name:
+          id: last_name
+          table: patient
+          field: last_name
+          relationship: none
+          plugin_id: field
+          label: 'Last Name'
+        first_name:
+          id: first_name
+          table: patient
+          field: first_name
+          relationship: none
+          plugin_id: field
+          label: 'First Name'
+        cedula:
+          id: cedula
+          table: patient
+          field: cedula
+          relationship: none
+          plugin_id: field
+          label: Cédula
+        date_of_birth:
+          id: date_of_birth
+          table: patient
+          field: date_of_birth
+          relationship: none
+          plugin_id: field
+          label: 'Date of Birth'
+        pid:
+          id: pid
+          table: patient
+          field: pid
+          relationship: none
+          plugin_id: field
+          label: 'New Visit'
+          alter:
+            make_link: true
+            path: visit/add
+      pager:
+        type: full
+        options:
+          items_per_page: 25
+      access:
+        type: perm
+        options:
+          perm: 'view patient entities'
+      cache:
+        type: tag
+      sorts: {  }
+      filters:
+        last_name:
+          id: last_name
+          table: patient
+          field: last_name
+          relationship: none
+          plugin_id: string
+          exposed: true
+          expose:
+            operator_id: last_name_op
+            label: 'Last Name'
+            identifier: last_name
+        first_name:
+          id: first_name
+          table: patient
+          field: first_name
+          relationship: none
+          plugin_id: string
+          exposed: true
+          expose:
+            operator_id: first_name_op
+            label: 'First Name'
+            identifier: first_name
+        cedula:
+          id: cedula
+          table: patient
+          field: cedula
+          relationship: none
+          plugin_id: string
+          exposed: true
+          expose:
+            operator_id: cedula_op
+            label: Cédula
+            identifier: cedula
+        date_of_birth:
+          id: date_of_birth
+          table: patient
+          field: date_of_birth
+          relationship: none
+          plugin_id: datetime
+          exposed: true
+          expose:
+            operator_id: date_of_birth_op
+            label: 'Date of Birth'
+            identifier: date_of_birth
+      style:
+        type: table
+      row:
+        type: fields
+  page_1:
+    id: page_1
+    display_title: Page
+    display_plugin: page
+    position: 1
+    display_options:
+      path: patients
+      menu:
+        type: menu
+        title: Patients
+        weight: 0
+    cache_metadata:
+      max-age: -1
