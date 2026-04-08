@@ -1,0 +1,5 @@
+entity.visit.add_form:
+  route_name: entity.visit.add_form
+  title: 'Add visit'
+  appears_on:
+    - view.visits.page_1

@@ -1,0 +1,5 @@
+entity.patient.add_form:
+  route_name: entity.patient.add_form
+  title: 'Add patient'
+  appears_on:
+    - view.patient_search.page_1
