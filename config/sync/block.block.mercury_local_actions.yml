@@ -1,0 +1,18 @@
+uuid: 927e13ca-db0b-49f8-b4b7-2ead4e55d0ea
+langcode: en
+status: true
+dependencies:
+  theme:
+    - mercury
+id: mercury_local_actions
+theme: mercury
+region: content
+weight: -10
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Local actions'
+  label_display: '0'
+  provider: core
+visibility: {  }
