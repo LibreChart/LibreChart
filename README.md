@@ -1,43 +1,101 @@
-# Drupal CMS
+# Librechart
 
-Drupal CMS is a fast-moving open source product that enables site builders to easily create new Drupal sites and extend them with smart defaults, all using their browser.
+Librechart is a free, open-source Electronic Medical Record (EMR) system built with Drupal CMS, designed for medical mission clinics operating in resource-limited environments. It runs entirely on a local area network (LAN) with no internet dependency — all assets are self-hosted.
 
-## Getting started
+## What it does
 
-If you want to use [DDEV](https://ddev.com) to run Drupal CMS locally, follow these instructions:
+- **Patient records** — searchable patient identity records with demographic information
+- **Visit tracking** — per-visit medical records linked to patient identities
+- **Role-based access control** — permissions tied to clinic roles and stations
+- **Offline-capable** — runs on a local server; no internet connection required during clinic operations
 
-1. Install DDEV following the [documentation](https://ddev.com/get-started/)
-2. Open the command line and `cd` to the root directory of this project
-3. Run the following commands:
+
+## Requirements
+
+- [DDEV](https://ddev.com) (recommended for local development)
+- PHP 8.3+
+- MySQL / MariaDB
+- Composer
+
+## Quick start (with DDEV)
+
 ```shell
-ddev config --project-type=drupal11 --docroot=web
+# 1. Install DDEV: https://ddev.com/get-started/
+
+# 2. Clone and enter the project
+git clone <repo-url> librechart
+cd librechart
+
+# 3. Start DDEV
 ddev start
+
+# 4. Install dependencies
 ddev composer install
-ddev composer drupal:recipe-unpack
+
+# 5. Install Drupal from existing config
+ddev drush site:install --existing-config -y
+
+# 6. Open in browser
 ddev launch
 ```
 
-Drupal CMS has the same system requirements as Drupal core, so you can use your preferred setup to run it locally. [See the Drupal User Guide for more information](https://www.drupal.org/docs/user_guide/en/installation-chapter.html) on how to set up Drupal.
+Default admin credentials are set during installation. Log in at `/user/login`.
 
-### Installation options
+## Development commands
 
-The Drupal CMS installer offers a list of features preconfigured with smart defaults. You will be able to customize whatever you choose, and add additional features, once you are logged in.
+| Task | Command |
+|------|---------|
+| Install dependencies | `ddev composer install` |
+| Install Drupal | `ddev drush site:install --existing-config` |
+| Clear cache | `ddev drush cache:rebuild` |
+| Import config | `ddev drush config:import -y` |
+| Export config | `ddev drush config:export -y` |
+| Run linter | `ddev exec phpcs` |
+| Run static analysis | `ddev exec phpstan` |
+| Run tests | `ddev exec phpunit --filter Test path/to/test` |
+| View logs | `ddev drush watchdog:show --count=20` |
 
-After the installer is complete, you will land on the dashboard.
+## Project structure
 
-## Documentation
+```
+web/
+  modules/
+    custom/
+      librechart_patient/   # Patient entity type and related config
+      librechart_visit/     # Visit entity type and related config
+  themes/
+    custom/                 # Custom theme (if any)
+config/
+  sync/                     # Drupal configuration (YAML, checked into git)
+specs/                      # Feature specifications and implementation plans
+```
 
-* [Drupal CMS User Guide](https://project.pages.drupalcode.org/drupal_cms/)
-* Learn more about managing a Drupal-based application in the [Drupal User Guide](https://www.drupal.org/docs/user_guide/en/index.html).
+## Configuration management
 
-## Contributing & Support
+All site configuration is stored as YAML in `config/sync/` and checked into version control. To apply configuration changes:
 
-[Report issues in the queue](https://drupal.org/node/add/project-issue/drupal_cms), providing as much detail as you can. You can also join the #drupal-cms-support channel in the [Drupal Slack community](https://www.drupal.org/slack).
+```shell
+ddev drush config:import -y
+```
 
-Drupal CMS is developed in [a separate repository on Drupal.org](https://www.drupal.org/project/drupal_cms). See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+To capture changes made through the admin UI:
+
+```shell
+ddev drush config:export -y
+```
+
+## Production deployment
+
+Librechart is designed to run on a Linux web server (Apache or Nginx) on a local network. There is no dependency on external services, CDNs, or cloud APIs. All assets are self-hosted.
+
+Deployment steps:
+
+1. Copy the codebase to the server
+2. Run `composer install --no-dev`
+3. Configure `web/sites/default/settings.php` with database credentials
+4. Run `drush site:install --existing-config -y`
+5. Configure your web server to serve from `web/`
 
 ## License
 
-Drupal CMS and all derivative works are licensed under the [GNU General Public License, version 2 or later](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html).
-
-Learn about the [Drupal trademark and logo policy here](https://www.drupal.com/trademark).
+Librechart is licensed under the [GNU General Public License, version 2 or later](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html).

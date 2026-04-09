@@ -24,7 +24,7 @@ sections:
           label_display: '0'
           provider: navigation
           level: 1
-          depth: 0
+          depth: 1
         weight: 1
         additional: {  }
       3ff7be01-c8b0-4444-88f3-2364d7a8054e:
@@ -49,7 +49,7 @@ sections:
           provider: navigation
           level: 2
           depth: 2
-        weight: 2
+        weight: 3
         additional: {  }
       283da777-e051-4571-8089-47633a9ce706:
         uuid: 283da777-e051-4571-8089-47633a9ce706

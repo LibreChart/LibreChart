@@ -34,7 +34,7 @@ class MainMenuNavLinksTest extends BrowserTestBase {
   /**
    * A staff user with permission to view patient and visit entities.
    *
-   * @var \Drupal\user\UserInterface
+   * @var \Drupal\user\Entity\User
    */
   protected $staffUser;
 

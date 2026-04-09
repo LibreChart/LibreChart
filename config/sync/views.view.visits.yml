@@ -89,7 +89,7 @@ display:
           table: visit__clinic_site
           field: clinic_site_target_id
           relationship: none
-          plugin_id: numeric
+          plugin_id: entity_reference
           exposed: true
           expose:
             operator_id: clinic_site_op

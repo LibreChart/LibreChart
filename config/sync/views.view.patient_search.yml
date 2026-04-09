@@ -41,7 +41,7 @@ display:
           field: cedula
           relationship: none
           plugin_id: field
-          label: Cédula
+          label: Cedula
         date_of_birth:
           id: date_of_birth
           table: patient
@@ -109,7 +109,7 @@ display:
           exposed: true
           expose:
             operator_id: cedula_op
-            label: Cédula
+            label: Cedula
             identifier: cedula
         date_of_birth:
           id: date_of_birth
