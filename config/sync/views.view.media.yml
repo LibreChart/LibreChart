@@ -24,7 +24,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: Multimedia
+      title: Media
       fields:
         media_bulk_form:
           id: media_bulk_form
@@ -76,7 +76,7 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          action_title: Acción
+          action_title: Action
           include_exclude: exclude
           selected_actions: {  }
         thumbnail__target_id:
@@ -89,7 +89,7 @@ display:
           entity_type: media
           entity_field: thumbnail
           plugin_id: field
-          label: Miniatura
+          label: Thumbnail
           exclude: false
           alter:
             alter_text: false
@@ -157,7 +157,7 @@ display:
           entity_type: media
           entity_field: media
           plugin_id: field
-          label: 'Nombre del elemento multimedia'
+          label: 'Media name'
           exclude: false
           alter:
             alter_text: false
@@ -204,7 +204,7 @@ display:
           entity_type: media
           entity_field: bundle
           plugin_id: field
-          label: Tipo
+          label: Type
           exclude: false
           alter:
             alter_text: false
@@ -533,12 +533,12 @@ display:
             last: 'Last »'
           expose:
             items_per_page: false
-            items_per_page_label: 'Elementos por página'
+            items_per_page_label: 'Items per page'
             items_per_page_options: '5, 10, 25, 50'
             items_per_page_options_all: false
-            items_per_page_options_all_label: '- Todo -'
+            items_per_page_options_all_label: '- All -'
             offset: false
-            offset_label: Desplazamiento
+            offset_label: Offset
           quantity: 9
       exposed_form:
         type: basic
@@ -604,7 +604,7 @@ display:
           exposed: true
           expose:
             operator_id: name_op
-            label: 'Nombre del elemento multimedia'
+            label: 'Media name'
             description: ''
             use_operator: false
             operator: name_op
@@ -644,7 +644,7 @@ display:
           exposed: true
           expose:
             operator_id: bundle_op
-            label: Tipo
+            label: Type
             description: ''
             use_operator: false
             operator: bundle_op
@@ -685,7 +685,7 @@ display:
           exposed: true
           expose:
             operator_id: ''
-            label: Verdad
+            label: Published
             description: null
             use_operator: false
             operator: status_op
@@ -887,7 +887,7 @@ display:
       tags: {  }
   media_page_list:
     id: media_page_list
-    display_title: Multimedia
+    display_title: Media
     display_plugin: page
     position: 1
     display_options:
@@ -896,7 +896,7 @@ display:
       path: admin/content/media
       menu:
         type: tab
-        title: Multimedia
+        title: Media
         description: ''
         weight: 0
         expanded: false

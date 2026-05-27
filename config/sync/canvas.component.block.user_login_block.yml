@@ -19,7 +19,7 @@ versioned_properties:
     settings:
       default_settings:
         id: user_login_block
-        label: 'Inicio de sesión'
+        label: 'User login'
         label_display: '0'
         provider: user
     fallback_metadata:

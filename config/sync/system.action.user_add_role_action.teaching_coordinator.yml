@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_add_role_action.teaching_coordinator
-label: 'Añade el rol Teaching Coordinator al(los) usuario(s) seleccionado(s)'
+label: 'Add the Teaching Coordinator role to the selected user(s)'
 type: user
 plugin: user_add_role_action
 configuration:

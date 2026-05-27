@@ -35,7 +35,7 @@ display:
           admin_label: ''
           entity_type: canvas_page
           plugin_id: entity_link_edit
-          label: Acciones
+          label: Operations
           exclude: true
           alter:
             alter_text: false
@@ -360,7 +360,7 @@ display:
       exposed_form:
         type: basic
         options:
-          submit_button: Aplicar
+          submit_button: Apply
           reset_button: false
           reset_button_label: Reset
           exposed_sorts_label: 'Sort by'
@@ -906,12 +906,12 @@ display:
             last: 'Last »'
           expose:
             items_per_page: false
-            items_per_page_label: 'Elementos por página'
+            items_per_page_label: 'Items per page'
             items_per_page_options: '5, 10, 25, 50'
             items_per_page_options_all: false
-            items_per_page_options_all_label: '- Todo -'
+            items_per_page_options_all_label: '- All -'
             offset: false
-            offset_label: Desplazamiento
+            offset_label: Offset
           quantity: 9
       defaults:
         pager: false

@@ -1,0 +1,34 @@
+librechart_pharmacy.dashboard:
+  title: 'Pharmacy'
+  description: 'Pharmacist landing page — inventory intake, current stock, and reports.'
+  route_name: librechart_pharmacy.dashboard
+  menu_name: main
+  weight: 20
+
+librechart_pharmacy.receipts:
+  title: 'Inventory receipts'
+  description: 'List of all stock receipts.'
+  route_name: view.inventory_receipts.page_1
+  parent: librechart_pharmacy.dashboard
+  weight: 10
+
+librechart_pharmacy.inventory:
+  title: 'Current inventory'
+  description: 'Drug inventory levels by clinic site.'
+  route_name: view.inventory_report.page_inventory_report
+  parent: librechart_pharmacy.dashboard
+  weight: 20
+
+librechart_pharmacy.report:
+  title: 'Inventory report'
+  description: 'Date-range report with received and dispensed totals.'
+  route_name: librechart_pharmacy.report
+  parent: librechart_pharmacy.dashboard
+  weight: 30
+
+librechart_pharmacy.add_receipt:
+  title: 'Record inventory receipt'
+  description: 'Add a new stock receipt.'
+  route_name: entity.inventory_receipt.add_form
+  parent: librechart_pharmacy.dashboard
+  weight: 0

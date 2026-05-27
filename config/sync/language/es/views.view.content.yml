@@ -1,5 +1,5 @@
 label: Contenido
-description: 'Encontrar y administrar contenido.'
+description: 'Find and manage content.'
 display:
   default:
     display_title: 'Por defecto'

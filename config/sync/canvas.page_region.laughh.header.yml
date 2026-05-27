@@ -1,0 +1,46 @@
+uuid: c2d3e4f5-a6b7-4901-cdef-123456789012
+langcode: en
+status: true
+dependencies:
+  config:
+    - canvas.component.block.system_branding_block
+    - canvas.component.block.system_menu_block.main
+    - canvas.component.sdc.mercury.navbar
+  module:
+    - options
+  theme:
+    - laughh
+id: laughh.header
+region: header
+theme: laughh
+component_tree:
+  '0:e4f5a6b7-c8d9-4123-efab-345678901234':
+    uuid: e4f5a6b7-c8d9-4123-efab-345678901234
+    component_id: sdc.mercury.navbar
+    component_version: 3149f199d66bbc29
+    inputs:
+      menu_align: right
+  '0:logo:0:f5a6b7c8-d9e0-4234-fabc-456789012345':
+    parent_uuid: e4f5a6b7-c8d9-4123-efab-345678901234
+    slot: logo
+    uuid: f5a6b7c8-d9e0-4234-fabc-456789012345
+    component_id: block.system_branding_block
+    component_version: b168140fdcaebae5
+    inputs:
+      label: 'Site branding'
+      label_display: '0'
+      use_site_logo: true
+      use_site_name: false
+      use_site_slogan: false
+  '0:navigation:0:a6b7c8d9-e0f1-4345-abcd-567890123456':
+    parent_uuid: e4f5a6b7-c8d9-4123-efab-345678901234
+    slot: navigation
+    uuid: a6b7c8d9-e0f1-4345-abcd-567890123456
+    component_id: block.system_menu_block.main
+    component_version: 023ff7ba63f80798
+    inputs:
+      label: 'Main navigation'
+      label_display: '0'
+      level: 1
+      depth: null
+      expand_all_items: false

@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_remove_role_action.teaching_coordinator
-label: 'Elimina el rol Teaching Coordinator al(los) usuario(s) seleccionado(s)'
+label: 'Remove the Teaching Coordinator role from the selected user(s)'
 type: user
 plugin: user_remove_role_action
 configuration:

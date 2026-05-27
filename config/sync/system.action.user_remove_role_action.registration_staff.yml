@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_remove_role_action.registration_staff
-label: 'Elimina el rol Registration Staff al(los) usuario(s) seleccionado(s)'
+label: 'Remove the Registration Staff role from the selected user(s)'
 type: user
 plugin: user_remove_role_action
 configuration:

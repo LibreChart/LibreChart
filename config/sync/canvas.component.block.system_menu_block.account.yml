@@ -24,7 +24,7 @@ versioned_properties:
     settings:
       default_settings:
         id: 'system_menu_block:account'
-        label: 'Menú de cuenta de usuario'
+        label: 'User account menu'
         label_display: '0'
         provider: system
         level: 1

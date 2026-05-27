@@ -21,6 +21,14 @@ display:
     display_options:
       title: 'Patient Search'
       fields:
+        pid:
+          id: pid
+          table: patient
+          field: pid
+          relationship: none
+          plugin_id: field
+          label: ''
+          exclude: true
         last_name:
           id: last_name
           table: patient
@@ -28,6 +36,9 @@ display:
           relationship: none
           plugin_id: field
           label: 'Last Name'
+          alter:
+            make_link: true
+            path: 'patient/{{ pid }}/edit'
         first_name:
           id: first_name
           table: patient
@@ -35,6 +46,9 @@ display:
           relationship: none
           plugin_id: field
           label: 'First Name'
+          alter:
+            make_link: true
+            path: 'patient/{{ pid }}/edit'
         cedula:
           id: cedula
           table: patient
@@ -49,23 +63,10 @@ display:
           relationship: none
           plugin_id: field
           label: 'Date of Birth'
-        municipality:
-          id: municipality
-          table: patient
-          field: municipality
-          relationship: none
-          plugin_id: field
-          label: Municipality
-        pid:
-          id: pid
-          table: patient
-          field: pid
-          relationship: none
-          plugin_id: field
-          label: 'New Visit'
-          alter:
-            make_link: true
-            path: visit/add
+          type: datetime_custom
+          settings:
+            date_format: d/m/Y
+            timezone: ''
       pager:
         type: full
         options:
@@ -124,6 +125,43 @@ display:
             identifier: date_of_birth
       style:
         type: table
+        options:
+          default_row_class: true
+          columns:
+            last_name: last_name
+            first_name: first_name
+            cedula: cedula
+            date_of_birth: date_of_birth
+          info:
+            last_name:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            first_name:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            cedula:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: priority-medium
+            date_of_birth:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: priority-low
+          sticky: true
       row:
         type: fields
   page_1:

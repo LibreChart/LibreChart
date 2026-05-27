@@ -19,7 +19,7 @@ versioned_properties:
     settings:
       default_settings:
         id: system_messages_block
-        label: Mensajes
+        label: Messages
         label_display: '0'
         provider: system
     fallback_metadata:

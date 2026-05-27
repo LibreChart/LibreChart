@@ -17,7 +17,7 @@ versioned_properties:
     settings:
       default_settings:
         id: local_actions_block
-        label: 'Acciones principales de administración'
+        label: 'Primary admin actions'
         label_display: '0'
         provider: core
     fallback_metadata:

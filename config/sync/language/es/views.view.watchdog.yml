@@ -1,8 +1,10 @@
 label: Guardián
+description: 'Mensajes recientes del registro'
 display:
   default:
     display_title: 'Por defecto'
     display_options:
+      title: 'Mensajes recientes del registro'
       fields:
         nothing:
           admin_label: Icono

@@ -1,0 +1,5 @@
+pharmacy:
+  version: 1.x
+  css:
+    component:
+      css/pharmacy.css: {}

@@ -8,9 +8,9 @@ dependencies:
 _core:
   default_config_hash: QxV85zTbzQHWnwqOjUQ9k-Hza0YP94TJebVvD1rVucg
 id: watchdog
-label: Guardián
+label: Watchdog
 module: views
-description: 'Mensajes recientes del registro'
+description: 'Recent log messages'
 tag: ''
 base_table: watchdog
 base_field: wid
@@ -21,7 +21,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: 'Mensajes recientes del registro'
+      title: 'Recent log messages'
       fields:
         nothing:
           id: nothing
@@ -29,7 +29,7 @@ display:
           field: nothing
           relationship: none
           group_type: group
-          admin_label: Icono
+          admin_label: Icon
           plugin_id: custom
           label: ''
           exclude: false
@@ -129,7 +129,7 @@ display:
           group_type: group
           admin_label: ''
           plugin_id: machine_name
-          label: Gravedad
+          label: Severity
           exclude: true
           alter:
             alter_text: false
@@ -179,7 +179,7 @@ display:
           group_type: group
           admin_label: ''
           plugin_id: standard
-          label: Tipo
+          label: Type
           exclude: false
           alter:
             alter_text: false
@@ -228,7 +228,7 @@ display:
           group_type: group
           admin_label: ''
           plugin_id: date
-          label: Fecha
+          label: Date
           exclude: false
           alter:
             alter_text: false
@@ -280,7 +280,7 @@ display:
           group_type: group
           admin_label: ''
           plugin_id: dblog_message
-          label: Mensaje
+          label: Message
           exclude: false
           alter:
             alter_text: false
@@ -449,12 +449,12 @@ display:
             previous: ‹‹
           expose:
             items_per_page: false
-            items_per_page_label: 'Elementos por página'
+            items_per_page_label: 'Items per page'
             items_per_page_options: '5, 10, 25, 50'
             items_per_page_options_all: false
-            items_per_page_options_all_label: '- Todo -'
+            items_per_page_options_all_label: '- All -'
             offset: false
-            offset_label: Desplazamiento
+            offset_label: Offset
       exposed_form:
         type: basic
         options:
@@ -479,10 +479,10 @@ display:
           field: area_text_custom
           relationship: none
           group_type: group
-          admin_label: 'No hay mensajes de registro disponibles.'
+          admin_label: 'No log messages available.'
           plugin_id: text_custom
           empty: true
-          content: 'No hay mensajes de registro disponibles.'
+          content: 'No log messages available.'
           tokenize: false
       sorts:
         wid:
@@ -514,7 +514,7 @@ display:
           exposed: true
           expose:
             operator_id: type_op
-            label: Tipo
+            label: Type
             description: ''
             use_operator: false
             operator: type_op
@@ -553,7 +553,7 @@ display:
           exposed: true
           expose:
             operator_id: severity_op
-            label: Gravedad
+            label: Severity
             description: ''
             use_operator: false
             operator: severity_op

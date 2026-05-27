@@ -9,6 +9,7 @@ items:
   - sdc.mercury.accordion
   - sdc.mercury.accordion-container
   - sdc.mercury.footer
+  - sdc.mercury.grid
   - sdc.mercury.group
   - sdc.mercury.navbar
   - sdc.mercury.section

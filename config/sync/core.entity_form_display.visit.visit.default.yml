@@ -8,6 +8,7 @@ dependencies:
     - conditional_fields
     - field_group
     - paragraphs
+    - select2
     - text
 third_party_settings:
   field_group:
@@ -154,92 +155,22 @@ third_party_settings:
         open: false
         description: ''
         required_fields: false
-  conditional_fields:
-    pregnancy_history:
-      patient_type:
-        condition: value
-        values_set: 0
-        values:
-          blank: ''
-        value: adult
-        grouping: AND
-        state: visible
-        effect: show
-    lmp:
-      patient_type:
-        condition: value
-        values_set: 0
-        values:
-          blank: ''
-        value: adult
-        grouping: AND
-        state: visible
-        effect: show
-    breastfeeding:
-      patient_type:
-        condition: value
-        values_set: 0
-        values:
-          blank: ''
-        value: adult
-        grouping: AND
-        state: visible
-        effect: show
-    sys_gyn_ob:
-      patient_type:
-        condition: value
-        values_set: 0
-        values:
-          blank: ''
-        value: adult
-        grouping: AND
-        state: visible
-        effect: show
-    pt_notes:
-      pt_referral:
-        condition: value
-        values_set: 1
-        values:
-          blank: ''
-        value: '1'
-        grouping: AND
-        state: visible
-        effect: show
-    pt_interventions:
-      pt_referral:
-        condition: value
-        values_set: 1
-        values:
-          blank: ''
-        value: '1'
-        grouping: AND
-        state: visible
-        effect: show
-    pt_name:
-      pt_referral:
-        condition: value
-        values_set: 1
-        values:
-          blank: ''
-        value: '1'
-        grouping: AND
-        state: visible
-        effect: show
 id: visit.visit.default
 targetEntityType: visit
 bundle: visit
 mode: default
 content:
   allergies:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 30
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   breastfeeding:
     type: options_select
     weight: 34
@@ -247,26 +178,30 @@ content:
     settings: {  }
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: patient_type
-              options:
-                condition: value
-                values_set: 0
-                values:
-                  blank: ''
-                value: adult
-                grouping: AND
-                state: visible
-                effect: show
+        1b09834f-a54c-4502-9c4b-86db02b1f6b4:
+          uuid: 1b09834f-a54c-4502-9c4b-86db02b1f6b4
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: adult
+            values:
+              - adult
+            effect: show
+            effect_options: {  }
+            selector: ''
   clinic_site:
     type: options_select
     weight: 4
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   clinical_notes:
     type: text_textarea
     weight: 52
@@ -274,7 +209,8 @@ content:
     settings:
       rows: 6
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   clinician_name:
     type: string_textfield
     weight: 51
@@ -282,7 +218,8 @@ content:
     settings:
       size: 60
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   complaint:
     type: text_textarea
     weight: 28
@@ -290,7 +227,8 @@ content:
     settings:
       rows: 4
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   current_medications:
     type: string_textarea
     weight: 31
@@ -298,7 +236,8 @@ content:
     settings:
       rows: 4
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   diagnostic_referral:
     type: string_textfield
     weight: 122
@@ -306,217 +245,239 @@ content:
     settings:
       size: 60
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_anti_infective:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 99
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_cardiac:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 81
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_chronic_diseases:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 80
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_derm:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 82
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_endo:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 83
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_ent:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 84
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_eye:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 85
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_gi:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 86
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_gyn_ob:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 87
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_mental_health:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 88
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_misc:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 100
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_muscular_skeletal:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 89
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_neuro:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 90
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_opthalmic_otic:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 91
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_pain:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 96
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_pt_treatment:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 97
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_resp:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 92
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_uro_genital:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 93
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_vascular:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 94
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_vitamins:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 98
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_wound_ostomy:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 95
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   dx_write_in:
     type: text_textarea
     weight: 53
@@ -524,7 +485,8 @@ content:
     settings:
       rows: 4
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   external_referral:
     type: string_textarea
     weight: 121
@@ -532,7 +494,8 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   lab_results:
     type: paragraphs
     weight: 40
@@ -551,14 +514,16 @@ content:
         add_above: '0'
         collapse_edit_all: '1'
         duplicate: '1'
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   langcode:
     type: language_select
     weight: 2
     region: content
     settings:
       include_locked: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   lmp:
     type: string_textfield
     weight: 33
@@ -568,20 +533,23 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: patient_type
-              options:
-                condition: value
-                values_set: 0
-                values:
-                  blank: ''
-                value: adult
-                grouping: AND
-                state: visible
-                effect: show
+        3124c87a-180a-42ca-8646-f73466d4d770:
+          uuid: 3124c87a-180a-42ca-8646-f73466d4d770
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: adult
+            values:
+              - adult
+            effect: show
+            effect_options: {  }
+            selector: ''
   notes_to_pharmacist:
     type: text_textarea
     weight: 131
@@ -589,17 +557,19 @@ content:
     settings:
       rows: 4
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   orders:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 54
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   past_medical_history:
     type: text_textarea
     weight: 29
@@ -607,23 +577,26 @@ content:
     settings:
       rows: 4
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   patient:
-    type: entity_reference_autocomplete
+    type: select2_entity_reference
     weight: 1
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   patient_type:
     type: options_select
     weight: 3
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   pharmacist_name:
     type: string_textfield
     weight: 130
@@ -631,7 +604,8 @@ content:
     settings:
       size: 60
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   pregnancy_history:
     type: text_textarea
     weight: 32
@@ -641,45 +615,51 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: patient_type
-              options:
-                condition: value
-                values_set: 0
-                values:
-                  blank: ''
-                value: adult
-                grouping: AND
-                state: visible
-                effect: show
+        a88b1105-daed-4bda-a857-262efc749925:
+          uuid: a88b1105-daed-4bda-a857-262efc749925
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: adult
+            values:
+              - adult
+            effect: show
+            effect_options: {  }
+            selector: ''
   pt_interventions:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 111
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: pt_referral
-              options:
-                condition: value
-                values_set: 1
-                values:
-                  blank: ''
-                value: '1'
-                grouping: AND
-                state: visible
-                effect: show
+        7f31e8c5-a365-42d2-80d7-3bd0202ab455:
+          uuid: 7f31e8c5-a365-42d2-80d7-3bd0202ab455
+          entity_type: visit
+          bundle: visit
+          dependee: pt_referral
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   pt_name:
     type: string_textfield
     weight: 112
@@ -689,20 +669,23 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: pt_referral
-              options:
-                condition: value
-                values_set: 1
-                values:
-                  blank: ''
-                value: '1'
-                grouping: AND
-                state: visible
-                effect: show
+        43949686-73ea-4919-8631-d81399eb0467:
+          uuid: 43949686-73ea-4919-8631-d81399eb0467
+          entity_type: visit
+          bundle: visit
+          dependee: pt_referral
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   pt_notes:
     type: text_textarea
     weight: 110
@@ -712,85 +695,97 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: pt_referral
-              options:
-                condition: value
-                values_set: 1
-                values:
-                  blank: ''
-                value: '1'
-                grouping: AND
-                state: visible
-                effect: show
+        de74c6a6-d93d-448b-a84c-bd0b1bb8b3a8:
+          uuid: de74c6a6-d93d-448b-a84c-bd0b1bb8b3a8
+          entity_type: visit
+          bundle: visit
+          dependee: pt_referral
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   pt_referral:
     type: boolean_checkbox
     weight: 56
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   referrals:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 55
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   status:
     type: options_select
     weight: 5
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_cardiac:
     type: boolean_checkbox
     weight: 60
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_derm:
     type: boolean_checkbox
     weight: 61
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_endo:
     type: boolean_checkbox
     weight: 62
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_ent:
     type: boolean_checkbox
     weight: 63
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_eye:
     type: boolean_checkbox
     weight: 64
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_gi:
     type: boolean_checkbox
     weight: 65
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_gyn_ob:
     type: boolean_checkbox
     weight: 66
@@ -799,140 +794,160 @@ content:
       display_label: true
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: patient_type
-              options:
-                condition: value
-                values_set: 0
-                values:
-                  blank: ''
-                value: adult
-                grouping: AND
-                state: visible
-                effect: show
+        1e8fbd74-67b4-490a-9e6d-7b5a749fa38a:
+          uuid: 1e8fbd74-67b4-490a-9e6d-7b5a749fa38a
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: adult
+            values:
+              - adult
+            effect: show
+            effect_options: {  }
+            selector: ''
   sys_mental_health:
     type: boolean_checkbox
     weight: 67
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_musculoskeletal:
     type: boolean_checkbox
     weight: 68
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_neuro:
     type: boolean_checkbox
     weight: 69
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_respiratory:
     type: boolean_checkbox
     weight: 70
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_uro_genital:
     type: boolean_checkbox
     weight: 71
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_vascular:
     type: boolean_checkbox
     weight: 72
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   sys_wound_ostomy:
     type: boolean_checkbox
     weight: 73
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   teaching_topics:
-    type: entity_reference_autocomplete_tags
+    type: select2_entity_reference
     weight: 120
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   visit_date:
     type: datetime_default
     weight: 2
     region: content
     settings:
       increment: 1
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_bmi:
     type: number
     weight: 27
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_diastolic:
     type: number
     weight: 24
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_height:
     type: number
     weight: 25
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_pulse:
     type: number
     weight: 21
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_respiration:
     type: number
     weight: 22
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_systolic:
     type: number
     weight: 23
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_temperature:
     type: number
     weight: 20
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   vital_weight:
     type: number
     weight: 26
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
 hidden: {  }

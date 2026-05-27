@@ -11,6 +11,8 @@ label: Pharmacist
 weight: 9
 is_admin: false
 permissions:
+  - 'create drug_inventory entities'
+  - 'create inventory_receipt entities'
   - 'create prescription_item entities'
   - 'delete any prescription_item entities'
   - 'edit any drug_inventory entities'

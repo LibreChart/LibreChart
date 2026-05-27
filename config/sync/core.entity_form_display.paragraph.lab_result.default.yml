@@ -10,28 +10,6 @@ dependencies:
     - paragraphs.paragraphs_type.lab_result
   module:
     - conditional_fields
-third_party_settings:
-  conditional_fields:
-    lab_result_value:
-      lab_ordered:
-        condition: value
-        values_set: 1
-        values:
-          blank: ''
-        value: '1'
-        grouping: AND
-        state: visible
-        effect: show
-    lab_result_notes:
-      lab_ordered:
-        condition: value
-        values_set: 1
-        values:
-          blank: ''
-        value: '1'
-        grouping: AND
-        state: visible
-        effect: show
 id: paragraph.lab_result.default
 targetEntityType: paragraph
 bundle: lab_result
@@ -43,7 +21,8 @@ content:
     region: content
     settings:
       display_label: true
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
   lab_result_notes:
     type: text_textarea
     weight: 4
@@ -53,20 +32,23 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: lab_ordered
-              options:
-                condition: value
-                values_set: 1
-                values:
-                  blank: ''
-                value: '1'
-                grouping: AND
-                state: visible
-                effect: show
+        a12a1e70-47f6-4f8e-aa30-575d3cff3da3:
+          uuid: a12a1e70-47f6-4f8e-aa30-575d3cff3da3
+          entity_type: paragraph
+          bundle: lab_result
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   lab_result_value:
     type: string_textfield
     weight: 3
@@ -76,26 +58,30 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields:
-        conditional_fields_enabled: 1
-        conditional_fields_conditions:
-          -
-            condition:
-              dependee: lab_ordered
-              options:
-                condition: value
-                values_set: 1
-                values:
-                  blank: ''
-                value: '1'
-                grouping: AND
-                state: visible
-                effect: show
+        5431497c-9af1-4d7e-8c12-c5344b85dd3d:
+          uuid: 5431497c-9af1-4d7e-8c12-c5344b85dd3d
+          entity_type: paragraph
+          bundle: lab_result
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   lab_test:
     type: options_select
     weight: 1
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields: null
 hidden:
   created: true
   status: true

@@ -31,9 +31,9 @@ service:
     title: '(always required)'
     description: 'This service is always required.'
   purposes: Purposes
-  purpose: Propósito
+  purpose: Purpose
 contextualConsent:
-  acceptAlways: Siempre
+  acceptAlways: Always
   acceptOnce: 'Yes (this time)'
   description: 'Load external content supplied by {title}?'
 poweredBy: 'Powered by Klaro!'

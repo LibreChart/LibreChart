@@ -19,7 +19,7 @@ versioned_properties:
     settings:
       default_settings:
         id: system_breadcrumb_block
-        label: 'Enlaces de ayuda a la navegación'
+        label: Breadcrumbs
         label_display: '0'
         provider: system
     fallback_metadata:

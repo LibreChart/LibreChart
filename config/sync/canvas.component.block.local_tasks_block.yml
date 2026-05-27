@@ -19,7 +19,7 @@ versioned_properties:
     settings:
       default_settings:
         id: local_tasks_block
-        label: Pestañas
+        label: Tabs
         label_display: '0'
         provider: core
         primary: true

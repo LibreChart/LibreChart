@@ -1,0 +1,26 @@
+{% extends 'block.html.twig' %}
+{#
+/**
+ * @file
+ * LAUGHH override: preserves logo aspect ratio.
+ */
+#}
+
+{% block content %}
+  {% set site_logo_url = site_logo ? file_url(site_logo) : '' %}
+
+  <a href="{{ home_url|default('/') }}" class="inline-block" rel="home">
+    {% block branding %}
+      {% if site_logo %}
+        <div class="branding">
+          <img class="h-full w-auto" src="{{ site_logo_url }}" alt="{{ site_name }}" />
+        </div>
+      {% endif %}
+      {% if site_name %}
+        <div class="heading-responsive-4xl font-[var(--hgc-font-weight-h1)]">
+          {{ site_name }}
+        </div>
+      {% endif %}
+    {% endblock %}
+  </a>
+{% endblock %}

@@ -1,0 +1,18 @@
+uuid: a1f3c2d4-b5e6-4890-8bcd-ef1234567890
+langcode: en
+status: true
+dependencies:
+  theme:
+    - laughh
+id: laughh_local_actions
+theme: laughh
+region: content
+weight: -10
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Local actions'
+  label_display: '0'
+  provider: core
+visibility: {  }

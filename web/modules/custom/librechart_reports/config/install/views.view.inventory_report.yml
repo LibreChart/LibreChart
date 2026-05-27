@@ -127,7 +127,7 @@ display:
               align: ''
               separator: ''
               empty_column: false
-              responsive: ''
+              responsive: priority-low
             drug:
               sortable: true
               default_sort_order: asc
@@ -148,7 +148,7 @@ display:
               align: ''
               separator: ''
               empty_column: false
-              responsive: ''
+              responsive: priority-medium
             edit_drug_inventory:
               sortable: false
               default_sort_order: asc
@@ -157,7 +157,7 @@ display:
               empty_column: false
               responsive: ''
           override: false
-          sticky: false
+          sticky: true
           summary: ''
           empty_table: false
           caption: ''

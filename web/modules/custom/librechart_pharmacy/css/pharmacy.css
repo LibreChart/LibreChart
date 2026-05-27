@@ -1,0 +1,99 @@
+/* Low-stock row highlighting on any table that includes inventory data. */
+.inventory-row--low-stock {
+  background-color: #fff4f4;
+}
+.inventory-row--low-stock td {
+  border-top-color: #f3c2c2;
+}
+.inventory-row--low-stock .inventory-low-stock-flag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  background-color: #d83434;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Pharmacy dashboard action cards. */
+.pharmacy-dashboard__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.pharmacy-dashboard__card {
+  display: block;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.pharmacy-dashboard__card:hover,
+.pharmacy-dashboard__card:focus {
+  border-color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+.pharmacy-dashboard__card-title {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.pharmacy-dashboard__card-desc {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #52525b;
+}
+
+.pharmacy-dashboard__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.pharmacy-dashboard__metric {
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-left: 4px solid #2563eb;
+  border-radius: 2px;
+}
+.pharmacy-dashboard__metric--alert {
+  border-left-color: #d83434;
+  background: #fff4f4;
+}
+.pharmacy-dashboard__metric-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.pharmacy-dashboard__metric-label {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #52525b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Filter form on inventory report. */
+.pharmacy-report__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.pharmacy-report__filters .form-item {
+  margin: 0;
+}

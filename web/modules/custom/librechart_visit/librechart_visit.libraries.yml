@@ -1,0 +1,17 @@
+station_strip:
+  version: 1.x
+  css:
+    component:
+      css/station-strip.css: {}
+
+admin_overrides:
+  version: 1.x
+  css:
+    theme:
+      css/admin-overrides.css: {}
+
+visit_form:
+  version: 1.x
+  css:
+    component:
+      css/visit-form.css: {}

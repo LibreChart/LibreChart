@@ -28,17 +28,21 @@ display:
           relationship: none
           plugin_id: field
           label: Date
+          type: datetime_custom
+          settings:
+            date_format: 'd/m/Y H:i'
+            timezone: ''
         patient:
           id: patient
-          table: visit__patient
-          field: patient_target_id
+          table: visit
+          field: patient
           relationship: none
           plugin_id: field
           label: Patient
         clinic_site:
           id: clinic_site
-          table: visit__clinic_site
-          field: clinic_site_target_id
+          table: visit
+          field: clinic_site
           relationship: none
           plugin_id: field
           label: 'Clinic Site'
@@ -86,8 +90,8 @@ display:
             required: false
         clinic_site:
           id: clinic_site
-          table: visit__clinic_site
-          field: clinic_site_target_id
+          table: visit
+          field: clinic_site
           relationship: none
           plugin_id: entity_reference
           exposed: true
@@ -110,6 +114,43 @@ display:
             required: false
       style:
         type: table
+        options:
+          default_row_class: true
+          columns:
+            visit_date: visit_date
+            patient: patient
+            clinic_site: clinic_site
+            status: status
+          info:
+            visit_date:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            patient:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            clinic_site:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: priority-medium
+            status:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: priority-low
+          sticky: true
       row:
         type: fields
   page_1:

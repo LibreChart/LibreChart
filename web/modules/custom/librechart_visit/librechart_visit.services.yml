@@ -1,0 +1,3 @@
+services:
+  librechart_visit.station_workflow:
+    class: Drupal\librechart_visit\Service\StationWorkflow

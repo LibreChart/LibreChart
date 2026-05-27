@@ -1,0 +1,31 @@
+uuid: d3e4f5a6-b7c8-4012-defa-234567890123
+langcode: en
+status: true
+dependencies:
+  config:
+    - canvas.component.block.system_menu_block.footer
+    - canvas.component.sdc.mercury.footer
+  theme:
+    - laughh
+id: laughh.footer
+region: footer
+theme: laughh
+component_tree:
+  '0:b7c8d9e0-f1a2-4456-bcde-678901234567':
+    uuid: b7c8d9e0-f1a2-4456-bcde-678901234567
+    component_id: sdc.mercury.footer
+    component_version: d696cea1796b650e
+    inputs:
+      align: true
+  '0:footer_utility_first:0:c8d9e0f1-a2b3-4567-cdef-789012345678':
+    parent_uuid: b7c8d9e0-f1a2-4456-bcde-678901234567
+    slot: footer_utility_first
+    uuid: c8d9e0f1-a2b3-4567-cdef-789012345678
+    component_id: block.system_menu_block.footer
+    component_version: 68bdb40e1ac48125
+    inputs:
+      label: Footer
+      label_display: '0'
+      level: 1
+      depth: null
+      expand_all_items: false
