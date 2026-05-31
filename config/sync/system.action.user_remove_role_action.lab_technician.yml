@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_remove_role_action.lab_technician
-label: 'Elimina el rol Lab Technician al(los) usuario(s) seleccionado(s)'
+label: 'Remove the Lab Technician role from the selected user(s)'
 type: user
 plugin: user_remove_role_action
 configuration:

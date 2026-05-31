@@ -3,7 +3,10 @@ langcode: en
 status: true
 dependencies:
   module:
+    - csv_serialization
     - librechart_pharmacy
+    - rest
+    - serialization
     - user
     - views_data_export
 id: inventory_report
@@ -143,7 +146,7 @@ display:
               align: ''
               separator: ''
               empty_column: false
-              responsive: ''
+              responsive: priority-low
             drug:
               sortable: true
               default_sort_order: asc
@@ -164,7 +167,7 @@ display:
               align: ''
               separator: ''
               empty_column: false
-              responsive: ''
+              responsive: priority-medium
             edit_drug_inventory:
               sortable: false
               default_sort_order: asc
@@ -173,7 +176,7 @@ display:
               empty_column: false
               responsive: ''
           override: false
-          sticky: false
+          sticky: true
           summary: ''
           empty_table: false
           caption: ''
@@ -227,6 +230,7 @@ display:
       export_method: default
       export_batch_size: 0
       export_limit: 0
+      export_filesystem: public
     cache_metadata:
       max-age: -1
       contexts:

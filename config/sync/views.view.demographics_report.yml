@@ -3,8 +3,14 @@ langcode: en
 status: true
 dependencies:
   module:
+    - csv_serialization
+    - datetime
     - librechart_patient
+    - options
+    - rest
+    - serialization
     - user
+    - views_data_export
 id: demographics_report
 label: 'Demographics Report'
 module: views
@@ -260,6 +266,7 @@ display:
       export_method: default
       export_batch_size: 0
       export_limit: 0
+      export_filesystem: public
     cache_metadata:
       max-age: -1
       contexts:

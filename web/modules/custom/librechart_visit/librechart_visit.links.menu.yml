@@ -1,0 +1,6 @@
+librechart_visit.floor:
+  title: 'Floor'
+  description: 'Column-per-station board of all in-progress visits.'
+  route_name: librechart_visit.floor
+  menu_name: main
+  weight: 5

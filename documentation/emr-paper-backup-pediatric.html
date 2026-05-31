@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Librechart — Paper EMR Backup (Pediatric)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 7pt;
+  color: #000;
+  background: #fff;
+  padding: 6mm;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 6mm;
+}
+
+@media print {
+  body { padding: 0; }
+  .no-print { display: none !important; }
+  .sp { break-inside: auto; }
+}
+
+/* ── Station headers ── */
+h2 {
+  font-size: 7pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 0.8mm 2mm;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+.hdr-reg      { background: #1d4ed8; }
+.hdr-triage   { background: #15803d; }
+.hdr-lab      { background: #a16207; }
+.hdr-clinical { background: #6d28d9; }
+.hdr-pt       { background: #c2410c; }
+.hdr-pharmacy { background: #be185d; }
+.hdr-teach    { background: #166534; }
+.hdr-complete { background: #374151; }
+
+section {
+  border: 0.7pt solid #555;
+  margin-bottom: 0.5mm;
+}
+.sb { padding: 0.7mm 2mm; }
+
+/* ── Document header ── */
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8mm;
+  border-bottom: 1pt solid #000;
+  padding-bottom: 0.8mm;
+}
+.doc-title { font-size: 10pt; font-weight: bold; }
+.doc-sub { font-size: 6pt; color: #555; }
+.doc-meta { font-size: 6.5pt; display: flex; gap: 4mm; }
+.doc-meta span { display: flex; align-items: center; gap: 1mm; }
+.fl { display: flex; flex-direction: column; }
+.fl span { border-bottom: 0.7pt solid #555; min-height: 3mm; display: block; margin-top: 0.2mm; width: 100%; }
+.fl-lg span { min-height: 3.5mm; }
+.fl-xl span { min-height: 4mm; }
+.fl-write span { min-height: 7mm; }
+.notes-area { min-height: 12mm; border: 0.5pt solid #ccc; margin-top: 0.5mm; }
+
+/* ── Grids ── */
+.g2  { display: grid; grid-template-columns: 1fr 1fr; gap: 1mm 3mm; }
+.g3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1mm 3mm; }
+.g4  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1mm 3mm; }
+.g5  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 1mm 3mm; }
+.g6  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; gap: 1mm 3mm; }
+.g7  { display: grid; grid-template-columns: repeat(7,1fr); gap: 1mm 2mm; }
+.g8  { display: grid; grid-template-columns: repeat(8,1fr); gap: 1mm 2mm; }
+.mt1 { margin-top: 0.7mm; }
+.mt2 { margin-top: 1.2mm; }
+
+/* ── Labels ── */
+b.lbl { font-size: 6.5pt; display: block; margin-bottom: 0.2mm; }
+
+/* ── Checkbox grid ── */
+.cbg { display: grid; gap: 0.4mm 1.5mm; }
+.cbg-2 { grid-template-columns: repeat(2,1fr); }
+.cbg-3 { grid-template-columns: repeat(3,1fr); }
+.cbg-4 { grid-template-columns: repeat(4,1fr); }
+.cbg-5 { grid-template-columns: repeat(5,1fr); }
+.cbg-6 { grid-template-columns: repeat(6,1fr); }
+.cbg-7 { grid-template-columns: repeat(7,1fr); }
+.cbg-8 { grid-template-columns: repeat(8,1fr); }
+
+.cb { display: flex; align-items: center; gap: 1mm; font-size: 6.5pt; line-height: 1.15; }
+.cb input { width: 2.5mm; height: 2.5mm; flex-shrink: 0; margin: 0; }
+
+/* ── Specialty diagnosis / drug blocks ── */
+.sp {
+  border: 0.5pt solid #ccc;
+  margin-bottom: 0.5mm;
+  break-inside: avoid;
+}
+/* ── CSS columns layout for diagnoses ── */
+.dx-cols {
+  columns: 2;
+  column-gap: 3mm;
+  margin-top: 0.5mm;
+}
+.sp-hdr {
+  font-size: 6pt;
+  font-weight: bold;
+  color: #fff;
+  background: #374151;
+  padding: 0.3mm 1.5mm;
+  line-height: 1.2;
+}
+.sp-hdr.dx  { background: #4c1d95; }
+.sp-hdr.rx  { background: #9d174d; }
+.sp-hdr.pt  { background: #c2410c; }
+.sp-body { padding: 0.5mm 1.5mm 0.6mm; }
+
+/* ── Lab table ── */
+table.lab {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 6.5pt;
+  margin-top: 0.8mm;
+}
+table.lab th {
+  background: #e5e7eb;
+  border: 0.5pt solid #888;
+  padding: 0.6mm 1.5mm;
+  font-size: 6.5pt;
+  font-weight: bold;
+}
+table.lab td {
+  border: 0.5pt solid #bbb;
+  padding: 0.1mm 1.5mm;
+  height: 3.5mm;
+  font-size: 6.5pt;
+}
+table.lab td.c { text-align: center; }
+
+/* ── UA sub-table ── */
+.ua-sub { display: flex; gap: 0; width: 100%; }
+.ua-sub-cell { flex: 1; padding: 0 0.8mm; font-size: 6pt; }
+.ua-sub-cell span { border-bottom: 0.5pt solid #888; display: block; min-height: 3mm; }
+
+/* ── Prescription table ── */
+table.rx {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 6.5pt;
+  margin-top: 0.8mm;
+}
+table.rx th {
+  background: #e5e7eb;
+  border: 0.5pt solid #888;
+  padding: 0.6mm 1.5mm;
+  font-size: 6pt;
+  font-weight: bold;
+}
+table.rx td {
+  border: 0.5pt solid #bbb;
+  padding: 0.3mm 1.5mm;
+  height: 4mm;
+}
+table.rx td.c { text-align: center; }
+
+/* ── Signature row ── */
+.sig { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.3mm 3mm; margin-top: 0.5mm; padding-top: 0.3mm; border-top: 0.5pt solid #ccc; }
+
+/* ── Initials box (compact alternative to signature) ── */
+.initials-box { display: flex; align-items: center; gap: 2mm; }
+.initials-square { display: inline-block; width: 14mm; height: 5mm; border: 0.7pt solid #555; }
+
+/* ── Adult-only callout ── */
+.adult {
+  background: #fef3c7;
+  border: 0.6pt dashed #d97706;
+  padding: 1mm 1.5mm;
+  margin-top: 1mm;
+}
+.adult-lbl { font-size: 6pt; font-weight: bold; color: #92400e; display: block; margin-bottom: 0.5mm; }
+
+/* ── Inline section label ── */
+.sec-lbl { font-size: 6.5pt; font-weight: bold; margin: 0.8mm 0 0.3mm; display: block; }
+
+/* ── Page header repeat ── */
+.pg-hdr { font-size: 6pt; color: #777; text-align: right; margin-bottom: 0.8mm; }
+
+/* ── Print button ── */
+.no-print {
+  position: fixed; bottom: 10mm; right: 10mm;
+  background: #1d4ed8; color: #fff;
+  border: none; padding: 2mm 5mm;
+  font-size: 9pt; border-radius: 3px; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<button class="no-print" onclick="window.print()">Print / Save as PDF</button>
+
+<!-- ══ DOCUMENT HEADER ══ -->
+<div class="doc-header">
+  <div>
+    <div class="doc-title">LAUGHH — Paper EMR Backup &nbsp;<span style="font-size:8pt;font-weight:bold;color:#b45309;">PEDIATRIC</span></div>
+    <div class="doc-sub">For use when the electronic system is unavailable. Transfer all data to Librechart when systems are restored.</div>
+  </div>
+  <div class="doc-meta">
+    <span>Date: <span style="border-bottom:0.7pt solid #000;min-width:22mm;display:inline-block;"></span></span>
+  </div>
+</div>
+
+<!-- ══ STATION 1 — REGISTRATION ══ -->
+<section>
+  <h2 class="hdr-reg">1 &mdash; Registration &amp; Check-In &nbsp;· Registration Staff</h2>
+  <div class="sb">
+    <div class="g5">
+      <div class="fl"><b class="lbl">Last Name</b><span></span></div>
+      <div class="fl"><b class="lbl">First Name</b><span></span></div>
+      <div class="fl"><b class="lbl">Date of Birth</b><span></span></div>
+      <div class="fl"><b class="lbl">Cedula / ID</b><span></span></div>
+      <div>
+        <b class="lbl">Sex</b>
+        <div class="cbg cbg-2" style="margin-top:0.5mm;">
+          <span class="cb"><input type="checkbox"> Male</span>
+          <span class="cb"><input type="checkbox"> Female</span>
+        </div>
+      </div>
+    </div>
+    <div class="g5 mt1">
+      <div class="fl"><b class="lbl">Municipality</b><span></span></div>
+      <div class="fl"><b class="lbl">Village / Town</b><span></span></div>
+      <div class="fl"><b class="lbl">Visit Date</b><span></span></div>
+      <div class="fl"><b class="lbl">Clinic Site</b><span></span></div>
+      <div>
+        <b class="lbl">Patient Type</b>
+        <div class="cbg cbg-2" style="margin-top:0.5mm;">
+          <span class="cb"><input type="checkbox"> Adult</span>
+          <span class="cb"><input type="checkbox"> Pediatric</span>
+        </div>
+      </div>
+    </div>
+    <div class="sig" style="grid-template-columns:auto 1fr;">
+      <div class="initials-box"><b class="lbl">Registered by (initials)</b><span class="initials-square"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATION 2 — TRIAGE ══ -->
+<section>
+  <h2 class="hdr-triage">2 &mdash; Triage</h2>
+  <div class="sb">
+    <div class="g3">
+      <div class="fl fl-write"><b class="lbl">Chief Concern</b><span></span></div>
+      <div class="fl fl-write"><b class="lbl">Allergies</b><span></span></div>
+      <div class="fl fl-write"><b class="lbl">Current Medications</b><span></span></div>
+    </div>
+    <div class="fl fl-xl mt1"><b class="lbl">Past Medical History</b><span></span></div>
+    <b class="sec-lbl">Vitals</b>
+    <div class="g7">
+      <div class="fl"><b class="lbl">Temp °C</b><span></span></div>
+      <div class="fl"><b class="lbl">Pulse bpm</b><span></span></div>
+      <div class="fl"><b class="lbl">Resp br/min</b><span></span></div>
+      <div class="fl"><b class="lbl">BP (sys / dia)</b><span>&nbsp; / &nbsp;</span></div>
+      <div class="fl"><b class="lbl">Height cm</b><span></span></div>
+      <div class="fl"><b class="lbl">Weight kg</b><span></span></div>
+      <div class="fl"><b class="lbl">BMI (calc)</b><span></span></div>
+    </div>
+    <div style="margin-top:0.4mm;padding:0.3mm 1.5mm;border-color:#b45309;background:#fffbeb;border:0.6pt dashed #b45309;">
+      <span class="adult-lbl" style="background:#b45309;">PEDIATRIC</span>
+      <div class="g8">
+        <div class="fl"><b class="lbl">Birth Wt kg</b><span></span></div>
+        <div class="fl"><b class="lbl">Head Cm</b><span></span></div>
+        <div class="fl"><b class="lbl">Growth %</b><span></span></div>
+        <div class="fl"><b class="lbl">Gest Wks</b><span></span></div>
+        <div class="fl" style="grid-column:span 2;"><b class="lbl">Parent / Guardian</b><span></span></div>
+        <div class="fl" style="grid-column:span 2;"><b class="lbl">Contact</b><span></span></div>
+      </div>
+      <div style="margin-top:0.4mm;display:flex;gap:5mm;align-items:center;flex-wrap:wrap;">
+        <span><b class="lbl">Feeding</b>
+          <span class="cb" style="margin-left:1mm;"><input type="checkbox"> Breast</span>
+          <span class="cb"><input type="checkbox"> Formula</span>
+          <span class="cb"><input type="checkbox"> Solid</span>
+          <span class="cb"><input type="checkbox"> Mixed</span>
+        </span>
+        <span><b class="lbl">Immunizations Up-to-Date</b>
+          <span class="cb" style="margin-left:1mm;"><input type="checkbox"> Yes</span>
+          <span class="cb"><input type="checkbox"> No</span>
+          <span class="cb"><input type="checkbox"> Unknown</span>
+        </span>
+      </div>
+    </div>
+    <div style="margin-top:0.4mm;padding:0.6mm 1.5mm;border:0.6pt dashed #888;background:#f9fafb;">
+      <div class="g3">
+        <div class="fl fl-lg"><b class="lbl">Pregnancy History</b><span></span></div>
+        <div class="fl"><b class="lbl">Last Menstrual Period (LMP)</b><span></span></div>
+        <div>
+          <b class="lbl">Currently Breastfeeding</b>
+          <div class="cbg cbg-3" style="margin-top:0.5mm;">
+            <span class="cb"><input type="checkbox"> Yes</span>
+            <span class="cb"><input type="checkbox"> No</span>
+            <span class="cb"><input type="checkbox"> N/A</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sig" style="grid-template-columns:auto 1fr;">
+      <div class="initials-box"><b class="lbl">Triage Nurse (initials)</b><span class="initials-square"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATION 3 — LAB ══ -->
+<section>
+  <h2 class="hdr-lab">3 &mdash; Lab Orders &amp; Results &nbsp;· Triage Nurse orders / Lab Technician results</h2>
+  <div class="sb">
+    <table class="lab">
+      <thead>
+        <tr>
+          <th style="width:26%;">Test</th>
+          <th style="width:9%;text-align:center;">Ordered</th>
+          <th style="width:32%;">Result</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Glucose</td><td class="c"><input type="checkbox"></td><td></td><td></td></tr>
+        <tr><td>HgbA1c</td><td class="c"><input type="checkbox"></td><td></td><td></td></tr>
+        <tr><td>Hemoglobin (Hgb)</td><td class="c"><input type="checkbox"></td><td></td><td></td></tr>
+        <tr>
+          <td>Urinalysis</td>
+          <td class="c"><input type="checkbox"></td>
+          <td colspan="2">
+            <div class="ua-sub">
+              <div class="ua-sub-cell">Glucose<span></span></div>
+              <div class="ua-sub-cell">Protein<span></span></div>
+              <div class="ua-sub-cell">Leu<span></span></div>
+              <div class="ua-sub-cell">Blood<span></span></div>
+              <div class="ua-sub-cell">Ketones<span></span></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="sig" style="grid-template-columns:auto 1fr;">
+      <div class="initials-box"><b class="lbl">Lab Technician (initials)</b><span class="initials-square"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATION 4 — CLINICAL EVALUATION ══ -->
+<section class="s4">
+  <h2 class="hdr-clinical">4 &mdash; Clinical Evaluation &nbsp;· Clinician</h2>
+  <div class="sb">
+    <div>
+      <b class="lbl">Clinical Notes / Dx Write-in</b>
+      <div class="notes-area"></div>
+    </div>
+    <div class="g2 mt1">
+      <div class="fl fl-lg"><b class="lbl">Additional Orders</b><span></span></div>
+      <div class="fl fl-lg"><b class="lbl">Referrals</b><span></span></div>
+    </div>
+    <div style="margin-top:1mm;">
+      <span class="cb" style="font-size:7pt;"><input type="checkbox"> <strong>PT Referral</strong> — activates PT station on reverse</span>
+    </div>
+
+    <b class="sec-lbl">Diagnoses by Specialty</b>
+
+    <div class="dx-cols">
+        <!-- Cardiac / Thoracic -->
+        <div class="sp">
+          <div class="sp-hdr dx">Cardiac / Thoracic</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Arrhythmia</span>
+            <span class="cb"><input type="checkbox"> Chest Pain</span>
+            <span class="cb"><input type="checkbox"> Coronary Heart Dz</span>
+            <span class="cb"><input type="checkbox"> Costochondritis</span>
+            <span class="cb"><input type="checkbox"> Heart Failure</span>
+            <span class="cb"><input type="checkbox"> Hypertension</span>
+            <span class="cb"><input type="checkbox"> Syncope</span>
+          </div>
+        </div>
+        <!-- Dermatology -->
+        <div class="sp">
+          <div class="sp-hdr dx">Dermatology</div>
+          <div class="sp-body cbg cbg-5">
+            <span class="cb"><input type="checkbox"> Athlete Foot</span>
+            <span class="cb"><input type="checkbox"> Dermatitis</span>
+            <span class="cb"><input type="checkbox"> Eczema</span>
+            <span class="cb"><input type="checkbox"> Fungus</span>
+            <span class="cb"><input type="checkbox"> Rash</span>
+            <span class="cb"><input type="checkbox"> Scabies</span>
+            <span class="cb"><input type="checkbox"> Soft Tissue Infection</span>
+            <span class="cb"><input type="checkbox"> Wound</span>
+          </div>
+        </div>
+        <!-- Endocrinology -->
+        <div class="sp">
+          <div class="sp-hdr dx">Endocrinology</div>
+          <div class="sp-body cbg cbg-3">
+            <span class="cb"><input type="checkbox"> DM1</span>
+            <span class="cb"><input type="checkbox"> DM2</span>
+            <span class="cb"><input type="checkbox"> Hyperthyroid</span>
+            <span class="cb"><input type="checkbox"> Hypothyroid</span>
+            <span class="cb"><input type="checkbox"> Obesity</span>
+            <span class="cb"><input type="checkbox"> Pre-diabetic</span>
+          </div>
+        </div>
+        <!-- ENT -->
+        <div class="sp">
+          <div class="sp-hdr dx">ENT</div>
+          <div class="sp-body cbg cbg-6">
+            <span class="cb"><input type="checkbox"> Dental Carries</span>
+            <span class="cb"><input type="checkbox"> Otitis Ext/Media</span>
+            <span class="cb"><input type="checkbox"> Pharyngitis</span>
+            <span class="cb"><input type="checkbox"> Rhinitis</span>
+            <span class="cb"><input type="checkbox"> Sinusitis</span>
+            <span class="cb"><input type="checkbox"> Tonsillitis</span>
+          </div>
+        </div>
+        <!-- Eye -->
+        <div class="sp">
+          <div class="sp-hdr dx">Eye</div>
+          <div class="sp-body cbg cbg-7">
+            <span class="cb"><input type="checkbox"> Cataract</span>
+            <span class="cb"><input type="checkbox"> Chalazion</span>
+            <span class="cb"><input type="checkbox"> Conjunctivitis</span>
+            <span class="cb"><input type="checkbox"> Dry Eyes</span>
+            <span class="cb"><input type="checkbox"> Foreign Body</span>
+            <span class="cb"><input type="checkbox"> Hordeolum (stye)</span>
+            <span class="cb"><input type="checkbox"> Pterygium</span>
+          </div>
+        </div>
+        <!-- GI -->
+        <div class="sp">
+          <div class="sp-hdr dx">GI</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Abdominal Pain</span>
+            <span class="cb"><input type="checkbox"> Colitis</span>
+            <span class="cb"><input type="checkbox"> Constipation</span>
+            <span class="cb"><input type="checkbox"> Diarrhea</span>
+            <span class="cb"><input type="checkbox"> Dyspepsia</span>
+            <span class="cb"><input type="checkbox"> Gastritis</span>
+            <span class="cb"><input type="checkbox"> GB Disease</span>
+            <span class="cb"><input type="checkbox"> GERD</span>
+            <span class="cb"><input type="checkbox"> Hemorrhoids</span>
+            <span class="cb"><input type="checkbox"> Hernia</span>
+            <span class="cb"><input type="checkbox"> IBS</span>
+            <span class="cb"><input type="checkbox"> Pancreatitis</span>
+            <span class="cb"><input type="checkbox"> Vomiting</span>
+          </div>
+        </div>
+        <!-- Pediatric-specific -->
+        <div class="sp" style="border-color:#b45309;background:#fffbeb;">
+          <div class="sp-hdr" style="background:#b45309;">Pediatric-Specific</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Colic</span>
+            <span class="cb"><input type="checkbox"> Dev Delay</span>
+            <span class="cb"><input type="checkbox"> Failure to Thrive</span>
+            <span class="cb"><input type="checkbox"> Well Child Visit</span>
+          </div>
+        </div>
+        <!-- Mental Health -->
+        <div class="sp">
+          <div class="sp-hdr dx">Mental Health</div>
+          <div class="sp-body cbg cbg-6">
+            <span class="cb"><input type="checkbox"> Anxiety</span>
+            <span class="cb"><input type="checkbox"> Bipolar</span>
+            <span class="cb"><input type="checkbox"> Depression</span>
+            <span class="cb"><input type="checkbox"> OCD</span>
+            <span class="cb"><input type="checkbox"> PTSD</span>
+            <span class="cb"><input type="checkbox"> Schizophrenia</span>
+          </div>
+        </div>
+        <!-- Musculoskeletal -->
+        <div class="sp">
+          <div class="sp-hdr dx">Musculoskeletal</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Arm Pain</span>
+            <span class="cb"><input type="checkbox"> Arthritis</span>
+            <span class="cb"><input type="checkbox"> Carpal Tunnel</span>
+            <span class="cb"><input type="checkbox"> Cervical Pain</span>
+            <span class="cb"><input type="checkbox"> Fx: New</span>
+            <span class="cb"><input type="checkbox"> Fx: Old</span>
+            <span class="cb"><input type="checkbox"> Gout</span>
+            <span class="cb"><input type="checkbox"> Knee Pain</span>
+            <span class="cb"><input type="checkbox"> Leg Pain</span>
+            <span class="cb"><input type="checkbox"> Lumbar Pain</span>
+            <span class="cb"><input type="checkbox"> Sprain</span>
+          </div>
+        </div>
+        <!-- Neurology -->
+        <div class="sp">
+          <div class="sp-hdr dx">Neurology</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Cerebral Palsy</span>
+            <span class="cb"><input type="checkbox"> CVA</span>
+            <span class="cb"><input type="checkbox"> Headache</span>
+            <span class="cb"><input type="checkbox"> Migraine</span>
+            <span class="cb"><input type="checkbox"> Parkinson's Dz</span>
+            <span class="cb"><input type="checkbox"> Seizure</span>
+            <span class="cb"><input type="checkbox"> TIA</span>
+          </div>
+        </div>
+        <!-- Respiratory -->
+        <div class="sp">
+          <div class="sp-hdr dx">Respiratory</div>
+          <div class="sp-body cbg cbg-7">
+            <span class="cb"><input type="checkbox"> Asthma</span>
+            <span class="cb"><input type="checkbox"> Bronchitis</span>
+            <span class="cb"><input type="checkbox"> COPD</span>
+            <span class="cb"><input type="checkbox"> Cough</span>
+            <span class="cb"><input type="checkbox"> Pneumonia</span>
+            <span class="cb"><input type="checkbox"> URTI</span>
+          </div>
+        </div>
+        <!-- Urogenital -->
+        <div class="sp">
+          <div class="sp-hdr dx">Urogenital</div>
+          <div class="sp-body cbg cbg-5">
+            <span class="cb"><input type="checkbox"> BPH</span>
+            <span class="cb"><input type="checkbox"> CKD</span>
+            <span class="cb"><input type="checkbox"> Cystitis</span>
+            <span class="cb"><input type="checkbox"> Descending Testicles</span>
+            <span class="cb"><input type="checkbox"> Epididymitis</span>
+            <span class="cb"><input type="checkbox"> Hematuria</span>
+            <span class="cb"><input type="checkbox"> Lithiasis</span>
+            <span class="cb"><input type="checkbox"> Nephrosis</span>
+            <span class="cb"><input type="checkbox"> UTI</span>
+          </div>
+        </div>
+        <!-- Vascular -->
+        <div class="sp">
+          <div class="sp-hdr dx">Vascular</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Arterial Insufficiency</span>
+            <span class="cb"><input type="checkbox"> DVT</span>
+            <span class="cb"><input type="checkbox"> Varicose Veins</span>
+            <span class="cb"><input type="checkbox"> Venous Insufficiency</span>
+          </div>
+        </div>
+        <!-- Wound / Ostomy -->
+        <div class="sp">
+          <div class="sp-hdr dx">Wound / Ostomy</div>
+          <div class="sp-body cbg cbg-3">
+            <span class="cb"><input type="checkbox"> Arterial</span>
+            <span class="cb"><input type="checkbox"> Neuropathic/Diabetic</span>
+            <span class="cb"><input type="checkbox"> Ostomy</span>
+            <span class="cb"><input type="checkbox"> Pressure Injury/Ulcer</span>
+            <span class="cb"><input type="checkbox"> Surgical</span>
+            <span class="cb"><input type="checkbox"> Traumatic</span>
+            <span class="cb"><input type="checkbox"> Tumor</span>
+            <span class="cb"><input type="checkbox"> Venous</span>
+            <span class="cb"><input type="checkbox"> Venous Ulcer</span>
+          </div>
+        </div>
+    </div><!-- end dx-cols -->
+
+    <div class="sig" style="grid-template-columns:auto 1fr;">
+      <div class="initials-box"><b class="lbl">Clinician (initials)</b><span class="initials-square"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SIDE 2 ══ -->
+<div class="side2">
+
+<!-- ══ STATION 5 — PHYSICAL THERAPY ══ -->
+<section>
+  <h2 class="hdr-pt">5 &mdash; Physical Therapy</h2>
+  <div class="sb">
+    <div class="g2">
+      <div>
+        <b class="lbl">PT Treatment Notes</b>
+        <div class="notes-area"></div>
+      </div>
+      <div>
+        <div class="sp">
+          <div class="sp-hdr pt">PT Treatment</div>
+          <div class="sp-body cbg cbg-2">
+            <span class="cb"><input type="checkbox"> Therapeutic Massage</span>
+            <span class="cb"><input type="checkbox"> Therapy Exercise</span>
+            <span class="cb"><input type="checkbox"> Flexibility Exercise</span>
+            <span class="cb"><input type="checkbox"> Orthopedic Appliance</span>
+            <span class="cb"><input type="checkbox"> Brace</span>
+            <span class="cb"><input type="checkbox"> Splint</span>
+            <span class="cb"><input type="checkbox"> Walking Rehabilitation</span>
+            <span class="cb"><input type="checkbox"> Cane</span>
+            <span class="cb"><input type="checkbox"> Walker</span>
+            <span class="cb"><input type="checkbox"> Wheelchair</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sig" style="grid-template-columns:auto 1fr;">
+      <div class="initials-box"><b class="lbl">PT / OT (initials)</b><span class="initials-square"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATION 6 — PHARMACY ══ -->
+<section>
+  <h2 class="hdr-pharmacy">6 &mdash; Pharmacist</h2>
+  <div class="sb">
+    <div class="fl fl-lg"><b class="lbl">Notes to Pharmacist (from clinician)</b><span></span></div>
+    <b class="sec-lbl">Formulary — check items dispensed</b>
+    <div class="g2 mt1">
+      <div>
+        <!-- Chronic Diseases -->
+        <div class="sp">
+          <div class="sp-hdr rx">Chronic Disease Medications</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Amlodipine 10mg tab</span>
+            <span class="cb"><input type="checkbox"> Amlodipine tab</span>
+            <span class="cb"><input type="checkbox"> ASA 81mg</span>
+            <span class="cb"><input type="checkbox"> Aspirin tab</span>
+            <span class="cb"><input type="checkbox"> Captopril</span>
+            <span class="cb"><input type="checkbox"> Captopril 50mg tab</span>
+            <span class="cb"><input type="checkbox"> Ditropan tab</span>
+            <span class="cb"><input type="checkbox"> Docusate (Colace) 100mg</span>
+            <span class="cb"><input type="checkbox"> Enalapril 10mg tab</span>
+            <span class="cb"><input type="checkbox"> Enalapril 20mg tab</span>
+            <span class="cb"><input type="checkbox"> Enalapril tab</span>
+            <span class="cb"><input type="checkbox"> Estrogen 0.0625% vaginal Cream</span>
+            <span class="cb"><input type="checkbox"> Estrogen Gel</span>
+            <span class="cb"><input type="checkbox"> Flomax (Tamsulosin)</span>
+            <span class="cb"><input type="checkbox"> Furosemide (Lasix) 20mg</span>
+            <span class="cb"><input type="checkbox"> Glipizide tab</span>
+            <span class="cb"><input type="checkbox"> HCTZ 12.5mg cap</span>
+            <span class="cb"><input type="checkbox"> HCTZ 25mg tab</span>
+            <span class="cb"><input type="checkbox"> HCTZ cap</span>
+            <span class="cb"><input type="checkbox"> Hydralazine 50mg tab</span>
+            <span class="cb"><input type="checkbox"> Levothyroxine</span>
+            <span class="cb"><input type="checkbox"> Lisinopril 10mg tab</span>
+            <span class="cb"><input type="checkbox"> Lisinopril tab</span>
+            <span class="cb"><input type="checkbox"> Losartan 100mg tab</span>
+            <span class="cb"><input type="checkbox"> Losartan 50mg tab</span>
+            <span class="cb"><input type="checkbox"> Losartan tab</span>
+            <span class="cb"><input type="checkbox"> Metformin 500mg tab</span>
+            <span class="cb"><input type="checkbox"> Metformin 850mg tab</span>
+            <span class="cb"><input type="checkbox"> Metformin tab</span>
+            <span class="cb"><input type="checkbox"> Metoprolol tartrate 25mg</span>
+            <span class="cb"><input type="checkbox"> Nifedipine XL 30mg tab</span>
+            <span class="cb"><input type="checkbox"> Tamsulosin (Flomax) 0.4mg</span>
+          </div>
+        </div>
+        <!-- Pain Management -->
+        <div class="sp">
+          <div class="sp-hdr rx">Pain Management</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Acetaminophen</span>
+            <span class="cb"><input type="checkbox"> Acetaminophen (CHILD) 160mg/5ml</span>
+            <span class="cb"><input type="checkbox"> Acetaminophen (CHILD) 160mg chew</span>
+            <span class="cb"><input type="checkbox"> Acetaminophen (INFANT) 150mg/5ml</span>
+            <span class="cb"><input type="checkbox"> Acetaminophen 325mg</span>
+            <span class="cb"><input type="checkbox"> Acetaminophen 500mg</span>
+            <span class="cb"><input type="checkbox"> Aspirin 325mg tab</span>
+            <span class="cb"><input type="checkbox"> Aspirin 81mg tab</span>
+            <span class="cb"><input type="checkbox"> Aspirin tab</span>
+            <span class="cb"><input type="checkbox"> Caffeine tab</span>
+            <span class="cb"><input type="checkbox"> Excedrin Migraine tab</span>
+            <span class="cb"><input type="checkbox"> Gabapentin 300mg</span>
+            <span class="cb"><input type="checkbox"> Gabapentin cap/tab</span>
+            <span class="cb"><input type="checkbox"> Ibuprofen</span>
+            <span class="cb"><input type="checkbox"> Ibuprofen 100mg chew</span>
+            <span class="cb"><input type="checkbox"> Ibuprofen 100mg/5ml liq</span>
+            <span class="cb"><input type="checkbox"> Ibuprofen 200mg tab</span>
+            <span class="cb"><input type="checkbox"> Ibuprofen 800mg tab</span>
+            <span class="cb"><input type="checkbox"> Methocarbamol 500mg tab</span>
+            <span class="cb"><input type="checkbox"> Naproxen 220mg tab</span>
+            <span class="cb"><input type="checkbox"> Naproxen tab</span>
+            <span class="cb"><input type="checkbox"> Sumatriptan (Imitrex) 25mg</span>
+          </div>
+        </div>
+        <!-- Vitamins / Nutrients -->
+        <div class="sp">
+          <div class="sp-hdr rx">Vitamins / Nutrients</div>
+          <div class="sp-body cbg cbg-2">
+            <span class="cb"><input type="checkbox"> Calcium Carbonate + Vit D</span>
+            <span class="cb"><input type="checkbox"> Calcium Carbonate 500mg (TUMS)</span>
+            <span class="cb"><input type="checkbox"> IV Therapy</span>
+            <span class="cb"><input type="checkbox"> Oral Rehydration</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- Anti-Infective Agents -->
+        <div class="sp">
+          <div class="sp-hdr rx">Anti-Infective Agents</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Albendazole</span>
+            <span class="cb"><input type="checkbox"> Amoxicillin</span>
+            <span class="cb"><input type="checkbox"> Amoxicillin 125mg/5ml liq</span>
+            <span class="cb"><input type="checkbox"> Amoxicillin 250mg/5ml liq</span>
+            <span class="cb"><input type="checkbox"> Amoxicillin 500mg cap/tab</span>
+            <span class="cb"><input type="checkbox"> Amoxicillin chew tab</span>
+            <span class="cb"><input type="checkbox"> Augmentin</span>
+            <span class="cb"><input type="checkbox"> Azithromycin (Zithromax) 500mg</span>
+            <span class="cb"><input type="checkbox"> Bactrim liq suspension</span>
+            <span class="cb"><input type="checkbox"> Bactrim DS tab</span>
+            <span class="cb"><input type="checkbox"> Cephalexin 250mg/5ml liq</span>
+            <span class="cb"><input type="checkbox"> Cephalexin 250mg cap/tab</span>
+            <span class="cb"><input type="checkbox"> Cephalexin 500mg cap/tab</span>
+            <span class="cb"><input type="checkbox"> Ciprofloxacin 500mg tab</span>
+            <span class="cb"><input type="checkbox"> Clarithromycin 500mg tab</span>
+            <span class="cb"><input type="checkbox"> Clotrimazole 1% topical</span>
+            <span class="cb"><input type="checkbox"> Clotrimazole 2% vaginal</span>
+            <span class="cb"><input type="checkbox"> Doxycycline 100mg</span>
+            <span class="cb"><input type="checkbox"> Erythromycin 0.5% ophth oint</span>
+            <span class="cb"><input type="checkbox"> Fluconazole 100mg tab</span>
+            <span class="cb"><input type="checkbox"> Fosfomycin 3g packet (UTI)</span>
+            <span class="cb"><input type="checkbox"> Gentamicin 0.3% ophth sol</span>
+            <span class="cb"><input type="checkbox"> Metronidazole 250mg/5ml liq</span>
+            <span class="cb"><input type="checkbox"> Metronidazole 500mg tab/cap</span>
+            <span class="cb"><input type="checkbox"> Permethrin 5% topical</span>
+            <span class="cb"><input type="checkbox"> Silvadene 1% cream 50g</span>
+            <span class="cb"><input type="checkbox"> Trim/Sulfa</span>
+          </div>
+        </div>
+        <!-- Ophthalmic / Otic -->
+        <div class="sp">
+          <div class="sp-hdr rx">Ophthalmic / Otic</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Ophth AB (ERY/GEN/TET/OTH)</span>
+            <span class="cb"><input type="checkbox"> Ophthalmic AB + steroid</span>
+            <span class="cb"><input type="checkbox"> Otic AB</span>
+            <span class="cb"><input type="checkbox"> Tears</span>
+            <span class="cb"><input type="checkbox"> Wax Remover</span>
+          </div>
+        </div>
+        <!-- Miscellaneous -->
+        <div class="sp">
+          <div class="sp-hdr rx">Miscellaneous</div>
+          <div class="sp-body cbg cbg-4">
+            <span class="cb"><input type="checkbox"> Alcohol Polivinlico 1.4%</span>
+            <span class="cb"><input type="checkbox"> Fluoride, Sodium dental</span>
+            <span class="cb"><input type="checkbox"> Hydrochloride 50mg</span>
+            <span class="cb"><input type="checkbox"> Lice Treatment</span>
+            <span class="cb"><input type="checkbox"> Polymixin Neomycin Betamethasone</span>
+            <span class="cb"><input type="checkbox"> Rehydration salts</span>
+            <span class="cb"><input type="checkbox"> Tears</span>
+            <span class="cb"><input type="checkbox"> Triamcinolone Acetonide Nasal</span>
+            <span class="cb"><input type="checkbox"> Tylenol 500mg + Benadryl 25mg</span>
+            <span class="cb"><input type="checkbox"> Wax Removal (Carbamide Peroxide)</span>
+          </div>
+        </div>
+        <!-- Dispensing record -->
+        <b class="sec-lbl">Dispensing Record (qty / override reason)</b>
+        <table class="rx">
+          <thead>
+            <tr>
+              <th style="width:38%;">Drug</th>
+              <th style="width:18%;">Dosage</th>
+              <th style="width:12%;">Qty</th>
+              <th style="width:8%;text-align:center;">Filled</th>
+              <th>Override Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td></td><td></td><td></td><td class="c"><input type="checkbox"></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td class="c"><input type="checkbox"></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td class="c"><input type="checkbox"></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td class="c"><input type="checkbox"></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td class="c"><input type="checkbox"></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td class="c"><input type="checkbox"></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- end pharmacy g2 -->
+
+    <div class="sig" style="grid-template-columns:auto 1fr;">
+      <div class="initials-box"><b class="lbl">Pharmacist (initials)</b><span class="initials-square"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATION 7 — TEACHING & REFERRALS ══ -->
+<section>
+  <h2 class="hdr-teach">7 &mdash; Teaching &amp; Referrals &nbsp;· Teaching Coordinator</h2>
+  <div class="sb">
+    <div class="g3">
+      <div class="fl fl-lg"><b class="lbl">Teaching Topics Provided</b><span></span></div>
+      <div class="fl fl-lg"><b class="lbl">External Referral Destination</b><span></span></div>
+      <div class="fl fl-lg"><b class="lbl">Diagnostic Provider Referral</b><span></span></div>
+    </div>
+    <div class="sig">
+      <div class="fl"><b class="lbl">Teaching Coordinator (print)</b><span></span></div>
+      <div class="fl"><b class="lbl">Signature</b><span></span></div>
+      <div class="fl"><b class="lbl">Time</b><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ VISIT COMPLETION ══ -->
+<section>
+  <h2 class="hdr-complete">Visit Completion</h2>
+  <div class="sb">
+    <div class="g5">
+      <div>
+        <b class="lbl">Final Status</b>
+        <div class="cbg cbg-3" style="margin-top:0.5mm;">
+          <span class="cb"><input type="checkbox"> In Progress</span>
+          <span class="cb"><input type="checkbox"> Complete</span>
+        </div>
+      </div>
+      <div class="fl" style="grid-column:span 2;"><b class="lbl">Completed by (print)</b><span></span></div>
+      <div class="fl"><b class="lbl">Time</b><span></span></div>
+    </div>
+    <div style="margin-top:1mm;font-size:5.5pt;color:#555;border-top:0.4pt solid #ccc;padding-top:0.8mm;">
+      <strong>Data entry reminder:</strong> Transfer all data from this form into Librechart when systems are restored. Retain this paper record until digital entry is verified.
+    </div>
+  </div>
+</section>
+
+</div><!-- end side2 -->
+</body>
+</html>

@@ -1,0 +1,22 @@
+librechart_pharmacy.dashboard:
+  path: '/pharmacy'
+  defaults:
+    _controller: '\Drupal\librechart_pharmacy\Controller\PharmacyDashboardController::dashboard'
+    _title: 'Pharmacy'
+  requirements:
+    _permission: 'view drug_inventory entities'
+
+librechart_pharmacy.report:
+  path: '/pharmacy/report'
+  defaults:
+    _controller: '\Drupal\librechart_pharmacy\Controller\InventoryReportController::report'
+    _title: 'Inventory Report'
+  requirements:
+    _permission: 'view drug_inventory entities'
+
+librechart_pharmacy.report_csv:
+  path: '/pharmacy/report/export.csv'
+  defaults:
+    _controller: '\Drupal\librechart_pharmacy\Controller\InventoryReportController::exportCsv'
+  requirements:
+    _permission: 'view drug_inventory entities'

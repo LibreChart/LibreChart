@@ -223,6 +223,33 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['current_station'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(new TranslatableMarkup('Current Station'))
+      ->setRequired(TRUE)
+      ->setRevisionable(TRUE)
+      ->setSetting('allowed_values', [
+        'registration' => new TranslatableMarkup('Registration'),
+        'triage' => new TranslatableMarkup('Triage'),
+        'lab' => new TranslatableMarkup('Lab Orders & Results'),
+        'clinical' => new TranslatableMarkup('Clinical Evaluation'),
+        'pt' => new TranslatableMarkup('Physical Therapy'),
+        'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
+        'teaching' => new TranslatableMarkup('Teaching & Referrals'),
+        'complete' => new TranslatableMarkup('Complete'),
+      ])
+      ->setDefaultValue('registration')
+      ->setDisplayOptions('form', [
+        'type' => 'options_select',
+        'weight' => 6,
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'list_default',
+        'weight' => 6,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(new TranslatableMarkup('Changed'))
       ->setDescription(new TranslatableMarkup('The time the visit was last saved. Used for optimistic locking.'))

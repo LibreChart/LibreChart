@@ -1,0 +1,7 @@
+librechart_visit.floor:
+  path: '/floor'
+  defaults:
+    _controller: '\Drupal\librechart_visit\Controller\FloorController::board'
+    _title: 'Floor'
+  requirements:
+    _permission: 'view visit entities'

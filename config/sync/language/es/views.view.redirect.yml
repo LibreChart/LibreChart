@@ -1,6 +1,7 @@
 label: Redirección
 display:
   default:
+    display_title: Máster
     display_options:
       exposed_form:
         options:
@@ -52,5 +53,8 @@ display:
           expose:
             label: 'Lenguaje original'
       title: Redirección
+      empty:
+        area_text_custom:
+          content: 'There are no redirects yet.'
   page_1:
     display_title: Página

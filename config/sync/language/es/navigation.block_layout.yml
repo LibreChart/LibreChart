@@ -9,7 +9,7 @@ sections:
           label: Contenido
       3f2f743f-856f-404a-9c28-57ee83af4691:
         configuration:
-          label: Administración
+          label: Administration
       283da777-e051-4571-8089-47633a9ce706:
         configuration:
           label: User

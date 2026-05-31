@@ -19,7 +19,7 @@ versioned_properties:
     settings:
       default_settings:
         id: navigation_shortcuts
-        label: 'Atajos de navegación'
+        label: 'Navigation Shortcuts'
         label_display: '0'
         provider: navigation
     fallback_metadata:

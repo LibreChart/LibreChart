@@ -53,6 +53,7 @@ display:
         langcode:
           expose:
             label: Idioma
+    display_title: Máster
   overview:
     display_options:
       tab_options:

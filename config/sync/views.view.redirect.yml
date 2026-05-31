@@ -18,11 +18,11 @@ base_field: rid
 display:
   default:
     id: default
-    display_title: Máster
+    display_title: Master
     display_plugin: default
     position: 0
     display_options:
-      title: Redirección
+      title: Redirect
       fields:
         redirect_bulk_form:
           id: redirect_bulk_form
@@ -87,7 +87,7 @@ display:
           entity_type: redirect
           entity_field: redirect_source
           plugin_id: field
-          label: Desde
+          label: From
           exclude: false
           alter:
             alter_text: false
@@ -172,7 +172,7 @@ display:
           entity_type: redirect
           entity_field: created
           plugin_id: date
-          label: Creado
+          label: Created
           exclude: false
           alter:
             alter_text: false
@@ -237,12 +237,12 @@ display:
             last: 'last »'
           expose:
             items_per_page: false
-            items_per_page_label: 'Elementos por página'
+            items_per_page_label: 'Items per page'
             items_per_page_options: '5, 10, 25, 50'
             items_per_page_options_all: false
-            items_per_page_options_all_label: '- Todo -'
+            items_per_page_options_all_label: '- All -'
             offset: false
-            offset_label: Desplazamiento
+            offset_label: Offset
           quantity: 9
       exposed_form:
         type: basic
@@ -292,7 +292,7 @@ display:
           exposed: true
           expose:
             operator_id: redirect_source__path_op
-            label: Desde
+            label: From
             description: ''
             use_operator: false
             operator: redirect_source__path_op
@@ -375,7 +375,7 @@ display:
           exposed: true
           expose:
             operator_id: status_code_op
-            label: 'Código de estado'
+            label: 'Status code'
             description: ''
             use_operator: false
             operator: status_code_op
@@ -389,7 +389,7 @@ display:
               authenticated: authenticated
           is_grouped: true
           group_info:
-            label: 'Código de estado'
+            label: 'Status code'
             description: ''
             identifier: status_code
             optional: true
@@ -400,7 +400,7 @@ display:
             default_group_multiple: {  }
             group_items:
               1:
-                title: '300 Múltiples posibilidades'
+                title: '300 Multiple Choices'
                 operator: '='
                 value:
                   min: ''
@@ -421,7 +421,7 @@ display:
                   max: ''
                   value: '302'
               4:
-                title: '303 Ver otra ubicación'
+                title: '303 See Other'
                 operator: '='
                 value:
                   min: ''
@@ -442,7 +442,7 @@ display:
                   max: ''
                   value: '305'
               7:
-                title: '307 Redirección temporal'
+                title: '307 Temporary Redirect'
                 operator: '='
                 value:
                   min: ''

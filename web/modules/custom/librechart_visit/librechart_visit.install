@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Install/update hooks for the Librechart Visit module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Install the `current_station` base field on already-deployed sites.
+ *
+ * Fresh sites pick the field up from Visit::baseFieldDefinitions(); existing
+ * sites need this update hook because schema changes don't apply retroactively
+ * to a populated entity table.
+ */
+function librechart_visit_update_9001(): void {
+  $field = BaseFieldDefinition::create('list_string')
+    ->setLabel(new TranslatableMarkup('Current Station'))
+    ->setRequired(TRUE)
+    ->setRevisionable(TRUE)
+    ->setSetting('allowed_values', [
+      'registration' => 'Registration',
+      'triage' => 'Triage',
+      'lab' => 'Lab Orders & Results',
+      'clinical' => 'Clinical Evaluation',
+      'pt' => 'Physical Therapy',
+      'pharmacy' => 'Pharmacy Dispensing',
+      'teaching' => 'Teaching & Referrals',
+      'complete' => 'Complete',
+    ])
+    ->setDefaultValue('registration');
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('current_station', 'visit', 'librechart_visit', $field);
+}

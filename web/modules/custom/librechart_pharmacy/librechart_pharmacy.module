@@ -9,6 +9,182 @@ declare(strict_types=1);
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Vocabularies a pharmacist may file a newly-added drug under.
+ *
+ * Curated subset of the project's taxonomies — limited to the ones that
+ * historically hold drug names (excludes diagnosis-only vocabularies like
+ * cardiac_thoracic and the location vocabularies).
+ *
+ * @return array<string, string>
+ *   Vocabulary machine name keyed to a human label.
+ */
+function librechart_pharmacy_drug_vocabularies(): array {
+  return [
+    'anti_infective_agents' => t('Anti-infective agents')->render(),
+    'chronic_diseases' => t('Chronic diseases')->render(),
+    'pain_management' => t('Pain management')->render(),
+    'vitamins_nutrients_lv' => t('Vitamins & nutrients')->render(),
+    'gi' => t('GI')->render(),
+    'derm' => t('Dermatologic')->render(),
+    'resp' => t('Respiratory')->render(),
+    'opthalmic_otic' => t('Ophthalmic / Otic')->render(),
+    'gyn_ob' => t('GYN / OB')->render(),
+    'eye' => t('Eye')->render(),
+    'ent' => t('ENT')->render(),
+    'endo' => t('Endocrine')->render(),
+    'neuro' => t('Neurology')->render(),
+    'uro_genital' => t('Urogenital')->render(),
+    'miscellaneous' => t('Miscellaneous')->render(),
+  ];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for inventory_receipt_add_form.
+ *
+ * Adds an inline "new drug" subform so pharmacists can register a drug that
+ * isn't yet in the system without leaving the receipt-entry workflow. The
+ * pharmacist picks a vocabulary (drug category) for the new term; a custom
+ * validate handler creates the term and feeds its id back into the receipt's
+ * drug field before the entity is built.
+ */
+function librechart_pharmacy_form_inventory_receipt_add_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  // Drop the widget-level required flag — the validate handler below
+  // enforces "either an existing drug OR new-drug name+vocab," whichever
+  // makes the entity's required drug field eventually get populated.
+  if (isset($form['drug']['widget']['#required'])) {
+    $form['drug']['widget']['#required'] = FALSE;
+  }
+
+  $form['add_new_drug'] = [
+    '#type' => 'checkbox',
+    '#title' => t('This drug is not in the system yet — add a new one'),
+    '#weight' => ($form['drug']['#weight'] ?? 1) - 0.5,
+  ];
+
+  $form['new_drug'] = [
+    '#type' => 'fieldset',
+    '#title' => t('New drug'),
+    '#weight' => ($form['drug']['#weight'] ?? 1) + 0.5,
+    '#states' => [
+      'visible' => [
+        ':input[name="add_new_drug"]' => ['checked' => TRUE],
+      ],
+    ],
+    'name' => [
+      '#type' => 'textfield',
+      '#title' => t('Drug name'),
+      '#maxlength' => 255,
+      '#description' => t('Include strength and form where useful, e.g. "Amoxicillin 500 mg capsule".'),
+      '#states' => [
+        'required' => [':input[name="add_new_drug"]' => ['checked' => TRUE]],
+      ],
+    ],
+    'vocab' => [
+      '#type' => 'select',
+      '#title' => t('Drug category (vocabulary)'),
+      '#options' => librechart_pharmacy_drug_vocabularies(),
+      '#empty_option' => t('- Choose category -'),
+      '#states' => [
+        'required' => [':input[name="add_new_drug"]' => ['checked' => TRUE]],
+      ],
+    ],
+  ];
+
+  // Prepend so we create the term and populate the drug value before the
+  // entity form's validateForm() builds the entity from form values.
+  array_unshift($form['#validate'], 'librechart_pharmacy_inventory_receipt_validate_new_drug');
+}
+
+/**
+ * Validate / process callback: creates the new drug term inline.
+ *
+ * Runs before the entity form's validateForm() so that when the form object
+ * extracts values into the entity, the drug field already points at the
+ * newly created (or reused) taxonomy term.
+ */
+function librechart_pharmacy_inventory_receipt_validate_new_drug(array &$form, FormStateInterface $form_state): void {
+  $add_new = (bool) $form_state->getValue('add_new_drug');
+  $drug_value = $form_state->getValue('drug');
+  $picked_existing = !empty($drug_value);
+
+  if (!$add_new) {
+    if (!$picked_existing) {
+      $form_state->setErrorByName('drug', t('Select a drug, or check "add a new one" and enter the drug details.'));
+    }
+    return;
+  }
+
+  $name = trim((string) $form_state->getValue(['new_drug', 'name']));
+  $vocab = (string) $form_state->getValue(['new_drug', 'vocab']);
+
+  if ($name === '') {
+    $form_state->setErrorByName('new_drug][name', t('Enter the drug name.'));
+  }
+  if ($vocab === '') {
+    $form_state->setErrorByName('new_drug][vocab', t('Choose a drug category.'));
+  }
+  if ($form_state->getErrors()) {
+    return;
+  }
+  if (!array_key_exists($vocab, librechart_pharmacy_drug_vocabularies())) {
+    $form_state->setErrorByName('new_drug][vocab', t('Invalid drug category.'));
+    return;
+  }
+
+  // Re-use an existing term with the same name in the same vocabulary
+  // rather than creating a duplicate.
+  $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $existing = $term_storage->loadByProperties(['name' => $name, 'vid' => $vocab]);
+  if ($existing) {
+    $term = reset($existing);
+    \Drupal::messenger()->addStatus(
+      t('Reused existing drug "@name" in @vocab.', ['@name' => $name, '@vocab' => $vocab])
+    );
+  }
+  else {
+    $term = Term::create(['name' => $name, 'vid' => $vocab]);
+    $term->save();
+    \Drupal::messenger()->addStatus(
+      t('Added new drug "@name" to @vocab.', ['@name' => $name, '@vocab' => $vocab])
+    );
+  }
+
+  // Push the term id back into the drug widget's form value so the entity
+  // form's value-extractor sees a populated entity_reference.
+  $form_state->setValue('drug', (int) $term->id());
+}
+
+/**
+ * Implements hook_preprocess_views_view_table().
+ *
+ * Marks rows in the inventory_report view where quantity_on_hand has dropped
+ * to or below the configured low-stock threshold. The class hook drives the
+ * red row tint and the "Low" badge defined in css/pharmacy.css.
+ */
+function librechart_pharmacy_preprocess_views_view_table(array &$variables): void {
+  if ($variables['view']->id() !== 'inventory_report') {
+    return;
+  }
+
+  $variables['#attached']['library'][] = 'librechart_pharmacy/pharmacy';
+
+  foreach ($variables['rows'] as $i => &$row) {
+    $result_row = $variables['view']->result[$i] ?? NULL;
+    $entity = $result_row->_entity ?? NULL;
+    if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'drug_inventory') {
+      continue;
+    }
+    $on_hand = (int) $entity->get('quantity_on_hand')->value;
+    $threshold = (int) $entity->get('low_stock_threshold')->value;
+    if ($on_hand <= $threshold) {
+      $row['attributes']->addClass('inventory-row--low-stock');
+    }
+  }
+}
 
 /**
  * Implements hook_entity_postsave().

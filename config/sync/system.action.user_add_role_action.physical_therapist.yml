@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_add_role_action.physical_therapist
-label: 'Añade el rol Physical Therapist al(los) usuario(s) seleccionado(s)'
+label: 'Add the Physical Therapist role to the selected user(s)'
 type: user
 plugin: user_add_role_action
 configuration:

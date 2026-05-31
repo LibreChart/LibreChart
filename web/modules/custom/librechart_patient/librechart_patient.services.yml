@@ -3,3 +3,7 @@ services:
     class: Drupal\librechart_patient\Service\PatientDuplicateChecker
     arguments:
       - '@entity_type.manager'
+  librechart_patient.route_subscriber:
+    class: Drupal\librechart_patient\Routing\PatientRouteSubscriber
+    tags:
+      - { name: event_subscriber }

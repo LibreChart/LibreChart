@@ -155,6 +155,10 @@ When working in this codebase, prioritize adherence to Drupal patterns and conve
 - MySQL / MariaDB (DDEV default; Linux server production) (001-emr-rebuild)
 - PHP 8.3+, Drupal CMS (latest stable) + Drupal Views (core), Drupal Menu system (core) (002-main-menu-nav-links)
 - MySQL/MariaDB — all changes are config-driven; no schema changes needed (002-main-menu-nav-links)
+- PHP 8.3+ (matches `composer.json` core requirement) + Drupal core 11.x (Entity API, Form API, Routing); existing `librechart_visit` custom module; no new contrib modules required (the conditional_fields module already handles `pt_referral` visibility, and the Visit entity already supports revisions) (003-emr-station-transitions)
+- MariaDB/MySQL via Drupal DBTNG; new column `current_station VARCHAR(32)` added to the `visit` and `visit_field_revision` tables via Drupal's entity schema update API (no manual migration SQL) (003-emr-station-transitions)
+- PHP 8.3+ (inherited from 003) + Drupal core 11.x Form API; existing `librechart_visit` custom module — specifically the `StationWorkflow` service and the `current_station` base field from feature 003. No new contrib modules required. (004-flexible-transitions)
+- No schema changes. Writes to the existing `visit.current_station` column established in 003. (004-flexible-transitions)
 
 ## Recent Changes
 - 001-emr-rebuild: Added PHP 8.3+
