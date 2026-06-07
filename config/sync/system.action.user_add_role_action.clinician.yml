@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_add_role_action.clinician
-label: 'Añade el rol Clinician al(los) usuario(s) seleccionado(s)'
+label: 'Add the Clinician role to the selected user(s)'
 type: user
 plugin: user_add_role_action
 configuration:

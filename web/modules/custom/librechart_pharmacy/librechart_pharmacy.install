@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Install/update hooks for the Librechart Pharmacy module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+
+/**
+ * Install the `fulfilled_by` field on PrescriptionItem (feature 005).
+ *
+ * Fresh sites pick the field up from PrescriptionItem::baseFieldDefinitions();
+ * already-deployed sites need this update hook to add the storage to the
+ * populated entity table.
+ */
+function librechart_pharmacy_update_9001(): void {
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('prescription_item')['fulfilled_by'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface) {
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('fulfilled_by', 'prescription_item', 'librechart_pharmacy', $definition);
+  }
+}
+
+/**
+ * Install the `frequency` patient-instruction field on PrescriptionItem.
+ *
+ * Fresh sites pick the field up from PrescriptionItem::baseFieldDefinitions();
+ * already-deployed sites need this update hook to add the storage to the
+ * populated entity table.
+ */
+function librechart_pharmacy_update_9002(): void {
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('prescription_item')['frequency'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface) {
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('frequency', 'prescription_item', 'librechart_pharmacy', $definition);
+  }
+}
+
+/**
+ * Install the NonFormularyMedication entity type.
+ *
+ * Orders for medications the clinic does not stock, to be filled at an outside
+ * hospital or clinic. Fresh sites install it with the module; already-deployed
+ * sites need this hook to create the entity's table.
+ */
+function librechart_pharmacy_update_9003(): void {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $type = \Drupal::entityTypeManager()->getDefinition('non_formulary_medication', FALSE);
+  if ($type !== NULL && $update_manager->getEntityType('non_formulary_medication') === NULL) {
+    $update_manager->installEntityType($type);
+  }
+}

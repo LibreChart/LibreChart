@@ -1,0 +1,13 @@
+librechart_patient.add_visit:
+  path: '/patient/{patient}/add-visit'
+  defaults:
+    _controller: '\Drupal\librechart_patient\Controller\PatientChartController::addVisit'
+    _title: 'Add visit'
+  requirements:
+    _permission: 'create visit entities'
+    patient: \d+
+  options:
+    parameters:
+      patient:
+        type: entity:patient
+    no_cache: TRUE

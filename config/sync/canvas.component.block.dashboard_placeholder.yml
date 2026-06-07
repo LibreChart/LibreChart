@@ -17,7 +17,7 @@ versioned_properties:
     settings:
       default_settings:
         id: dashboard_placeholder
-        label: 'Marcador de posición'
+        label: Placeholder
         label_display: '0'
         provider: dashboard
     fallback_metadata:

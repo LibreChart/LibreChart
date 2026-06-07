@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_remove_role_action.triage_nurse
-label: 'Elimina el rol Triage Nurse al(los) usuario(s) seleccionado(s)'
+label: 'Remove the Triage role from the selected user(s)'
 type: user
 plugin: user_remove_role_action
 configuration:

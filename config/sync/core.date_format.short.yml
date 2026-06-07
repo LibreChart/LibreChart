@@ -5,6 +5,6 @@ dependencies: {  }
 _core:
   default_config_hash: SAeixlV7Djy_Ggv_1P95TiqD4KUihA5icvU521tA84Y
 id: short
-label: 'Fecha corta por defecto'
+label: 'Default short date'
 locked: false
-pattern: 'j M Y - H:i'
+pattern: 'd/m/Y - H:i'

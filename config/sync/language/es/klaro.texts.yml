@@ -4,3 +4,5 @@ save: Guardar
 close: Cerrar
 service:
   purpose: Propósito
+contextualConsent:
+  acceptAlways: Siempre

@@ -1,0 +1,224 @@
+uuid: 1a8d2e3f-4b56-7c89-9012-3a4b5c6d7e8f
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_pharmacy
+    - user
+id: inventory_receipts
+label: 'Inventory Receipts'
+module: views
+description: 'Stock receipts (drug, quantity, date) filterable by clinic site and date.'
+tag: report
+base_table: inventory_receipt
+base_field: id
+display:
+  default:
+    id: default
+    display_title: Master
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Inventory Receipts'
+      fields:
+        receipt_date:
+          id: receipt_date
+          table: inventory_receipt
+          field: receipt_date
+          relationship: none
+          plugin_id: field
+          label: Date
+          type: datetime_custom
+          settings:
+            date_format: d/m/Y
+            timezone: ''
+        drug:
+          id: drug
+          table: inventory_receipt
+          field: drug
+          relationship: none
+          plugin_id: field
+          label: Drug
+          type: entity_reference_label
+          settings:
+            link: false
+        clinic_site:
+          id: clinic_site
+          table: inventory_receipt
+          field: clinic_site
+          relationship: none
+          plugin_id: field
+          label: 'Clinic Site'
+          type: entity_reference_label
+          settings:
+            link: false
+        quantity_received:
+          id: quantity_received
+          table: inventory_receipt
+          field: quantity_received
+          relationship: none
+          plugin_id: field
+          label: Quantity
+        received_by:
+          id: received_by
+          table: inventory_receipt
+          field: received_by
+          relationship: none
+          plugin_id: field
+          label: 'Received By'
+        operations:
+          id: operations
+          table: inventory_receipt
+          field: operations
+          relationship: none
+          plugin_id: entity_operations
+          label: Operations
+      pager:
+        type: full
+        options:
+          items_per_page: 50
+      access:
+        type: perm
+        options:
+          perm: 'view inventory_receipt entities'
+      cache:
+        type: tag
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No inventory receipts recorded yet.'
+          tokenize: false
+      sorts:
+        receipt_date:
+          id: receipt_date
+          table: inventory_receipt
+          field: receipt_date
+          relationship: none
+          plugin_id: date
+          order: DESC
+      filters:
+        clinic_site:
+          id: clinic_site
+          table: inventory_receipt
+          field: clinic_site
+          relationship: none
+          plugin_id: numeric
+          exposed: true
+          expose:
+            operator_id: clinic_site_op
+            label: 'Clinic site'
+            identifier: clinic_site
+            required: false
+            remember: false
+            multiple: false
+        receipt_date:
+          id: receipt_date
+          table: inventory_receipt
+          field: receipt_date
+          relationship: none
+          plugin_id: datetime
+          operator: between
+          value:
+            min: ''
+            max: ''
+            value: ''
+            type: date
+          exposed: true
+          expose:
+            operator_id: receipt_date_op
+            label: 'Receipt date'
+            identifier: receipt_date
+            required: false
+      style:
+        type: table
+        options:
+          row_class: ''
+          default_row_class: true
+          columns:
+            receipt_date: receipt_date
+            drug: drug
+            clinic_site: clinic_site
+            quantity_received: quantity_received
+            received_by: received_by
+            operations: operations
+          info:
+            receipt_date:
+              sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            drug:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            clinic_site:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: priority-medium
+            quantity_received:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            received_by:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: priority-low
+            operations:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: false
+          sticky: true
+      row:
+        type: fields
+        options:
+          default_field_elements: true
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - url.query_args
+        - user.permissions
+      tags: {  }
+  page_1:
+    id: page_1
+    display_title: Page
+    display_plugin: page
+    position: 1
+    display_options:
+      path: pharmacy/receipts
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - url.query_args
+        - user.permissions
+      tags: {  }

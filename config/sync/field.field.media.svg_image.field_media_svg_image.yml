@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - field.storage.media.field_media_svg_image
-    - image.style.canvas_parametrized_width
     - media.type.svg_image
   module:
     - image

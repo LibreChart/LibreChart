@@ -1,5 +1,5 @@
-label: 'Biblioteca de medios'
-description: 'Buscar y administrar medios.'
+label: 'Media library'
+description: 'Find and manage media.'
 display:
   default:
     display_title: 'Por defecto'

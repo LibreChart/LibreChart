@@ -1,0 +1,11 @@
+name: LAUGHH
+type: theme
+base theme: mercury
+description: 'LAUGHH Foundation sub-theme.'
+core_version_requirement: ^11
+libraries:
+  - laughh/global
+regions:
+  content: Content
+  header: Header
+  footer: Footer

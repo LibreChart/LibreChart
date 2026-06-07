@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_add_role_action.lab_technician
-label: 'Añade el rol Lab Technician al(los) usuario(s) seleccionado(s)'
+label: 'Add the Lab Technician role to the selected user(s)'
 type: user
 plugin: user_add_role_action
 configuration:

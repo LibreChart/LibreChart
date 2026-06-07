@@ -7,8 +7,26 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\librechart_patient\Service\PatientDuplicateChecker;
+
+/**
+ * Implements hook_gin_ignore_sticky_form_actions().
+ *
+ * Opts the patient form out of Gin's sticky-action bar. On the patient chart
+ * the patient form is embedded alongside the visit form; Gin's sticky header
+ * Save submits only the patient form, so clicking it reloads the page without
+ * saving the visit edits below it. Removing the sticky duplicate leaves the
+ * in-form Save buttons, which submit the correct form (feature 005).
+ *
+ * @return array<int, string>
+ *   Form ids to exclude from Gin's sticky form actions.
+ */
+function librechart_patient_gin_ignore_sticky_form_actions(): array {
+  return ['patient_add_form', 'patient_edit_form'];
+}
 
 /**
  * Implements hook_form_alter().
@@ -21,6 +39,56 @@ function librechart_patient_form_alter(array &$form, FormStateInterface $form_st
   }
 
   $form['#validate'][] = 'librechart_patient_form_patient_validate_duplicates';
+
+  // Send the user to the patient chart (edit form) instead of the entity's
+  // default collection/canonical destination so they can immediately start
+  // a visit from the chart.
+  if (isset($form['actions']['submit']['#submit'])) {
+    $form['actions']['submit']['#submit'][] = '_librechart_patient_redirect_to_edit';
+  }
+}
+
+/**
+ * Submit handler: after saving a new patient, redirect to its edit form
+ * (the chart page rendered by PatientChartController::edit).
+ */
+function _librechart_patient_redirect_to_edit(array &$form, FormStateInterface $form_state): void {
+  $patient = $form_state->getFormObject()->getEntity();
+  if ($patient && method_exists($patient, 'id') && $patient->id()) {
+    $form_state->setRedirect('entity.patient.edit_form', ['patient' => (int) $patient->id()]);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for the patient entity.
+ *
+ * Auto-creates a Visit at the 'registration' station for every newly
+ * registered patient. This makes the patient appear in the Registration
+ * column of the Floor board so triage staff can see who is waiting. The
+ * visit uses the entity's built-in defaults (patient_type=adult,
+ * status=in_progress, visit_date=now); clinic_site is left empty for the
+ * triage nurse to fill when they pick up the patient.
+ *
+ * Defensive: skips creation if a visit already exists for this patient
+ * (e.g. if some other code path created one first).
+ */
+function librechart_patient_patient_insert(EntityInterface $patient): void {
+  $visit_storage = \Drupal::entityTypeManager()->getStorage('visit');
+
+  $existing = (int) $visit_storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('patient', $patient->id())
+    ->count()
+    ->execute();
+  if ($existing > 0) {
+    return;
+  }
+
+  $visit = $visit_storage->create([
+    'patient' => $patient->id(),
+    'current_station' => 'registration',
+  ]);
+  $visit->save();
 }
 
 /**
@@ -30,13 +98,20 @@ function librechart_patient_form_patient_validate_duplicates(array &$form, FormS
   $last_name = $form_state->getValue(['last_name', 0, 'value']);
   $dob = $form_state->getValue(['date_of_birth', 0, 'value']);
 
+  // The datetime widget can hand us either a DrupalDateTime (after its own
+  // validator runs) or the raw YYYY-MM-DD string. Normalize to the string
+  // form the service contract expects.
+  if ($dob instanceof DrupalDateTime) {
+    $dob = $dob->format('Y-m-d');
+  }
+
   if (empty($last_name) || empty($dob)) {
     return;
   }
 
   /** @var \Drupal\librechart_patient\Service\PatientDuplicateChecker $checker */
   $checker = \Drupal::service('librechart_patient.duplicate_checker');
-  $matches = $checker->findPotentialDuplicates($last_name, $dob);
+  $matches = $checker->findPotentialDuplicates($last_name, (string) $dob);
 
   if (!empty($matches)) {
     $items = [];

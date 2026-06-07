@@ -1,0 +1,23 @@
+uuid: 561c5036-38a6-4d51-9fe4-f8bb46030585
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.complete
+    - paragraphs.paragraphs_type.education_referral
+id: paragraph.education_referral.complete
+field_name: complete
+entity_type: paragraph
+bundle: education_referral
+label: Complete
+description: 'Whether the patient completed this education class.'
+required: false
+translatable: true
+default_value:
+  -
+    value: false
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

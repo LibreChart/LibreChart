@@ -1,0 +1,10 @@
+uuid: cdc4d61a-6c78-4cbd-aea3-b22213b7b502
+langcode: en
+status: true
+dependencies: {  }
+id: education_referral
+label: 'Education Referral'
+icon_uuid: null
+icon_default: null
+description: 'A referral to an education class with a completion flag.'
+behavior_plugins: {  }

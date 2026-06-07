@@ -1,0 +1,7 @@
+librechart_patient.add:
+  title: 'New patient'
+  description: 'Create a new patient record.'
+  parent: views_view:views.patient_search.page_1
+  route_name: entity.patient.add_form
+  menu_name: main
+  weight: 0

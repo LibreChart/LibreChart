@@ -7,10 +7,11 @@ dependencies:
     - librechart_patient
     - librechart_visit
 id: triage_nurse
-label: 'Triage Nurse'
+label: 'Triage'
 weight: 5
 is_admin: false
 permissions:
+  - 'edit any patient entities'
   - 'edit any visit entities'
   - 'use dictation'
   - 'view patient entities'

@@ -1,0 +1,6 @@
+/* Hide the navigation top-bar's "tools" region. Drupal's navigation module
+ * renders a breadcrumb-style "Back to site / Edit patient" strip in this
+ * region on every admin page. Librechart doesn't want it. */
+.top-bar .top-bar__tools {
+  display: none !important;
+}

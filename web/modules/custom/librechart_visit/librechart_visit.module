@@ -8,23 +8,708 @@
 declare(strict_types=1);
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+use Drupal\librechart_visit\Entity\Visit;
+use Drupal\librechart_visit\Service\StationWorkflow;
+
+/**
+ * Implements hook_menu_links_discovered_alter().
+ *
+ * Assigns navigation icons to the EMR's main-menu links. The Navigation
+ * module (left sidebar) renders each top-level item as an icon button and
+ * defaults the icon id to the link's sanitised plugin id — which does not
+ * exist in the 'navigation' icon pack for custom links. The result is an
+ * icon-less, effectively invisible button, so roles whose sidebar contains
+ * only these links (e.g. clinician, with no admin menus) see an empty
+ * navigation. Mapping each link to a real icon makes them render like the
+ * core admin items.
+ *
+ * @param array<string, array<string, mixed>> $links
+ *   The discovered menu link definitions, keyed by plugin id.
+ */
+function librechart_visit_menu_links_discovered_alter(array &$links): void {
+  // Plugin id => navigation icon id (all from the core 'navigation' pack).
+  $icons = [
+    'librechart_visit.floor' => 'navigation-blocks',
+    'views_view:views.patient_search.page_1' => 'entity-user-collection',
+    'views_view:views.visits.page_1' => 'file',
+  ];
+  foreach ($icons as $plugin_id => $icon_id) {
+    if (isset($links[$plugin_id])) {
+      $links[$plugin_id]['options']['icon']['icon_id'] = $icon_id;
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_inline_entity_form_entity_table().
+ *
+ * Flags fulfilled medication rows so the visit form CSS can paint them the
+ * same light green as the Triage station marker. A prescription is fulfilled
+ * when its `prescription_filled` flag is set. Each prescription_item produces
+ * one entity row (class ief-row-entity), optionally followed by an edit-form
+ * row (class ief-row-form) which is skipped, so the entity render keys line up
+ * with the entity rows in order.
+ *
+ * @param array<string, mixed> $variables
+ *   The IEF entity table template variables.
+ */
+function librechart_visit_preprocess_inline_entity_form_entity_table(array &$variables): void {
+  $form = $variables['form'] ?? [];
+  if (($form['#entity_type'] ?? NULL) !== 'prescription_item' || !isset($variables['table'])) {
+    return;
+  }
+  $entity_keys = Element::children($form);
+  $index = 0;
+  foreach (Element::children($variables['table']) as $delta) {
+    $classes = $variables['table'][$delta]['#attributes']['class'] ?? [];
+    if (!in_array('ief-row-entity', $classes, TRUE)) {
+      // An edit-form row — it belongs to the previous entity, so skip it
+      // without advancing the entity pointer.
+      continue;
+    }
+    $key = $entity_keys[$index] ?? NULL;
+    $index++;
+    $entity = $key !== NULL ? ($form[$key]['#entity'] ?? NULL) : NULL;
+    if ($entity instanceof ContentEntityInterface
+      && $entity->hasField('prescription_filled')
+      && (bool) $entity->get('prescription_filled')->value) {
+      $variables['table'][$delta]['#attributes']['class'][] = 'medication-row--fulfilled';
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Injects an inline <style> tag that hides the navigation top-bar's "tools"
+ * region (where Drupal renders the "Back to site / Edit patient" breadcrumb
+ * strip). Inline rather than a library because Drupal's CSS aggregator was
+ * not picking up the standalone library asset reliably.
+ *
+ * @param array $attachments
+ *   The render array passing through the page attachments pipeline.
+ */
+function librechart_visit_page_attachments(array &$attachments): void {
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#tag' => 'style',
+      '#value' => '.top-bar .top-bar__tools { display: none !important; }',
+    ],
+    'librechart_visit_hide_topbar_tools',
+  ];
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ *
+ * Wraps the Visits view's `status` field in an `.lc-badge` span so the
+ * LAUGHH theme's badge CSS can color-code the value (checked-in, in_progress,
+ * complete, etc.). The slug derives from the raw rendered string.
+ */
+function librechart_visit_preprocess_views_view_field(array &$variables): void {
+  if ($variables['view']->id() !== 'visits') {
+    return;
+  }
+  if ($variables['field']->field !== 'status') {
+    return;
+  }
+  $raw = trim(strip_tags((string) $variables['output']));
+  if ($raw === '') {
+    return;
+  }
+  $slug = preg_replace('/[^a-z0-9]+/', '-', strtolower($raw)) ?: 'default';
+  $variables['output'] = Markup::create(
+    '<span class="lc-badge lc-badge--' . $slug . '">'
+    . htmlspecialchars($raw, ENT_QUOTES, 'UTF-8')
+    . '</span>'
+  );
+}
+
+/**
+ * Implements hook_gin_ignore_sticky_form_actions().
+ *
+ * Opts out of Gin's sticky-action-bar for visit forms. The sticky bar
+ * duplicates submit buttons into a header strip; when the visit form is
+ * embedded inside the patient chart, those duplicates can lose their event
+ * wiring and silently fail to submit. The body-row buttons we render are
+ * always reachable.
+ */
+function librechart_visit_gin_ignore_sticky_form_actions(): array {
+  return ['visit_add_form', 'visit_edit_form'];
+}
 
 /**
  * Implements hook_form_alter().
  *
- * Adds patient type change warning and data-dictation-enabled attributes.
+ * Adds patient type change warning and shims #on_value on checkboxes used as
+ * conditional_fields dependees (the contrib module's Checkbox handler reads
+ * #on_value, but Drupal core's boolean_checkbox widget only sets
+ * #return_value).
  */
 function librechart_visit_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  // Shim #on_value site-wide so conditional_fields' Checkbox handler can
+  // evaluate boolean dependees correctly, regardless of which form is open.
+  _librechart_visit_alias_checkbox_on_value($form);
+
   if (!in_array($form_id, ['visit_add_form', 'visit_edit_form'], TRUE)) {
     return;
   }
 
   // Attach patient type change warning (US10).
   $form['#attached']['library'][] = 'librechart_visit/patient_type_warning';
+  // Attach the visit form CSS (meta row layout, etc.). Module-level so it
+  // applies whether the form renders in the LAUGHH frontend theme or the
+  // Gin admin theme (entity edit forms default to the admin theme).
+  $form['#attached']['library'][] = 'librechart_visit/visit_form';
+
+  // Render the five lead vitals (temperature, pulse, respiration, systolic,
+  // diastolic) on one line; height/weight/BMI flow below. The fields are
+  // adjacent in the form display, so wrapping them in a flex container via
+  // prefix/suffix puts them on the same row, each narrower.
+  if (isset($form['vital_temperature'], $form['vital_diastolic'])) {
+    $form['vital_temperature']['#prefix'] = '<div class="lc-field-row">';
+    $form['vital_diastolic']['#suffix'] = '</div>';
+  }
+
+  // Sticky red allergy pills pinned to the bottom of the page (US3). Allergies
+  // are only editable at the triage station, but the warning must stay visible
+  // at every station, so the current allergy labels are supplied server-side
+  // from the visit entity (excluding "None") and rendered by JS regardless of
+  // whether the editable widget is present. When the widget IS shown (triage),
+  // the JS also live-updates as allergies are added or removed.
+  $none_tid = Visit::getNoneAllergyTermId();
+  $form['#attached']['library'][] = 'librechart_visit/allergy_sticky';
+  $form['#attached']['drupalSettings']['librechartVisit']['noneAllergyTid'] = $none_tid;
+  $sticky_visit = _librechart_visit_get_form_entity($form_state);
+  if ($sticky_visit instanceof ContentEntityInterface && $sticky_visit->hasField('allergies')) {
+    $allergy_labels = [];
+    foreach ($sticky_visit->get('allergies')->referencedEntities() as $term) {
+      if ((int) $term->id() !== $none_tid) {
+        $allergy_labels[] = $term->label();
+      }
+    }
+    $form['#attached']['drupalSettings']['librechartVisit']['allergyLabels'] = $allergy_labels;
+  }
+  if (isset($form['allergies']['widget'])) {
+    $form['allergies']['widget']['#attributes']['class'][] = 'js-allergy-source';
+  }
+
+  // Hide the raw current_station dropdown — the station strip + transition
+  // controls (US1–US6) are the UX surface. Admins can still edit the field
+  // directly via the entity field management UI.
+  if (isset($form['current_station'])) {
+    $form['current_station']['#access'] = FALSE;
+  }
+
+  // Patient reference handling.
+  //  - On the edit form: always hide. The patient↔visit relationship is
+  //    fixed once a visit is created and must not be changed.
+  //  - On the add form: pre-fill from ?patient=N (set by the patient chart's
+  //    "Add visit" link) and then hide the field. If the form is opened
+  //    standalone with no patient context, leave the field visible so an
+  //    admin can pick a patient manually.
+  if (isset($form['patient'])) {
+    if ($form_id === 'visit_edit_form') {
+      $form['patient']['#access'] = FALSE;
+    }
+    elseif ($form_id === 'visit_add_form') {
+      $patient_id = (int) \Drupal::request()->query->get('patient');
+      if ($patient_id > 0) {
+        $visit = _librechart_visit_get_form_entity($form_state);
+        if ($visit instanceof ContentEntityInterface && $visit->isNew()) {
+          $visit->set('patient', $patient_id);
+        }
+        $form['patient']['#access'] = FALSE;
+        // After saving the new visit, return to the patient chart so the
+        // freshly-created visit is embedded as the latest visit.
+        if (isset($form['actions']['submit']['#submit'])) {
+          $form['actions']['submit']['#submit'][] = '_librechart_visit_redirect_to_patient_chart_after_add';
+        }
+      }
+    }
+  }
+
+  // Inject the station strip + transition controls (US1–US6).
+  _librechart_visit_attach_station_strip($form, $form_state);
+  _librechart_visit_attach_transition_controls($form, $form_state);
+
+  // Lay out the three meta fields (patient_type / clinic_site / status)
+  // as a single horizontal row above the field groups.
+  _librechart_visit_pack_meta_row($form);
+
+  // Render a "View inventory" link above the medications picker, opening the
+  // inventory report in a new tab (feature 005, FR-004).
+  if (isset($form['medications'])) {
+    $inventory_link = Url::fromUri('internal:/pharmacy/report', [
+      'attributes' => [
+        'target' => '_blank',
+        'rel' => 'noopener',
+        'class' => ['pharmacy-view-inventory__link'],
+      ],
+    ]);
+    $link_markup = \Drupal::service('link_generator')
+      ->generate(t('View inventory'), $inventory_link);
+    $form['medications']['#prefix'] = '<div class="pharmacy-view-inventory">' . $link_markup . '</div>';
+  }
+
+  // Lab technicians enter result values but may not change which test was
+  // ordered, so the lab_test select is access-denied and dropped from each
+  // lab_result paragraph subform. Show the test name as read-only text so the
+  // value and notes inputs are clearly attributed to a test.
+  _librechart_visit_label_lab_result_tests($form, $form_state);
+
+  // BMI is derived from height and weight: make it read-only and recalculate
+  // it live as those values change (the authoritative value is computed in
+  // Visit::preSave()).
+  _librechart_visit_setup_bmi_field($form);
+
+  // Chief complaint and past medical history are free-text clinical notes, not
+  // rich content: render them as plain textareas with no WYSIWYG editor or
+  // text-format selector.
+  _librechart_visit_force_plain_textareas($form);
+
+  // Auto-expand only the field group that matches the current station; leave
+  // all other station field groups collapsed. Runs in #after_build so it
+  // executes after field_group's processors have applied the default open
+  // state from form display config.
+  $form['#after_build'][] = '_librechart_visit_set_active_fieldset_open';
+}
+
+/**
+ * Adds a read-only test name to each lab_result paragraph subform.
+ *
+ * Lab technicians may edit result values and notes but not the ordered
+ * lab_test field (see librechart_lab_entity_field_access()). The form display
+ * therefore renders the lab_test select with #access FALSE, leaving the value
+ * and notes inputs with no indication of which test they belong to. This
+ * injects a plain-text "Test" item, sourced from the stored paragraph value,
+ * only when the editable select is hidden for the current user.
+ *
+ * @param array<string, mixed> $form
+ *   The visit form render array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current form state.
+ */
+function _librechart_visit_label_lab_result_tests(array &$form, FormStateInterface $form_state): void {
+  if (!isset($form['lab_results']['widget']) || !is_array($form['lab_results']['widget'])) {
+    return;
+  }
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface || !$visit->hasField('lab_results')) {
+    return;
+  }
+  $paragraphs = $visit->get('lab_results')->referencedEntities();
+
+  foreach (Element::children($form['lab_results']['widget']) as $delta) {
+    if (!is_numeric($delta) || !isset($form['lab_results']['widget'][$delta]['subform'])) {
+      continue;
+    }
+    $subform = &$form['lab_results']['widget'][$delta]['subform'];
+    // Only act when the editable lab_test widget is hidden by field access;
+    // ordering roles (triage_nurse, clinician) keep the editable select.
+    if (!isset($subform['lab_test']) || ($subform['lab_test']['#access'] ?? TRUE) !== FALSE) {
+      unset($subform);
+      continue;
+    }
+    $paragraph = $paragraphs[$delta] ?? NULL;
+    if (!$paragraph instanceof ContentEntityInterface
+      || !$paragraph->hasField('lab_test')
+      || $paragraph->get('lab_test')->isEmpty()) {
+      unset($subform);
+      continue;
+    }
+    $value = (string) $paragraph->get('lab_test')->value;
+    $allowed = options_allowed_values($paragraph->get('lab_test')->getFieldDefinition()->getFieldStorageDefinition());
+    $subform['lab_test_readonly'] = [
+      '#type' => 'item',
+      '#title' => t('Test'),
+      '#plain_text' => (string) ($allowed[$value] ?? $value),
+      '#weight' => $subform['lab_test']['#weight'] ?? 0,
+      '#wrapper_attributes' => ['class' => ['lab-result-test-name']],
+    ];
+    unset($subform);
+  }
+}
+
+/**
+ * Makes the BMI vital field read-only and wires up live recalculation.
+ *
+ * BMI is always derived from height (cm) and weight (kg) — Visit::preSave()
+ * stores the authoritative value on save — so the field must not be editable
+ * by hand. This disables the BMI input and tags the height, weight and BMI
+ * inputs with data attributes that the bmi_calc behaviour uses to recompute
+ * the value in the browser as height or weight change.
+ *
+ * @param array<string, mixed> $form
+ *   The visit form render array.
+ */
+function _librechart_visit_setup_bmi_field(array &$form): void {
+  if (!isset($form['vital_bmi']['widget'][0]['value'])) {
+    return;
+  }
+  // The BMI input is computed, never typed: disable it so it cannot be edited.
+  $form['vital_bmi']['widget'][0]['value']['#disabled'] = TRUE;
+  $form['vital_bmi']['widget'][0]['value']['#attributes']['data-librechart-bmi'] = 'value';
+
+  // Tag the source inputs so the behaviour can find them within the form.
+  if (isset($form['vital_height']['widget'][0]['value'])) {
+    $form['vital_height']['widget'][0]['value']['#attributes']['data-librechart-bmi-height'] = 'true';
+  }
+  if (isset($form['vital_weight']['widget'][0]['value'])) {
+    $form['vital_weight']['widget'][0]['value']['#attributes']['data-librechart-bmi-weight'] = 'true';
+  }
+
+  $form['#attached']['library'][] = 'librechart_visit/bmi_calc';
+}
+
+/**
+ * Forces the free-text clinical note widgets to plain text.
+ *
+ * Chief complaint, past medical history, clinical notes and the diagnosis
+ * write-in are all `text_long` fields, so their widget is a text_format
+ * element that would otherwise offer a rich-text editor and a format selector.
+ * Restricting the allowed formats to 'plain_text' (which has no editor)
+ * renders a plain textarea with no toolbar and hides the format selector,
+ * while leaving the stored values untouched.
+ *
+ * @param array<string, mixed> $form
+ *   The visit form render array.
+ */
+function _librechart_visit_force_plain_textareas(array &$form): void {
+  foreach (['complaint', 'past_medical_history', 'clinical_notes', 'dx_write_in'] as $field) {
+    if (($form[$field]['widget'][0]['#type'] ?? NULL) === 'text_format') {
+      $form[$field]['widget'][0]['#allowed_formats'] = ['plain_text'];
+      $form[$field]['widget'][0]['#format'] = 'plain_text';
+    }
+  }
+}
+
+/**
+ * Wraps the patient_type / clinic_site / status fields in a single container
+ * so the LAUGHH theme can render them as a 3-column row. Keeps the original
+ * widget weights so they appear in the same order (patient_type → clinic_site
+ * → status). The wrapping container inherits weight 3 to slot above the
+ * field groups (which start at weight 10).
+ */
+function _librechart_visit_pack_meta_row(array &$form): void {
+  $meta_keys = ['patient_type', 'clinic_site', 'status'];
+  $present = array_values(array_filter($meta_keys, static fn(string $k) => isset($form[$k])));
+  if (count($present) < 2) {
+    // Nothing to gain from a single-cell row; leave the form alone.
+    return;
+  }
+  // Use #group so processGroup renders these inside visit_meta_row at render
+  // time while leaving the form structure intact. Moving the elements into
+  // the container directly would cause EntityForm::copyFormValuesToEntity to
+  // skip them (it looks up $form[$name]['widget'] at the original path).
+  $form['visit_meta_row'] = [
+    '#type' => 'container',
+    '#weight' => 3,
+    '#attributes' => ['class' => ['visit-meta-row']],
+  ];
+  foreach ($present as $key) {
+    $form[$key]['#group'] = 'visit_meta_row';
+  }
+}
+
+/**
+ * Maps Visit workflow stations to field_group machine names on the form.
+ *
+ * Used by _librechart_visit_set_active_fieldset_open() to decide which
+ * details element to expand. Registration has no field group of its own
+ * (Triage is the first collapsible section).
+ *
+ * @return array<string, string>
+ *   Station ID → field group machine name.
+ */
+function _librechart_visit_station_field_group_map(): array {
+  return [
+    'triage' => 'group_triage',
+    'lab' => 'group_lab',
+    'clinical' => 'group_clinical',
+    'pt' => 'group_pt',
+    'pharmacy' => 'group_pharmacy',
+    'education' => 'group_education',
+  ];
+}
+
+/**
+ * #after_build callback: opens only the field group for the visit's current
+ * station, collapses every other station group. For completed visits or
+ * stations without a matching group (e.g. registration), every workflow
+ * group is collapsed.
+ */
+function _librechart_visit_set_active_fieldset_open(array $form, FormStateInterface $form_state): array {
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface) {
+    return $form;
+  }
+
+  $current = (string) $visit->get('current_station')->value;
+  $map = _librechart_visit_station_field_group_map();
+  $active_group = $map[$current] ?? NULL;
+
+  foreach ($map as $group_key) {
+    if (isset($form[$group_key]) && is_array($form[$group_key])) {
+      $form[$group_key]['#open'] = ($group_key === $active_group);
+    }
+  }
+
+  return $form;
+}
+
+/**
+ * Renders the horizontal station progress strip above the visit form fields
+ * (FR-002). Highlights the current station, dims completed stations, leaves
+ * upcoming ones outlined. Completed visits show every step as done.
+ */
+function _librechart_visit_attach_station_strip(array &$form, FormStateInterface $form_state): void {
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface) {
+    return;
+  }
+
+  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
+  $workflow = \Drupal::service('librechart_visit.station_workflow');
+  $current = (string) $visit->get('current_station')->value;
+  $is_complete = (string) $visit->get('status')->value === 'complete';
+
+  $stations = $workflow->workflowStations();
+  $current_index = array_search($current, $stations, TRUE);
+  // Sentinel `complete` or unknown values render the strip with all done.
+  $current_index_int = is_int($current_index) ? $current_index : -1;
+
+  $strip = [
+    '#type' => 'container',
+    '#attributes' => [
+      'class' => ['station-strip'],
+      'aria-label' => (string) t('Visit station progress'),
+    ],
+    '#weight' => -100,
+  ];
+
+  foreach ($stations as $i => $station) {
+    $classes = ['station-strip__step'];
+    if ($is_complete || ($current_index_int !== -1 && $i < $current_index_int)) {
+      $classes[] = 'station-strip__step--done';
+    }
+    elseif (!$is_complete && $i === $current_index_int) {
+      $classes[] = 'station-strip__step--current';
+    }
+    $strip[$station] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => $classes,
+        'data-station' => $station,
+      ],
+      'label' => ['#markup' => $workflow->label($station)],
+    ];
+  }
+
+  $form['station_strip'] = $strip;
+  $form['#attached']['library'][] = 'librechart_visit/station_strip';
+}
+
+/**
+ * Attaches the transition controls to $form['actions'] (US2 linear shortcut,
+ * US5 picker, US6 reopen). The set of controls rendered depends on the
+ * visit's status and the current user's role:
+ *
+ *  - status=complete + admin              → reopen control only.
+ *  - status=complete + non-admin          → nothing extra (only Save).
+ *  - in-progress + owns-current-station   → linear button + picker.
+ *  - in-progress + non-owner              → nothing extra (only Save).
+ */
+function _librechart_visit_attach_transition_controls(array &$form, FormStateInterface $form_state): void {
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface || $visit->isNew()) {
+    return;
+  }
+
+  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
+  $workflow = \Drupal::service('librechart_visit.station_workflow');
+  $user = \Drupal::currentUser();
+  $current = (string) $visit->get('current_station')->value;
+  $is_complete = (string) $visit->get('status')->value === 'complete';
+
+  if ($is_complete) {
+    if ($user->hasPermission('administer visit entities')) {
+      _librechart_visit_attach_reopen_control($form, $workflow);
+    }
+    return;
+  }
+
+  if (!_librechart_visit_user_owns_current_station($visit, $user)) {
+    return;
+  }
+
+  // Render the transition widget near the top of the form body: a
+  // visually-grouped block containing the linear "Send to next" shortcut and,
+  // when the visit is not at the terminal station, an inline picker (SELECT
+  // + Send button) for an arbitrary target.
+  $next = $workflow->nextStation($visit);
+  // Replace ampersands in the next-station label with "and" before stuffing it
+  // into the submit button's #value. Drupal's button-was-clicked check
+  // compares $_POST['op_advance'] against Html::decodeEntities($element['#value']),
+  // but the rendered HTML attribute is double-encoded (`&amp;amp;`) and the
+  // browser only single-decodes when serializing the form, so the round-trip
+  // string never matches for labels containing "&". Substituting "and" keeps
+  // the button label readable without crossing the encoding boundary.
+  $next_label_for_button = $next === NULL ? '' : str_replace(' & ', ' and ', $workflow->label($next));
+  $linear_label = $next === NULL
+    ? (string) t('Complete visit')
+    : (string) t('Send to @label', ['@label' => $next_label_for_button]);
+
+  $form['transition_widget'] = [
+    '#type' => 'container',
+    '#weight' => -99,
+    '#attributes' => ['class' => ['visit-transition-controls']],
+    'advance' => [
+      '#type' => 'submit',
+      // Explicit #name so Drupal identifies this button via $_POST['op_advance']
+      // instead of matching the button value. The default #name (`op`) makes
+      // every submit button collide on the same POST key, and Drupal has to
+      // compare $_POST['op'] against each #value to identify the click. When
+      // the next-station label contains an ampersand (e.g. "Lab Orders &
+      // Results", "Teaching & Referrals"), the rendered HTML attribute is
+      // double-encoded by the time it round-trips through the browser, so the
+      // comparison silently fails and Drupal falls back to the first submit
+      // button (Save), losing the transition.
+      '#name' => 'op_advance',
+      '#value' => $linear_label,
+      '#submit' => ['librechart_visit_visit_advance_submit'],
+      '#limit_validation_errors' => [],
+      '#button_type' => 'primary',
+    ],
+  ];
+
+  // Picker is always available for in-progress visits — even at the terminal
+  // station (education). Allows backward and sideways routing per FR-013.
+  $options = [];
+  foreach ($workflow->workflowStations() as $station) {
+    if ($station === $current) {
+      continue;
+    }
+    $options[$station] = $workflow->label($station);
+  }
+  $form['transition_widget']['station_picker'] = [
+    '#type' => 'select',
+    '#title' => t('Or send to:'),
+    '#title_display' => 'invisible',
+    '#options' => $options,
+    '#empty_option' => t('- Or send to specific station -'),
+  ];
+  $form['transition_widget']['picker_submit'] = [
+    '#type' => 'submit',
+    '#name' => 'op_picker',
+    '#value' => t('Send'),
+    '#submit' => ['librechart_visit_visit_picker_submit'],
+    '#limit_validation_errors' => [['station_picker']],
+  ];
+}
+
+/**
+ * Attaches the admin reopen control on completed visits (FR-021).
+ *
+ * Like _librechart_visit_attach_transition_controls(), the SELECT lives in
+ * the form body and the submit button is a sibling of Save in $form['actions'].
+ */
+function _librechart_visit_attach_reopen_control(array &$form, StationWorkflow $workflow): void {
+  $options = [];
+  foreach ($workflow->workflowStations() as $station) {
+    $options[$station] = $workflow->label($station);
+  }
+  $form['transition_widget'] = [
+    '#type' => 'container',
+    '#weight' => -99,
+    '#attributes' => ['class' => ['visit-transition-controls']],
+    'reopen_target' => [
+      '#type' => 'select',
+      '#title' => t('Reopen at station'),
+      '#title_display' => 'invisible',
+      '#options' => $options,
+      '#empty_option' => t('- Reopen at station -'),
+    ],
+    'reopen_submit' => [
+      '#type' => 'submit',
+      '#name' => 'op_reopen',
+      '#value' => t('Reopen visit'),
+      '#submit' => ['librechart_visit_visit_reopen_submit'],
+      '#limit_validation_errors' => [['reopen_target']],
+      '#button_type' => 'primary',
+    ],
+  ];
+}
+
+/**
+ * Resolves the Visit entity from the form state.
+ *
+ * @return \Drupal\Core\Entity\ContentEntityInterface|null
+ *   The visit entity, or NULL if this isn't a Visit form.
+ */
+function _librechart_visit_get_form_entity(FormStateInterface $form_state): ?ContentEntityInterface {
+  $form_object = $form_state->getFormObject();
+  if (!method_exists($form_object, 'getEntity')) {
+    return NULL;
+  }
+  $entity = $form_object->getEntity();
+  if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'visit') {
+    return NULL;
+  }
+  return $entity;
+}
+
+/**
+ * Returns TRUE iff the current user owns the visit's current station, or
+ * has the `administer visit entities` permission (FR-004, FR-014).
+ *
+ * Single source of truth shared by the linear button and the picker so the
+ * two controls cannot diverge on access.
+ */
+function _librechart_visit_user_owns_current_station(ContentEntityInterface $visit, AccountInterface $user): bool {
+  if ($user->hasPermission('administer visit entities')) {
+    return TRUE;
+  }
+  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
+  $workflow = \Drupal::service('librechart_visit.station_workflow');
+  $current = (string) $visit->get('current_station')->value;
+  $owner_role = $workflow->ownerRole($current);
+  return $owner_role !== '' && in_array($owner_role, $user->getRoles(), TRUE);
+}
+
+/**
+ * Recursively aliases #return_value to #on_value on checkbox elements.
+ *
+ * The conditional_fields 4.x Checkbox state handler reads $field['#on_value']
+ * to evaluate whether a boolean dependee is "checked," but Drupal's core
+ * checkbox element only carries #return_value. Without this alias, show/hide
+ * logic for fields whose dependee is a boolean checkbox (e.g. pt_referral,
+ * lab_ordered) silently inverts.
+ */
+function _librechart_visit_alias_checkbox_on_value(array &$element): void {
+  // hook_form_alter runs before element-type defaults (e.g. #return_value=1
+  // from Checkbox::getInfo) are applied, so fall back to 1, the documented
+  // Drupal default for checkbox elements.
+  if (
+    isset($element['#type'])
+    && $element['#type'] === 'checkbox'
+    && !isset($element['#on_value'])
+  ) {
+    $element['#on_value'] = $element['#return_value'] ?? 1;
+  }
+  foreach (Element::children($element) as $key) {
+    if (is_array($element[$key])) {
+      _librechart_visit_alias_checkbox_on_value($element[$key]);
+    }
+  }
 }
 
 /**
@@ -39,7 +724,7 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
  *   Lab Orders: triage_nurse, clinician (ordered); lab_technician (results)
  *   Clinical Eval: clinician
  *   Physical Therapy: physical_therapist
- *   Teaching: teaching_coordinator
+ *   Education: teaching_coordinator
  *   Pharmacy: pharmacist
  *
  * @param string $operation
@@ -103,15 +788,10 @@ function librechart_visit_entity_field_access(
 
   // Clinical Evaluation fields — editable only by clinician.
   $clinical_fields = [
-    'clinician_name', 'clinical_notes', 'dx_write_in', 'orders', 'referrals',
-    'pt_referral', 'sys_cardiac', 'sys_derm', 'sys_endo', 'sys_ent',
-    'sys_eye', 'sys_gi', 'sys_gyn_ob', 'sys_mental_health',
-    'sys_musculoskeletal', 'sys_neuro', 'sys_respiratory', 'sys_uro_genital',
-    'sys_vascular', 'sys_wound_ostomy', 'dx_chronic_diseases', 'dx_cardiac',
-    'dx_derm', 'dx_endo', 'dx_ent', 'dx_eye', 'dx_gi', 'dx_gyn_ob',
-    'dx_mental_health', 'dx_muscular_skeletal', 'dx_neuro', 'dx_opthalmic_otic',
-    'dx_resp', 'dx_uro_genital', 'dx_vascular', 'dx_wound_ostomy', 'dx_pain',
-    'dx_pt_treatment', 'dx_vitamins', 'dx_anti_infective', 'dx_misc',
+    'clinician_name', 'clinical_notes', 'dx_write_in', 'pt_referral',
+    'dx_cardiac', 'dx_derm', 'dx_endo', 'dx_ent', 'dx_eye', 'dx_gi',
+    'dx_gyn_ob', 'dx_mental_health', 'dx_muscular_skeletal', 'dx_neuro',
+    'dx_resp', 'dx_uro_genital', 'dx_vascular', 'dx_wound_ostomy',
   ];
   if (in_array($field_name, $clinical_fields, TRUE)) {
     if (in_array('clinician', $roles, TRUE)) {
@@ -131,13 +811,19 @@ function librechart_visit_entity_field_access(
       ->addCacheContexts($cache);
   }
 
-  // Teaching & Referrals fields — editable only by teaching_coordinator.
-  $teaching_fields = ['teaching_topics', 'external_referral', 'diagnostic_referral'];
-  if (in_array($field_name, $teaching_fields, TRUE)) {
+  // Education & Referrals fields — editable only by teaching_coordinator
+  // (the role that owns the renamed Education station). Includes the new
+  // education referrals and POS fields (feature 005).
+  $education_fields = [
+    'education_referrals',
+    'pos',
+    'pos_details',
+  ];
+  if (in_array($field_name, $education_fields, TRUE)) {
     if (in_array('teaching_coordinator', $roles, TRUE)) {
       return AccessResult::neutral()->addCacheContexts($cache);
     }
-    return AccessResult::forbidden('Only teaching coordinators may edit teaching fields.')
+    return AccessResult::forbidden('Only teaching coordinators may edit education fields.')
       ->addCacheContexts($cache);
   }
 
@@ -152,4 +838,223 @@ function librechart_visit_entity_field_access(
   }
 
   return AccessResult::neutral();
+}
+
+/**
+ * Submit handler for the linear "Send to next station" button.
+ *
+ * Advances the visit's current_station per StationWorkflow::nextStation()
+ * (which applies the PT-skip rule). At the terminal station, atomically
+ * writes status='complete' AND current_station='complete' (FR-005).
+ */
+function librechart_visit_visit_advance_submit(array &$form, FormStateInterface $form_state): void {
+  // Apply user-typed form values (vital signs, complaint, etc.) to the entity
+  // first so they are persisted alongside the station change. Without this
+  // the advance button's #submit replacement skips the default chain and
+  // typed data is lost on save.
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof \Drupal\Core\Entity\ContentEntityForm) {
+    $form_object->submitForm($form, $form_state);
+  }
+
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface) {
+    return;
+  }
+  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
+  $workflow = \Drupal::service('librechart_visit.station_workflow');
+  $user = \Drupal::currentUser();
+
+  if (!_librechart_visit_user_owns_current_station($visit, $user)) {
+    $form_state->setErrorByName('', t('You may not transition this visit.'));
+    return;
+  }
+
+  $prior = (string) $visit->get('current_station')->value;
+  $prior_label = $workflow->label($prior);
+  $next = $workflow->nextStation($visit);
+  $next_label = $next === NULL ? $workflow->label('education') : $workflow->label($next);
+
+  if ($next === NULL) {
+    // Terminal transition: status + current_station both flip atomically.
+    $visit->set('status', 'complete');
+    $visit->set('current_station', StationWorkflow::COMPLETE_SENTINEL);
+    $visit->setNewRevision(TRUE);
+    $visit->setRevisionLogMessage(sprintf(
+      'Marked visit complete at %s by %s.',
+      $next_label,
+      $user->getAccountName(),
+    ));
+  }
+  else {
+    $visit->set('current_station', $next);
+    $visit->setNewRevision(TRUE);
+    $visit->setRevisionLogMessage(sprintf(
+      'Transitioned from %s to %s by %s.',
+      $prior_label,
+      $next_label,
+      $user->getAccountName(),
+    ));
+  }
+  $visit->setRevisionUserId((int) $user->id());
+  $visit->save();
+
+  \Drupal::messenger()->addStatus($next === NULL
+    ? t('Visit marked complete.')
+    : t('Visit sent to @label.', ['@label' => $next_label])
+  );
+  _librechart_visit_redirect_to_chart($form_state, $visit);
+}
+
+/**
+ * Submit handler for the station picker ("Send to specific station…").
+ *
+ * Writes the user's chosen target verbatim (no PT-skip applied). Does not
+ * touch the status field — only the terminal linear transition completes
+ * a visit. Logs a notice watchdog entry on success, warning on rejection.
+ */
+function librechart_visit_visit_picker_submit(array &$form, FormStateInterface $form_state): void {
+  // Persist any typed form values alongside the station change. See the
+  // matching comment in librechart_visit_visit_advance_submit().
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof \Drupal\Core\Entity\ContentEntityForm) {
+    $form_object->submitForm($form, $form_state);
+  }
+
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface) {
+    return;
+  }
+  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
+  $workflow = \Drupal::service('librechart_visit.station_workflow');
+  $user = \Drupal::currentUser();
+
+  $target = (string) ($form_state->getValue('station_picker') ?? '');
+  $current = (string) $visit->get('current_station')->value;
+  // Empty or same-station submits are no-ops.
+  if ($target === '' || $target === $current) {
+    return;
+  }
+
+  if (!$workflow->canTransitionTo($visit, $target, $user)) {
+    $form_state->setErrorByName('station_picker',
+      t('You may not transition this visit from its current station.'));
+    \Drupal::logger('librechart_visit')->warning(
+      'Picker transition rejected: vid=@vid from=@from attempted=@target uid=@uid',
+      [
+        '@vid' => $visit->id(),
+        '@from' => $current,
+        '@target' => $target,
+        '@uid' => $user->id(),
+      ],
+    );
+    return;
+  }
+
+  $prior_label = $workflow->label($current);
+  $new_label = $workflow->label($target);
+  $visit->set('current_station', $target);
+  $visit->setNewRevision(TRUE);
+  $visit->setRevisionLogMessage(sprintf(
+    'Transitioned from %s to %s by %s.',
+    $prior_label,
+    $new_label,
+    $user->getAccountName(),
+  ));
+  $visit->setRevisionUserId((int) $user->id());
+  $visit->save();
+
+  \Drupal::messenger()->addStatus(t('Visit sent to @label.', ['@label' => $new_label]));
+  \Drupal::logger('librechart_visit')->notice(
+    'picker transition: vid=@vid from=@from to=@to uid=@uid',
+    [
+      '@vid' => $visit->id(),
+      '@from' => $current,
+      '@to' => $target,
+      '@uid' => $user->id(),
+    ],
+  );
+  _librechart_visit_redirect_to_chart($form_state, $visit);
+}
+
+/**
+ * Submit handler for the admin "Reopen visit" control (FR-021).
+ *
+ * Atomically writes status='in_progress' AND current_station={target} on a
+ * completed visit. Rejects non-admin users and non-workflow targets.
+ */
+function librechart_visit_visit_reopen_submit(array &$form, FormStateInterface $form_state): void {
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface) {
+    return;
+  }
+  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
+  $workflow = \Drupal::service('librechart_visit.station_workflow');
+  $user = \Drupal::currentUser();
+
+  $target = (string) ($form_state->getValue('reopen_target') ?? '');
+
+  if (!$user->hasPermission('administer visit entities')
+      || !in_array($target, $workflow->workflowStations(), TRUE)) {
+    $form_state->setErrorByName('reopen_target',
+      t('Invalid reopen target or insufficient permissions.'));
+    \Drupal::logger('librechart_visit')->warning(
+      'Reopen rejected: vid=@vid attempted=@target uid=@uid',
+      [
+        '@vid' => $visit->id(),
+        '@target' => $target,
+        '@uid' => $user->id(),
+      ],
+    );
+    return;
+  }
+
+  $target_label = $workflow->label($target);
+  $visit->set('status', 'in_progress');
+  $visit->set('current_station', $target);
+  $visit->setNewRevision(TRUE);
+  $visit->setRevisionLogMessage(sprintf(
+    'Reopened visit at %s by %s.',
+    $target_label,
+    $user->getAccountName(),
+  ));
+  $visit->setRevisionUserId((int) $user->id());
+  $visit->save();
+
+  \Drupal::messenger()->addStatus(t('Visit reopened at @label.', ['@label' => $target_label]));
+  \Drupal::logger('librechart_visit')->notice(
+    'reopen: vid=@vid to=@target uid=@uid',
+    [
+      '@vid' => $visit->id(),
+      '@target' => $target,
+      '@uid' => $user->id(),
+    ],
+  );
+  _librechart_visit_redirect_to_chart($form_state, $visit);
+}
+
+/**
+ * Redirects to the patient chart page if the visit has a patient; otherwise
+ * stays on the visit edit form. Used by all three transition submit handlers.
+ */
+function _librechart_visit_redirect_to_chart(FormStateInterface $form_state, ContentEntityInterface $visit): void {
+  $patient_id = $visit->get('patient')->target_id ?? NULL;
+  if ($patient_id) {
+    $form_state->setRedirect('entity.patient.edit_form', ['patient' => $patient_id]);
+  }
+  else {
+    $form_state->setRedirect('entity.visit.edit_form', ['visit' => $visit->id()]);
+  }
+}
+
+/**
+ * Submit handler appended to `visit_add_form` when ?patient=N initiated the
+ * visit. Sends the user back to the patient chart so the just-saved visit is
+ * embedded as the latest visit.
+ */
+function _librechart_visit_redirect_to_patient_chart_after_add(array &$form, FormStateInterface $form_state): void {
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if ($visit instanceof ContentEntityInterface) {
+    _librechart_visit_redirect_to_chart($form_state, $visit);
+  }
 }

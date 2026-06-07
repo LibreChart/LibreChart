@@ -1,0 +1,9 @@
+uuid: 6142ef92-c5ab-45f5-8447-0f3a1688fac1
+langcode: en
+status: true
+dependencies: {  }
+name: Pharmacist
+vid: pharmacist
+description: 'Pharmacist names selectable as the "Fulfilled by" value when dispensing medications.'
+weight: 0
+new_revision: false

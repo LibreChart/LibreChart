@@ -61,13 +61,56 @@ class PrescriptionItem extends ContentEntityBase {
 
   /**
    * {@inheritdoc}
+   *
+   * The `drug` entity key is an entity reference, so the default label logic
+   * would surface the raw term id. Resolve the referenced drug term's name
+   * instead so the medication reads clearly in the Visit form and listings.
+   */
+  public function label() {
+    $drug = $this->get('drug')->entity;
+    if ($drug !== NULL) {
+      return $drug->label();
+    }
+    return parent::label();
+  }
+
+  /**
+   * Default value callback for the `fulfilled_by` field.
+   *
+   * Pre-selects the Pharmacist term whose name matches the logged-in
+   * pharmacist, so the dispenser is recorded with one fewer click while
+   * remaining editable (feature 005, Clarification Q3).
+   *
+   * @return array<int, array<string, int>>
+   *   A default value structure for the field, or an empty array when no
+   *   matching pharmacist term exists.
+   */
+  public static function getDefaultFulfilledBy(): array {
+    $account = \Drupal::currentUser();
+    if (!in_array('pharmacist', $account->getRoles(), TRUE)) {
+      return [];
+    }
+    $tids = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('vid', 'pharmacist')
+      ->condition('name', $account->getDisplayName())
+      ->range(0, 1)
+      ->execute();
+    return $tids ? [['target_id' => (int) reset($tids)]] : [];
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    // Not required at the field level: when a prescription is created through
+    // the Visit form (Inline Entity Form), the parent visit sets this
+    // back-reference on save (feature 005). Standalone creation may leave it
+    // empty until linked.
     $fields['visit'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(new TranslatableMarkup('Visit'))
-      ->setRequired(TRUE)
       ->setSetting('target_type', 'visit')
       ->setDisplayOptions('form', ['type' => 'entity_reference_autocomplete', 'weight' => 1])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 1])
@@ -92,6 +135,9 @@ class PrescriptionItem extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Dosage and frequency are patient-instruction fields only: the pharmacist
+    // records how the patient should take the medication. They carry no
+    // inventory effect.
     $fields['dosage'] = BaseFieldDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Dosage'))
       ->setSetting('max_length', 256)
@@ -100,18 +146,40 @@ class PrescriptionItem extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['frequency'] = BaseFieldDefinition::create('string')
+      ->setLabel(new TranslatableMarkup('Frequency'))
+      ->setSetting('max_length', 256)
+      ->setDisplayOptions('form', ['type' => 'string_textfield', 'weight' => 5])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'string', 'weight' => 5])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['quantity_dispensed'] = BaseFieldDefinition::create('integer')
-      ->setLabel(new TranslatableMarkup('Quantity Dispensed'))
+      ->setLabel(new TranslatableMarkup('Quantity'))
       ->setDisplayOptions('form', ['type' => 'number', 'weight' => 5])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'number_integer', 'weight' => 5])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['prescription_filled'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(new TranslatableMarkup('Filled'))
+      ->setLabel(new TranslatableMarkup('Fulfilled'))
       ->setDefaultValue(FALSE)
       ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 6])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 6])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // The dispensing pharmacist (feature 005). Defaults to the logged-in
+    // pharmacist's matching term, editable. Edit access is restricted to the
+    // Pharmacist role via hook_entity_field_access().
+    $fields['fulfilled_by'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Fulfilled by'))
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', ['target_bundles' => ['pharmacist' => 'pharmacist']])
+      ->setDefaultValueCallback(static::class . '::getDefaultFulfilledBy')
+      ->setDisplayOptions('form', ['type' => 'options_select', 'weight' => 7])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 7])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 

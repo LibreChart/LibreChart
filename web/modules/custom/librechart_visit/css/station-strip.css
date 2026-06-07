@@ -1,0 +1,153 @@
+/* Station strip — horizontal progress indicator on the visit form. */
+.station-strip {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.station-strip__step {
+  flex: 1 1 0;
+  min-width: 110px;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  color: #52525b;
+  position: relative;
+}
+.station-strip__step--current {
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+.station-strip__step--done {
+  opacity: 0.55;
+}
+.station-strip__step--done::after {
+  content: " ✓";
+  font-weight: 700;
+}
+
+/* Per-station color cues (mirrors patient-flow.md mermaid styles). */
+.station-strip__step[data-station="registration"] { border-color: #3b82f6; }
+.station-strip__step--current[data-station="registration"] { background: #3b82f6; }
+.station-strip__step--done[data-station="registration"] { background: #dbeafe; color: #1e3a8a; }
+
+.station-strip__step[data-station="triage"] { border-color: #22c55e; }
+.station-strip__step--current[data-station="triage"] { background: #22c55e; }
+.station-strip__step--done[data-station="triage"] { background: #dcfce7; color: #14532d; }
+
+.station-strip__step[data-station="lab"] { border-color: #eab308; }
+.station-strip__step--current[data-station="lab"] { background: #eab308; }
+.station-strip__step--done[data-station="lab"] { background: #fef9c3; color: #713f12; }
+
+.station-strip__step[data-station="clinical"] { border-color: #8b5cf6; }
+.station-strip__step--current[data-station="clinical"] { background: #8b5cf6; }
+.station-strip__step--done[data-station="clinical"] { background: #ede9fe; color: #4c1d95; }
+
+.station-strip__step[data-station="pt"] { border-color: #f97316; }
+.station-strip__step--current[data-station="pt"] { background: #f97316; }
+.station-strip__step--done[data-station="pt"] { background: #ffedd5; color: #7c2d12; }
+
+.station-strip__step[data-station="pharmacy"] { border-color: #ec4899; }
+.station-strip__step--current[data-station="pharmacy"] { background: #ec4899; }
+.station-strip__step--done[data-station="pharmacy"] { background: #fce7f3; color: #831843; }
+
+.station-strip__step[data-station="teaching"] { border-color: #16a34a; }
+.station-strip__step--current[data-station="teaching"] { background: #16a34a; }
+.station-strip__step--done[data-station="teaching"] { background: #f0fdf4; color: #14532d; }
+
+/* Floor board (used by FloorController in US3). */
+.floor-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.floor-board__column {
+  border: 1px solid #d4d4d8;
+  border-top: 4px solid #d4d4d8;
+  border-radius: 4px;
+  background: #fff;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.floor-board__column[data-station="registration"] { border-top-color: #3b82f6; }
+.floor-board__column[data-station="triage"]        { border-top-color: #22c55e; }
+.floor-board__column[data-station="lab"]           { border-top-color: #eab308; }
+.floor-board__column[data-station="clinical"]      { border-top-color: #8b5cf6; }
+.floor-board__column[data-station="pt"]            { border-top-color: #f97316; }
+.floor-board__column[data-station="pharmacy"]      { border-top-color: #ec4899; }
+.floor-board__column[data-station="teaching"]      { border-top-color: #16a34a; }
+
+.floor-board__header {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 1px solid #e4e4e7;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.floor-board__count {
+  font-size: 0.75rem;
+  color: #71717a;
+  background: #f4f4f5;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+.floor-board__body {
+  padding: 0.5rem 0.75rem;
+  flex: 1;
+  font-size: 0.85rem;
+}
+.floor-board__body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.floor-board__body li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #f4f4f5;
+}
+.floor-board__body li:last-child { border-bottom: 0; }
+.floor-board__body li a {
+  color: #1f2937;
+  text-decoration: none;
+}
+.floor-board__body li a:hover {
+  text-decoration: underline;
+}
+.floor-board__empty {
+  color: #a1a1aa;
+  font-style: italic;
+}
+
+/* Transition controls — inline button + dropdown + send button. */
+.visit-transition-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+}
+.visit-transition-controls .form-item {
+  margin: 0;
+}
+.visit-transition-controls .form-select {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+.visit-transition-controls .button {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  margin: 0;
+}

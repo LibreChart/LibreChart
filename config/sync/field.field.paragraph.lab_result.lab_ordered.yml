@@ -9,7 +9,7 @@ id: paragraph.lab_result.lab_ordered
 field_name: lab_ordered
 entity_type: paragraph
 bundle: lab_result
-label: Ordered
+label: Completed
 description: ''
 required: false
 translatable: true

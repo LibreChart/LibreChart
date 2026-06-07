@@ -1,0 +1,329 @@
+/* =========================================================================
+   LAUGHH theme — global table styles for Librechart clinical tables.
+   Applies to Views table-style tables and custom `#theme => table` arrays.
+   Phone-first; horizontal scroll + sticky first column on phones,
+   progressive column hiding via Drupal core priority-low / priority-medium.
+   ========================================================================= */
+
+/* Force view wrappers (and Drupal's main block) to fill the content container. */
+.region-content > .block,
+.region-content > .block > .content,
+.view,
+.view-content,
+.view-filters,
+.views-element-container,
+.lc-table-wrap {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Base typography for clinical tables. Targets:
+   - .views-table (added by our template override + Olivero/Claro)
+   - any table inside a Views wrapper (defensive: works regardless of template)
+   - table.lc-table (custom render arrays such as Pharmacy Recent Receipts) */
+.views-table,
+.view-content > table,
+.views-element-container table,
+table.lc-table,
+.lc-table-wrap > table {
+  width: 100%;
+  min-width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 0.9375rem;          /* 15px on desktop */
+  line-height: 1.45;
+  color: #18181b;
+  background: #fff;
+  margin: 0;
+}
+
+/* Header — visible foundation for sticky behavior. */
+.views-table thead th,
+.view-content > table thead th,
+.views-element-container table thead th,
+table.lc-table thead th,
+.lc-table-wrap > table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0.875rem 1rem;        /* 14px 16px */
+  background: #f4f4f5;
+  border-bottom: 2px solid #d4d4d8;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8125rem;          /* 13px */
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #52525b;
+  white-space: nowrap;
+}
+
+/* Body cells — comfortable row height. */
+.views-table tbody td,
+.view-content > table tbody td,
+.views-element-container table tbody td,
+table.lc-table tbody td,
+.lc-table-wrap > table tbody td {
+  padding: 0.875rem 1rem;        /* 14px 16px */
+  border-bottom: 1px solid #e4e4e7;
+  vertical-align: middle;
+}
+
+/* Hover row — no zebra striping (conflicts with low-stock highlight). */
+.views-table tbody tr:hover,
+table.lc-table tbody tr:hover,
+.lc-table-wrap > table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* Numeric columns right-aligned with tabular figures. */
+.views-table td.views-field-quantity_on_hand,
+.views-table th.views-field-quantity_on_hand,
+.views-table td.views-field-low_stock_threshold,
+.views-table th.views-field-low_stock_threshold,
+.views-table td.views-field-quantity_received,
+.views-table th.views-field-quantity_received {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Generic in-cell links. */
+.views-table td a,
+.lc-table td a,
+.lc-table-wrap td a {
+  color: #2563eb;
+  text-decoration: none;
+}
+.views-table td a:hover,
+.views-table td a:focus,
+.lc-table td a:hover,
+.lc-table td a:focus { text-decoration: underline; }
+
+/* Action columns (Edit / Operations / New Visit) — 44x44 tap target. */
+.views-table td.views-field-edit_drug_inventory a,
+.views-table td.views-field-operations a,
+.views-table td.views-field-pid a {
+  display: inline-block;
+  min-height: 2.75rem;           /* 44px */
+  min-width: 2.75rem;
+  line-height: 2.75rem;
+  padding: 0 0.75rem;
+  text-align: center;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  background: #fff;
+  color: #2563eb;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+.views-table td.views-field-edit_drug_inventory a:hover,
+.views-table td.views-field-operations a:hover,
+.views-table td.views-field-pid a:hover {
+  border-color: #2563eb;
+  text-decoration: none;
+}
+
+/* Operations cells right-aligned on desktop. */
+.views-table td.views-field-operations,
+.views-table th.views-field-operations {
+  text-align: right;
+}
+
+/* =========================================================================
+   Status badges (visits status, etc.)
+   Wrapped via librechart_visit_preprocess_views_view_field() as:
+   <span class="lc-badge lc-badge--{status-slug}">{label}</span>
+   ========================================================================= */
+.lc-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.lc-badge--checked-in     { background: #dbeafe; color: #1e3a8a; }
+.lc-badge--in-progress    { background: #fef9c3; color: #713f12; }
+.lc-badge--complete       { background: #dcfce7; color: #14532d; }
+.lc-badge--cancelled      { background: #f4f4f5; color: #52525b; }
+.lc-badge--default        { background: #f4f4f5; color: #52525b; }
+
+/* =========================================================================
+   Mobile / tablet: horizontal scroll wrapper.
+   Drupal renders Views tables inside .views-element-container; custom tables
+   can wrap in .lc-table-wrap for the same effect.
+   ========================================================================= */
+.views-element-container,
+.lc-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Drupal core priority classes — progressive column hiding. */
+@media (max-width: 767px) {
+  .views-table th.priority-low,
+  .views-table td.priority-low,
+  table.lc-table th.priority-low,
+  table.lc-table td.priority-low { display: none; }
+}
+@media (max-width: 1023px) {
+  .views-table th.priority-medium,
+  .views-table td.priority-medium,
+  table.lc-table th.priority-medium,
+  table.lc-table td.priority-medium { display: none; }
+}
+
+/* Sticky first column on phones. */
+@media (max-width: 767px) {
+  .views-table th:first-child,
+  .views-table td:first-child,
+  table.lc-table th:first-child,
+  table.lc-table td:first-child,
+  .lc-table-wrap > table th:first-child,
+  .lc-table-wrap > table td:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 1;
+    box-shadow: 1px 0 0 #e4e4e7;
+  }
+  .views-table thead th:first-child,
+  table.lc-table thead th:first-child,
+  .lc-table-wrap > table thead th:first-child {
+    background: #f4f4f5;
+    z-index: 3;                  /* above row-sticky AND col-sticky cells */
+  }
+  /* Preserve the stock tint under the sticky first column: low = yellow,
+     out of stock = red (feature 005, FR-028). */
+  .inventory-row--low-stock td:first-child {
+    background: #fff8c5;
+  }
+  .inventory-row--out-of-stock td:first-child {
+    background: #ffd7d5;
+  }
+  /* Tighter padding & sizing for phones. */
+  .views-table td,
+  .views-table th,
+  table.lc-table td,
+  table.lc-table th {
+    padding: 0.6875rem 0.75rem;  /* 11px 12px */
+    font-size: 0.9375rem;        /* 15px — keep readable on phone */
+  }
+}
+
+/* Hover override on phone — keep sticky first column opaque on hover. */
+@media (max-width: 767px) {
+  .views-table tbody tr:hover td:first-child,
+  table.lc-table tbody tr:hover td:first-child {
+    background: #f8fafc;
+  }
+  .inventory-row--low-stock:hover td:first-child {
+    background: #fff8c5;
+  }
+  .inventory-row--out-of-stock:hover td:first-child {
+    background: #ffd7d5;
+  }
+}
+
+/* =========================================================================
+   Exposed filter form — horizontal on desktop, stacked on phone.
+   ========================================================================= */
+.views-exposed-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: end;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.views-exposed-form .form-item { margin: 0; }
+.views-exposed-form .form-item label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #52525b;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.views-exposed-form input[type="text"],
+.views-exposed-form input[type="date"],
+.views-exposed-form input[type="datetime-local"],
+.views-exposed-form input[type="number"],
+.views-exposed-form select {
+  min-height: 2.5rem;            /* 40px */
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  background: #fff;
+}
+.views-exposed-form .form-actions { display: flex; gap: 0.5rem; }
+
+@media (max-width: 767px) {
+  .views-exposed-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .views-exposed-form .form-item,
+  .views-exposed-form .form-actions { width: 100%; }
+  .views-exposed-form .form-actions .button {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+}
+
+/* =========================================================================
+   Pager — touch-friendly tap targets.
+   ========================================================================= */
+.pager__items { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.pager__item a {
+  display: inline-block;
+  min-height: 2.5rem;
+  min-width: 2.5rem;
+  padding: 0 0.6rem;
+  line-height: 2.5rem;
+  text-align: center;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  background: #fff;
+  color: #2563eb;
+  text-decoration: none;
+}
+.pager__item a:hover { border-color: #2563eb; }
+.pager__item.is-active a,
+.pager__item--current a {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+/* Caption for custom render-array tables. */
+table.lc-table > caption,
+.views-table > caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0.25rem 0;
+  font-size: 0.8125rem;
+  color: #71717a;
+}
+
+/* =========================================================================
+   Print — neutralize sticky/overflow so tables print intact.
+   ========================================================================= */
+@media print {
+  .views-element-container,
+  .lc-table-wrap { overflow: visible; }
+  .views-table thead th,
+  table.lc-table thead th { position: static; }
+  .views-table th:first-child,
+  .views-table td:first-child,
+  table.lc-table th:first-child,
+  table.lc-table td:first-child {
+    position: static;
+    box-shadow: none;
+  }
+}

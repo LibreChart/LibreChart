@@ -10,6 +10,7 @@ label: 'Lab Technician'
 weight: 6
 is_admin: false
 permissions:
+  - 'edit any patient entities'
   - 'edit any visit entities'
   - 'view patient entities'
   - 'view prescription_item entities'

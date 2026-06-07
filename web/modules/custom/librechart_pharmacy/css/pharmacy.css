@@ -1,0 +1,164 @@
+/* Inventory row stock highlighting (feature 005, FR-021/FR-028): low stock is
+   yellow and out of stock is red, matching the prescribing picker. */
+.inventory-row--low-stock,
+.inventory-row--low-stock > td {
+  background-color: #fff8c5;
+}
+.inventory-row--low-stock td {
+  border-top-color: #f5e69a;
+}
+.inventory-row--out-of-stock,
+.inventory-row--out-of-stock > td {
+  background-color: #ffd7d5;
+  color: #6b1b1b;
+}
+.inventory-row--out-of-stock td {
+  border-top-color: #f3b2b2;
+}
+.inventory-row--low-stock .inventory-low-stock-flag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  background-color: #d83434;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Stock-aware medication picker (feature 005). */
+.medication-autocomplete__menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  z-index: 100;
+  min-width: 16rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.medication-autocomplete__item {
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+.medication-autocomplete__item:hover {
+  background-color: #eef2ff;
+}
+/* Low stock = yellow, out of stock = red (FR-002), consistent with the report. */
+.medication--low-stock {
+  background-color: #fff8c5;
+}
+.medication--low-stock:hover {
+  background-color: #fdf0a8;
+}
+.medication--out-of-stock {
+  background-color: #ffd7d5;
+  color: #6b1b1b;
+}
+.medication-autocomplete__item--disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+.medication-autocomplete__item--disabled:hover {
+  background-color: #ffd7d5;
+}
+
+/* Pharmacy dashboard action cards. */
+.pharmacy-dashboard__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.pharmacy-dashboard__card {
+  display: block;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.pharmacy-dashboard__card:hover,
+.pharmacy-dashboard__card:focus {
+  border-color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+.pharmacy-dashboard__card-title {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.pharmacy-dashboard__card-desc {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #52525b;
+}
+
+.pharmacy-dashboard__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.pharmacy-dashboard__metric {
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-left: 4px solid #2563eb;
+  border-radius: 2px;
+}
+.pharmacy-dashboard__metric--alert {
+  border-left-color: #d83434;
+  background: #fff4f4;
+}
+.pharmacy-dashboard__metric-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.pharmacy-dashboard__metric-label {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #52525b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Filter form on inventory report. */
+.pharmacy-report__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.pharmacy-report__filters .form-item {
+  margin: 0;
+}
+
+/* Dosage + Frequency side by side in the medications inline form. */
+.lc-field-row {
+  display: flex;
+  gap: 1rem;
+}
+.lc-field-row > .js-form-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.lc-field-row .form-text {
+  width: 100%;
+  box-sizing: border-box;
+}

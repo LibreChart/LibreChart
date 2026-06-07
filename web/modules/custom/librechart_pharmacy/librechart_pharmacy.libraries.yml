@@ -1,0 +1,17 @@
+pharmacy:
+  version: 1.x
+  css:
+    component:
+      css/pharmacy.css: {}
+
+medication_autocomplete:
+  version: 1.x
+  js:
+    js/medication-autocomplete.js: {}
+  css:
+    component:
+      css/pharmacy.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings

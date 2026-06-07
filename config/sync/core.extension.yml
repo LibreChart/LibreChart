@@ -53,6 +53,7 @@ module:
   gin_toolbar: 0
   honeypot: 0
   image: 0
+  inline_entity_form: 0
   inline_form_errors: 0
   jquery_ui: 0
   jquery_ui_resizable: 0
@@ -102,6 +103,7 @@ module:
   scheduler_content_moderation_integration: 0
   search_api: 0
   search_api_db: 0
+  select2: 0
   serialization: 0
   svg_image: 0
   symfony_mailer_lite: 0
@@ -127,3 +129,4 @@ theme:
   canvas_stark: 0
   easy_email_theme: 0
   mercury: 0
+  laughh: 0

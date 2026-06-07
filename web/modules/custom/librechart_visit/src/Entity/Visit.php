@@ -108,13 +108,18 @@ class Visit extends ContentEntityBase {
       }
     }
 
-    // Auto-calculate BMI when height and weight are present (US2).
+    // BMI is always derived from height (cm) and weight (kg); it is never
+    // entered by hand (the form input is disabled). Recalculate on every save
+    // and clear it when either input is missing so a stale value cannot
+    // persist (US2).
     $height = (float) $this->get('vital_height')->value;
     $weight = (float) $this->get('vital_weight')->value;
     if ($height > 0 && $weight > 0) {
       $height_m = $height / 100;
-      $bmi = round($weight / ($height_m ** 2), 2);
-      $this->set('vital_bmi', $bmi);
+      $this->set('vital_bmi', round($weight / ($height_m ** 2), 2));
+    }
+    else {
+      $this->set('vital_bmi', NULL);
     }
   }
 
@@ -223,6 +228,33 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['current_station'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(new TranslatableMarkup('Current Station'))
+      ->setRequired(TRUE)
+      ->setRevisionable(TRUE)
+      ->setSetting('allowed_values', [
+        'registration' => new TranslatableMarkup('Registration'),
+        'triage' => new TranslatableMarkup('Triage'),
+        'lab' => new TranslatableMarkup('Lab Orders & Results'),
+        'clinical' => new TranslatableMarkup('Clinical Evaluation'),
+        'pt' => new TranslatableMarkup('Physical Therapy'),
+        'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
+        'education' => new TranslatableMarkup('Education'),
+        'complete' => new TranslatableMarkup('Complete'),
+      ])
+      ->setDefaultValue('registration')
+      ->setDisplayOptions('form', [
+        'type' => 'options_select',
+        'weight' => 6,
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'list_default',
+        'weight' => 6,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(new TranslatableMarkup('Changed'))
       ->setDescription(new TranslatableMarkup('The time the visit was last saved. Used for optimistic locking.'))
@@ -326,6 +358,7 @@ class Visit extends ContentEntityBase {
     $fields['allergies'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(new TranslatableMarkup('Allergies'))
       ->setRevisionable(TRUE)
+      ->setRequired(TRUE)
       ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
       ->setSetting('target_type', 'taxonomy_term')
       ->setSetting('handler', 'default:taxonomy_term')
@@ -333,6 +366,7 @@ class Visit extends ContentEntityBase {
         'target_bundles' => ['allergies' => 'allergies'],
         'auto_create' => TRUE,
       ])
+      ->setDefaultValueCallback(static::class . '::getDefaultAllergies')
       ->setDisplayOptions('form', ['type' => 'entity_reference_autocomplete_tags', 'weight' => 30])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 30])
       ->setDisplayConfigurable('form', TRUE)
@@ -402,34 +436,6 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['orders'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(new TranslatableMarkup('Orders'))
-      ->setRevisionable(TRUE)
-      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
-      ->setSetting('target_type', 'taxonomy_term')
-      ->setSetting('handler', 'default:taxonomy_term')
-      ->setSetting('handler_settings', [
-        'target_bundles' => ['orders' => 'orders'],
-      ])
-      ->setDisplayOptions('form', ['type' => 'entity_reference_autocomplete_tags', 'weight' => 53])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 53])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['referrals'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(new TranslatableMarkup('Referrals'))
-      ->setRevisionable(TRUE)
-      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
-      ->setSetting('target_type', 'taxonomy_term')
-      ->setSetting('handler', 'default:taxonomy_term')
-      ->setSetting('handler_settings', [
-        'target_bundles' => ['referrals' => 'referrals'],
-      ])
-      ->setDisplayOptions('form', ['type' => 'entity_reference_autocomplete_tags', 'weight' => 54])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 54])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
     $fields['pt_referral'] = BaseFieldDefinition::create('boolean')
       ->setLabel(new TranslatableMarkup('PT Referral'))
       ->setRevisionable(TRUE)
@@ -439,36 +445,9 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // Body system boolean fields (US4).
-    foreach ([
-      'sys_cardiac' => 'Cardiac',
-      'sys_derm' => 'Dermatology',
-      'sys_endo' => 'Endocrinology',
-      'sys_ent' => 'ENT',
-      'sys_eye' => 'Eye',
-      'sys_gi' => 'Gastrointestinal',
-      'sys_gyn_ob' => 'GYN / OB',
-      'sys_mental_health' => 'Mental Health',
-      'sys_musculoskeletal' => 'Musculoskeletal',
-      'sys_neuro' => 'Neurology',
-      'sys_respiratory' => 'Respiratory',
-      'sys_uro_genital' => 'Urogenital',
-      'sys_vascular' => 'Vascular',
-      'sys_wound_ostomy' => 'Wound / Ostomy',
-    ] as $field_id => $label) {
-      $fields[$field_id] = BaseFieldDefinition::create('boolean')
-        ->setLabel(new TranslatableMarkup($label))
-        ->setRevisionable(TRUE)
-        ->setDefaultValue(FALSE)
-        ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 60])
-        ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 60])
-        ->setDisplayConfigurable('form', TRUE)
-        ->setDisplayConfigurable('view', TRUE);
-    }
-
-    // Diagnosis entity reference fields per body system (US4).
+    // Diagnosis entity reference fields per body system (US4). Each references
+    // a taxonomy vocabulary of conditions for that system.
     $dx_fields = [
-      'dx_chronic_diseases' => ['chronic_diseases', 'Chronic Diseases Diagnoses'],
       'dx_cardiac' => ['cardiac_thoracic', 'Cardiac Diagnoses'],
       'dx_derm' => ['derm', 'Dermatology Diagnoses'],
       'dx_endo' => ['endo', 'Endocrinology Diagnoses'],
@@ -479,16 +458,10 @@ class Visit extends ContentEntityBase {
       'dx_mental_health' => ['mental_health', 'Mental Health Diagnoses'],
       'dx_muscular_skeletal' => ['muscular_skeletal', 'Musculoskeletal Diagnoses'],
       'dx_neuro' => ['neuro', 'Neurology Diagnoses'],
-      'dx_opthalmic_otic' => ['opthalmic_otic', 'Ophthalmic/Otic Diagnoses'],
       'dx_resp' => ['resp', 'Respiratory Diagnoses'],
       'dx_uro_genital' => ['uro_genital', 'Urogenital Diagnoses'],
       'dx_vascular' => ['vascular', 'Vascular Diagnoses'],
       'dx_wound_ostomy' => ['wound_ostomy', 'Wound/Ostomy Diagnoses'],
-      'dx_pain' => ['pain_management', 'Pain Management Diagnoses'],
-      'dx_pt_treatment' => ['physical_therapy_treatment', 'PT Treatment Diagnoses'],
-      'dx_vitamins' => ['vitamins_nutrients_lv', 'Vitamins/Nutrients'],
-      'dx_anti_infective' => ['anti_infective_agents', 'Anti-Infective Agents'],
-      'dx_misc' => ['miscellaneous', 'Miscellaneous Diagnoses'],
     ];
 
     $dx_weight = 70;
@@ -541,53 +514,105 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // Teaching & Referrals fields (US8).
-    $fields['teaching_topics'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(new TranslatableMarkup('Teaching Topics'))
-      ->setRevisionable(TRUE)
-      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
-      ->setSetting('target_type', 'taxonomy_term')
-      ->setSetting('handler', 'default:taxonomy_term')
-      ->setSetting('handler_settings', [
-        'target_bundles' => ['teaching_topics' => 'teaching_topics'],
-      ])
-      ->setDisplayOptions('form', ['type' => 'entity_reference_autocomplete_tags', 'weight' => 100])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 100])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['external_referral'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(new TranslatableMarkup('External Referral'))
-      ->setRevisionable(TRUE)
-      ->setDisplayOptions('form', ['type' => 'string_textarea', 'weight' => 101])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'basic_string', 'weight' => 101])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['diagnostic_referral'] = BaseFieldDefinition::create('string')
-      ->setLabel(new TranslatableMarkup('Diagnostic Referral'))
-      ->setRevisionable(TRUE)
-      ->setSetting('max_length', 256)
-      ->setDisplayOptions('form', ['type' => 'string_textfield', 'weight' => 102])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'string', 'weight' => 102])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    // Pharmacy fields (US5).
-    $fields['pharmacist_name'] = BaseFieldDefinition::create('string')
-      ->setLabel(new TranslatableMarkup('Pharmacist Name'))
-      ->setRevisionable(TRUE)
-      ->setSetting('max_length', 256)
-      ->setDisplayOptions('form', ['type' => 'string_textfield', 'weight' => 110])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'string', 'weight' => 110])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['notes_to_pharmacist'] = BaseFieldDefinition::create('text_long')
+    // Pharmacy fields. The standalone pharmacist_name field was removed in
+    // feature 005 (replaced by the per-medication "Fulfilled by"); notes to
+    // pharmacist is a plain text area (string_long), not a rich-text field.
+    $fields['notes_to_pharmacist'] = BaseFieldDefinition::create('string_long')
       ->setLabel(new TranslatableMarkup('Notes to Pharmacist'))
       ->setRevisionable(TRUE)
-      ->setDisplayOptions('form', ['type' => 'text_textarea', 'weight' => 111])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'text_default', 'weight' => 111])
+      ->setDisplayOptions('form', ['type' => 'string_textarea', 'weight' => 111])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'basic_string', 'weight' => 111])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Medications: per-visit prescription line items, embedded via Inline
+    // Entity Form in the Pharmacy section (feature 005). Reuses the existing
+    // PrescriptionItem entity so inventory hooks and reports keep working.
+    $fields['medications'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Medications'))
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'prescription_item')
+      ->setSetting('handler', 'default')
+      ->setDisplayOptions('form', [
+        'type' => 'inline_entity_form_complex',
+        'weight' => 112,
+        'settings' => [
+          'allow_new' => TRUE,
+          'allow_existing' => FALSE,
+          'allow_duplicate' => FALSE,
+        ],
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'entity_reference_label',
+        'weight' => 112,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Non-formulary medications: orders for drugs the clinic does not stock,
+    // to be filled at an outside hospital or clinic (free-text name, quantity,
+    // strength, frequency). A separate entity from PrescriptionItem so these
+    // never touch drug inventory or the inventory report.
+    $fields['non_formulary_medications'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Non-formulary medications'))
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'non_formulary_medication')
+      ->setSetting('handler', 'default')
+      ->setDisplayOptions('form', [
+        'type' => 'inline_entity_form_complex',
+        'weight' => 113,
+        'settings' => [
+          'allow_new' => TRUE,
+          'allow_existing' => FALSE,
+          'allow_duplicate' => FALSE,
+        ],
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'entity_reference_label',
+        'weight' => 113,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Education referrals: repeating education-class referrals with a per-item
+    // Complete flag (feature 005). Modeled as paragraphs, wired up in the
+    // renamed Education group (US4).
+    $fields['education_referrals'] = BaseFieldDefinition::create('entity_reference_revisions')
+      ->setLabel(new TranslatableMarkup('Education referrals'))
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'paragraph')
+      ->setSetting('handler', 'default:paragraph')
+      ->setSetting('handler_settings', [
+        'target_bundles' => ['education_referral' => 'education_referral'],
+        'negate' => 0,
+      ])
+      ->setDisplayOptions('form', ['type' => 'paragraphs', 'weight' => 60])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'entity_reference_revisions_entity_view',
+        'weight' => 60,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // POS: referral to a local provider (feature 005). When checked, a
+    // conditional text area (pos_details) is revealed in the Education group.
+    $fields['pos'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('POS'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 70])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 70])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['pos_details'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(new TranslatableMarkup('POS details'))
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', ['type' => 'string_textarea', 'weight' => 71])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'basic_string', 'weight' => 71])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -602,6 +627,45 @@ class Visit extends ContentEntityBase {
    */
   public static function getDefaultVisitDate(): array {
     return [['value' => \Drupal::time()->getRequestTime()]];
+  }
+
+  /**
+   * Default value callback for the allergies field.
+   *
+   * Allergies are required (feature 005); a new visit defaults to the "None"
+   * term so the field is satisfied without implying an unrecorded allergy.
+   *
+   * @return array<int, array<string, int>>
+   *   A default value referencing the "None" allergy term.
+   */
+  public static function getDefaultAllergies(): array {
+    return [['target_id' => static::getNoneAllergyTermId()]];
+  }
+
+  /**
+   * Returns the id of the "None" allergy term, creating it if absent.
+   *
+   * The id (not the label) is the stable handle used both for the default value
+   * and for excluding "None" from the sticky allergy display, so the behaviour
+   * survives translation of the term's name.
+   *
+   * @return int
+   *   The "None" allergy term id.
+   */
+  public static function getNoneAllergyTermId(): int {
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $existing = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('vid', 'allergies')
+      ->condition('name', 'None')
+      ->range(0, 1)
+      ->execute();
+    if (!empty($existing)) {
+      return (int) reset($existing);
+    }
+    $term = $storage->create(['vid' => 'allergies', 'name' => 'None']);
+    $term->save();
+    return (int) $term->id();
   }
 
 }

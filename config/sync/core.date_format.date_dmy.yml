@@ -1,0 +1,8 @@
+uuid: a1b2c3d4-e5f6-4789-abcd-ef0123456789
+langcode: en
+status: true
+dependencies: {  }
+id: date_dmy
+label: 'Date (DD/MM/YYYY)'
+locked: false
+pattern: d/m/Y

@@ -1,0 +1,59 @@
+uuid: 5b86c82d-ea30-428e-a0d5-4bbff385bf71
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_pharmacy
+id: prescription_item.prescription_item.default
+targetEntityType: prescription_item
+bundle: prescription_item
+mode: default
+content:
+  dosage:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  drug:
+    type: librechart_medication_autocomplete
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  frequency:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  fulfilled_by:
+    type: options_select
+    weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  prescription_filled:
+    type: boolean_checkbox
+    weight: 4
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  quantity_dispensed:
+    type: number
+    weight: 1
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  dispensed_by: true
+  drug_category: true
+  override_reason: true
+  visit: true

@@ -1,6 +1,6 @@
 uuid: fb0592d1-404f-4af1-b524-e2d0090b6a9d
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - field.field.media.image.field_media_image
@@ -17,11 +17,6 @@ dependencies:
     - mercury
 _core:
   default_config_hash: olaJk6kltv7H2Tw5n_kkFG086fk2RjZZHeXNg96Ew5Y
-label: 'Hero blog'
-id: sdc.mercury.hero-blog
-source: sdc
-source_local_id: 'mercury:hero-blog'
-provider: mercury
 active_version: af16cffe0dc9f59c
 versioned_properties:
   active:
@@ -77,19 +72,19 @@ versioned_properties:
           default_value: null
           expression: ℹ︎string␟value
         media:
-          default_value: {  }
-          expression: 'ℹ︎entity_reference␟entity␜[␜entity:media:image␝field_media_image␞␟{src↠src_with_alternate_widths,alt↠alt,width↠width,height↠height}][␜entity:media:svg_image␝field_media_svg_image␞␟{src↠src_with_alternate_widths,alt↠alt,width↠width,height↠height}]'
+          required: false
+          field_type: entity_reference
+          field_storage_settings:
+            target_type: media
           field_instance_settings:
             handler: 'default:media'
             handler_settings:
               target_bundles:
                 image: image
                 svg_image: svg_image
-          field_storage_settings:
-            target_type: media
-          field_type: entity_reference
           field_widget: media_library_widget
-          required: false
+          default_value: {  }
+          expression: 'ℹ︎entity_reference␟entity␜[␜entity:media:image␝field_media_image␞␟{src↠src_with_alternate_widths,alt↠alt,width↠width,height↠height}][␜entity:media:svg_image␝field_media_svg_image␞␟{src↠src_with_alternate_widths,alt↠alt,width↠width,height↠height}]'
     fallback_metadata:
       slot_definitions: {  }
   989a5b66efe6aa48:
@@ -160,3 +155,8 @@ versioned_properties:
           expression: 'ℹ︎entity_reference␟entity␜[␜entity:media:image␝field_media_image␞␟{src↠src_with_alternate_widths,alt↠alt,width↠width,height↠height}][␜entity:media:svg_image␝field_media_svg_image␞␟{src↠src_with_alternate_widths,alt↠alt,width↠width,height↠height}]'
     fallback_metadata:
       slot_definitions: {  }
+label: 'Hero blog'
+id: sdc.mercury.hero-blog
+provider: mercury
+source: sdc
+source_local_id: 'mercury:hero-blog'

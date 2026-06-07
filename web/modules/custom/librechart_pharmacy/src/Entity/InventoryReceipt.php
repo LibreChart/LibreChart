@@ -64,11 +64,19 @@ class InventoryReceipt extends ContentEntityBase {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    // Restrict the drug reference to the project's drug vocabularies so the
+    // dropdown lists medications only, not every taxonomy term (diagnoses,
+    // locations, etc.). Shares the canonical list with the "add new drug"
+    // picker (librechart_pharmacy_drug_vocabularies()).
+    $drug_vocabularies = array_keys(librechart_pharmacy_drug_vocabularies());
     $fields['drug'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(new TranslatableMarkup('Drug'))
       ->setRequired(TRUE)
       ->setSetting('target_type', 'taxonomy_term')
       ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', [
+        'target_bundles' => array_combine($drug_vocabularies, $drug_vocabularies),
+      ])
       ->setDisplayOptions('form', ['type' => 'options_select', 'weight' => 1])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 1])
       ->setDisplayConfigurable('form', TRUE)

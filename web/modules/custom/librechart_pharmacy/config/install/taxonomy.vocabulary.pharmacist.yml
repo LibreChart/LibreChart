@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+name: Pharmacist
+vid: pharmacist
+description: 'Pharmacist names selectable as the "Fulfilled by" value when dispensing medications.'
+weight: 0
+new_revision: false
