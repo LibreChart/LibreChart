@@ -6,26 +6,35 @@ namespace Drupal\librechart_pharmacy\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Inventory report: per-drug on-hand + total received + total dispensed
- * within a date range, with low-stock flagging and CSV export.
+ * Inventory report controller.
  *
- * Built as a custom controller (not a Views display) because the report
- * joins three tables (drug_inventory, inventory_receipt, prescription_item +
- * visit) and aggregates with date filters — easier to express in SQL than to
- * coerce out of the Views UI.
+ * Current on-hand stock per drug, searchable by drug name, with stock-level
+ * colouring and CSV export. The clinic operates a single stock pool
+ * (feature 005), so the report is keyed by drug only — there is no clinic-site
+ * dimension.
  */
 class InventoryReportController extends ControllerBase {
 
+  /**
+   * Constructs the controller.
+   *
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database connection.
+   */
   public function __construct(
     protected Connection $database,
   ) {}
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container): static {
     $instance = new static($container->get('database'));
     $instance->entityTypeManager = $container->get('entity_type.manager');
@@ -41,7 +50,7 @@ class InventoryReportController extends ControllerBase {
     $build = [
       '#attached' => ['library' => ['librechart_pharmacy/pharmacy']],
       '#cache' => [
-        'tags' => ['drug_inventory_list', 'inventory_receipt_list', 'visit_list'],
+        'tags' => ['drug_inventory_list'],
         'contexts' => ['url.query_args', 'user.permissions'],
       ],
     ];
@@ -51,33 +60,32 @@ class InventoryReportController extends ControllerBase {
       $filters,
     );
 
-    $rows_data = $this->fetchReportRows($filters);
+    $can_rename = $this->currentUser()->hasPermission('rename drug terms');
+
     $rows = [];
-    foreach ($rows_data as $row) {
-      $is_low = $row['on_hand'] <= $row['threshold'];
-      $drug_cell = $row['drug_label'];
-      if ($is_low) {
-        $drug_cell .= '<span class="inventory-low-stock-flag">' . $this->t('Low') . '</span>';
-      }
+    foreach ($this->fetchReportRows($filters) as $row) {
+      $drug_cell = $can_rename
+        ? Link::fromTextAndUrl($row['drug_label'], Url::fromRoute(
+          'librechart_pharmacy.rename_drug',
+          ['taxonomy_term' => $row['drug_id']],
+        ))->toRenderable()
+        : ['#plain_text' => $row['drug_label']];
       $rows[] = [
         'data' => [
-          ['data' => ['#markup' => $drug_cell]],
-          $row['site_label'],
+          ['data' => $drug_cell],
+          $row['category'],
           (string) $row['on_hand'],
           (string) $row['threshold'],
-          (string) $row['received'],
-          (string) $row['dispensed'],
         ],
-        'class' => $is_low ? ['inventory-row--low-stock'] : [],
+        'class' => $this->stockRowClass($row['on_hand'], $row['threshold']),
       ];
     }
 
     $export_url = Url::fromRoute('librechart_pharmacy.report_csv', [], [
       'query' => array_filter([
-        'clinic_site' => $filters['clinic_site'],
-        'start' => $filters['start'],
-        'end' => $filters['end'],
-      ], static fn($v) => $v !== '' && $v !== NULL),
+        'drug' => $filters['drug'],
+        'category' => $filters['category'],
+      ], static fn(string $v) => $v !== ''),
     ]);
 
     $build['export'] = [
@@ -92,12 +100,10 @@ class InventoryReportController extends ControllerBase {
       '#attributes' => ['class' => ['lc-table', 'lc-table--current-inventory']],
       '#responsive' => TRUE,
       '#header' => [
-        ['data' => $this->t('Drug'),                 'class' => ['priority-high']],
-        ['data' => $this->t('Clinic site'),          'class' => ['priority-low']],
-        ['data' => $this->t('On hand'),              'class' => ['priority-high']],
-        ['data' => $this->t('Low-stock threshold'),  'class' => ['priority-medium']],
-        ['data' => $this->t('Received (in range)'),  'class' => ['priority-medium']],
-        ['data' => $this->t('Dispensed (in range)'), 'class' => ['priority-medium']],
+        ['data' => $this->t('Drug'), 'class' => ['priority-high']],
+        ['data' => $this->t('Category'), 'class' => ['priority-low']],
+        ['data' => $this->t('On hand'), 'class' => ['priority-high']],
+        ['data' => $this->t('Low-stock threshold'), 'class' => ['priority-medium']],
       ],
       '#rows' => $rows,
       '#empty' => $this->t('No inventory records match the selected filters.'),
@@ -115,24 +121,14 @@ class InventoryReportController extends ControllerBase {
 
     $response = new StreamedResponse(function () use ($rows): void {
       $out = fopen('php://output', 'w');
-      fputcsv($out, [
-        'Drug',
-        'Clinic site',
-        'On hand',
-        'Low-stock threshold',
-        'Received (in range)',
-        'Dispensed (in range)',
-        'Low stock',
-      ]);
+      fputcsv($out, ['Drug', 'Category', 'On hand', 'Low-stock threshold', 'Stock status']);
       foreach ($rows as $row) {
         fputcsv($out, [
           $row['drug_label'],
-          $row['site_label'],
+          $row['category'],
           $row['on_hand'],
           $row['threshold'],
-          $row['received'],
-          $row['dispensed'],
-          $row['on_hand'] <= $row['threshold'] ? 'YES' : '',
+          $this->stockStatusLabel($row['on_hand'], $row['threshold']),
         ]);
       }
       fclose($out);
@@ -146,98 +142,110 @@ class InventoryReportController extends ControllerBase {
   }
 
   /**
-   * @return array{clinic_site: string, start: string, end: string}
+   * Reads the report filters from the request query.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   *
+   * @return array{drug: string, category: string}
+   *   The drug-name search term and the selected category (vocabulary) machine
+   *   name, or an empty string for all categories.
    */
   private function readFilters(Request $request): array {
     return [
-      'clinic_site' => (string) $request->query->get('clinic_site', ''),
-      'start' => (string) $request->query->get('start', ''),
-      'end' => (string) $request->query->get('end', ''),
+      'drug' => (string) $request->query->get('drug', ''),
+      'category' => (string) $request->query->get('category', ''),
     ];
   }
 
   /**
-   * Builds per-(drug, clinic_site) rows: on-hand + received + dispensed totals.
+   * Builds per-drug rows of current on-hand stock.
    *
-   * @return array<int, array{drug_id: int, site_id: int, drug_label: string, site_label: string, on_hand: int, threshold: int, received: int, dispensed: int}>
+   * One row per drug (single clinic-wide pool): the primary (lowest-id)
+   * inventory record supplies on-hand and threshold. Filtered by a drug-name
+   * substring search and/or an exact category (vocabulary) match.
+   *
+   * @param array{drug: string, category: string} $filters
+   *   The active filters.
+   *
+   * @return array<int, array{drug_id: int, drug_label: string, category: string, on_hand: int, threshold: int}>
+   *   The report rows, sorted by drug label.
    */
   private function fetchReportRows(array $filters): array {
-    $clinic_site = $filters['clinic_site'] !== '' ? (int) $filters['clinic_site'] : NULL;
-    // Inclusive boundaries; for datetime fields we compare against the start
-    // of `start` and the end of `end` so a same-day range catches that day.
-    $start = $filters['start'] !== '' ? $filters['start'] . 'T00:00:00' : NULL;
-    $end = $filters['end'] !== '' ? $filters['end'] . 'T23:59:59' : NULL;
+    $needle = mb_strtolower(trim($filters['drug']));
+    $category = $filters['category'];
 
-    $query = $this->database->select('drug_inventory', 'di');
-    $query->fields('di', ['drug', 'clinic_site', 'quantity_on_hand', 'low_stock_threshold']);
-    if ($clinic_site !== NULL) {
-      $query->condition('di.clinic_site', $clinic_site);
-    }
-    $rows = $query->execute()->fetchAll();
+    $rows = $this->database->select('drug_inventory', 'di')
+      ->fields('di', ['id', 'drug', 'quantity_on_hand', 'low_stock_threshold'])
+      ->orderBy('di.id', 'ASC')
+      ->execute()
+      ->fetchAll();
 
-    $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
-    $needed_tids = [];
-    foreach ($rows as $r) {
-      $needed_tids[(int) $r->drug] = TRUE;
-      $needed_tids[(int) $r->clinic_site] = TRUE;
-    }
-    $terms = $needed_tids ? $term_storage->loadMultiple(array_keys($needed_tids)) : [];
-
-    $output = [];
+    // Keep the primary (lowest-id) record per drug.
+    $primary = [];
     foreach ($rows as $r) {
       $drug_id = (int) $r->drug;
-      $site_id = (int) $r->clinic_site;
+      if (!isset($primary[$drug_id])) {
+        $primary[$drug_id] = $r;
+      }
+    }
+
+    $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+    $terms = $primary ? $term_storage->loadMultiple(array_keys($primary)) : [];
+    // Human-readable category labels keyed by vocabulary machine name.
+    $categories = librechart_pharmacy_drug_vocabularies();
+
+    $output = [];
+    foreach ($primary as $drug_id => $r) {
+      $label = isset($terms[$drug_id]) ? (string) $terms[$drug_id]->label() : '#' . $drug_id;
+      if ($needle !== '' && !str_contains(mb_strtolower($label), $needle)) {
+        continue;
+      }
+      $vid = isset($terms[$drug_id]) ? $terms[$drug_id]->bundle() : '';
+      if ($category !== '' && $vid !== $category) {
+        continue;
+      }
       $output[] = [
         'drug_id' => $drug_id,
-        'site_id' => $site_id,
-        'drug_label' => $terms[$drug_id]?->label() ?? '#' . $drug_id,
-        'site_label' => $terms[$site_id]?->label() ?? '#' . $site_id,
+        'drug_label' => $label,
+        'category' => (string) ($categories[$vid] ?? ''),
         'on_hand' => (int) $r->quantity_on_hand,
         'threshold' => (int) $r->low_stock_threshold,
-        'received' => $this->sumReceived($drug_id, $site_id, $start, $end),
-        'dispensed' => $this->sumDispensed($drug_id, $site_id, $start, $end),
       ];
     }
 
-    usort($output, static function ($a, $b) {
-      return [$a['site_label'], $a['drug_label']] <=> [$b['site_label'], $b['drug_label']];
-    });
+    usort($output, static fn($a, $b) => $a['drug_label'] <=> $b['drug_label']);
 
     return $output;
   }
 
-  private function sumReceived(int $drug_id, int $site_id, ?string $start, ?string $end): int {
-    $q = $this->database->select('inventory_receipt', 'ir')
-      ->condition('ir.drug', $drug_id)
-      ->condition('ir.clinic_site', $site_id);
-    if ($start !== NULL) {
-      $q->condition('ir.receipt_date', $start, '>=');
+  /**
+   * Returns the row class for a stock level: yellow (low), red (out).
+   *
+   * @return array<int, string>
+   *   The row classes.
+   */
+  private function stockRowClass(int $on_hand, int $threshold): array {
+    if ($on_hand <= 0) {
+      return ['inventory-row--out-of-stock'];
     }
-    if ($end !== NULL) {
-      $q->condition('ir.receipt_date', $end, '<=');
+    if ($on_hand <= $threshold) {
+      return ['inventory-row--low-stock'];
     }
-    $q->addExpression('SUM(ir.quantity_received)', 'total');
-    $result = $q->execute()->fetchField();
-    return (int) ($result ?? 0);
+    return [];
   }
 
-  private function sumDispensed(int $drug_id, int $site_id, ?string $start, ?string $end): int {
-    // Dispensing events live on prescription_item; the visit they belong to
-    // carries the date and the clinic_site. Filter on both.
-    $q = $this->database->select('prescription_item', 'pi')
-      ->condition('pi.drug', $drug_id)
-      ->condition('pi.prescription_filled', 1);
-    $q->innerJoin('visit', 'v', 'v.vid = pi.visit');
-    $q->condition('v.clinic_site', $site_id);
-    if ($start !== NULL) {
-      $q->condition('v.visit_date', $start, '>=');
+  /**
+   * Returns a plain-text stock-status label for CSV export.
+   */
+  private function stockStatusLabel(int $on_hand, int $threshold): string {
+    if ($on_hand <= 0) {
+      return 'Out of stock';
     }
-    if ($end !== NULL) {
-      $q->condition('v.visit_date', $end, '<=');
+    if ($on_hand <= $threshold) {
+      return 'Low';
     }
-    $q->addExpression('SUM(pi.quantity_dispensed)', 'total');
-    $result = $q->execute()->fetchField();
-    return (int) ($result ?? 0);
+    return 'OK';
   }
 
 }

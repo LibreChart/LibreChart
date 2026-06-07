@@ -1,0 +1,9 @@
+uuid: 2bf96293-e8e2-4150-93e9-a556baf5a4b4
+langcode: en
+status: true
+dependencies: {  }
+name: Education
+vid: education
+description: 'Education classes a patient can be referred to.'
+weight: 0
+new_revision: false

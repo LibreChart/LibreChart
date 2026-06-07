@@ -159,6 +159,8 @@ When working in this codebase, prioritize adherence to Drupal patterns and conve
 - MariaDB/MySQL via Drupal DBTNG; new column `current_station VARCHAR(32)` added to the `visit` and `visit_field_revision` tables via Drupal's entity schema update API (no manual migration SQL) (003-emr-station-transitions)
 - PHP 8.3+ (inherited from 003) + Drupal core 11.x Form API; existing `librechart_visit` custom module — specifically the `StationWorkflow` service and the `current_station` base field from feature 003. No new contrib modules required. (004-flexible-transitions)
 - No schema changes. Writes to the existing `visit.current_station` column established in 003. (004-flexible-transitions)
+- PHP 8.3+ (Drupal core 11.x) + Drupal core (Entity API, Form API, Routing, Views); already-enabled contrib (005-pharmacy-refinement)
+- MariaDB/MySQL via Drupal entity schema. Changes: new `pharmacist` + `education` (005-pharmacy-refinement)
 
 ## Recent Changes
 - 001-emr-rebuild: Added PHP 8.3+

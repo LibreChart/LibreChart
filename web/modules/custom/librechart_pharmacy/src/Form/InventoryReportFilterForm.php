@@ -9,43 +9,51 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Filter form for the pharmacy inventory report: clinic site + date range.
+ * Filter form for the pharmacy inventory report: drug-name search + category.
  *
  * Submits as GET so filter state lives in the URL — bookmarkable, shareable,
  * and consistent with the CSV export link's query string.
  */
 class InventoryReportFilterForm extends FormBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public function getFormId(): string {
     return 'librechart_pharmacy_inventory_report_filters';
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current form state.
+   * @param array<string, string> $filters
+   *   The active filter values (drug, category).
+   *
+   * @return array
+   *   The filter form.
+   */
   public function buildForm(array $form, FormStateInterface $form_state, array $filters = []): array {
     $form['#method'] = 'get';
     $form['#attributes']['class'][] = 'pharmacy-report__filters';
 
-    $clinic_options = ['' => $this->t('- All sites -')];
-    foreach ($this->loadClinicSites() as $tid => $label) {
-      $clinic_options[$tid] = $label;
-    }
+    $form['drug'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Drug name'),
+      '#size' => 30,
+      '#default_value' => $filters['drug'] ?? '',
+    ];
 
-    $form['clinic_site'] = [
+    $form['category'] = [
       '#type' => 'select',
-      '#title' => $this->t('Clinic site'),
-      '#options' => $clinic_options,
-      '#default_value' => $filters['clinic_site'] ?? '',
-    ];
-
-    $form['start'] = [
-      '#type' => 'date',
-      '#title' => $this->t('From'),
-      '#default_value' => $filters['start'] ?? '',
-    ];
-
-    $form['end'] = [
-      '#type' => 'date',
-      '#title' => $this->t('To'),
-      '#default_value' => $filters['end'] ?? '',
+      '#title' => $this->t('Category'),
+      '#options' => librechart_pharmacy_drug_vocabularies(),
+      '#empty_option' => $this->t('- All categories -'),
+      '#empty_value' => '',
+      '#default_value' => $filters['category'] ?? '',
     ];
 
     $form['actions'] = ['#type' => 'actions'];
@@ -69,25 +77,11 @@ class InventoryReportFilterForm extends FormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     // No-op: form is GET, browser handles the redirect.
-  }
-
-  /**
-   * @return array<int, string>
-   */
-  private function loadClinicSites(): array {
-    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
-    $tids = $storage->getQuery()
-      ->accessCheck(TRUE)
-      ->condition('vid', 'clinic_sites')
-      ->sort('name', 'ASC')
-      ->execute();
-    $options = [];
-    foreach ($storage->loadMultiple($tids) as $term) {
-      $options[(int) $term->id()] = $term->label();
-    }
-    return $options;
   }
 
 }

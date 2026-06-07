@@ -7,7 +7,10 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
@@ -36,4 +39,262 @@ function librechart_visit_update_9001(): void {
 
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('current_station', 'visit', 'librechart_visit', $field);
+}
+
+/**
+ * Install the pharmacy/education/POS base fields (feature 005).
+ *
+ * Adds `medications` (prescription line items embedded via IEF),
+ * `education_referrals` (paragraph referrals), and the `pos`/`pos_details`
+ * local-provider referral fields to already-deployed Visit tables.
+ */
+function librechart_visit_update_9002(): void {
+  $definitions = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit');
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  foreach (['medications', 'education_referrals', 'pos', 'pos_details'] as $name) {
+    $definition = $definitions[$name] ?? NULL;
+    if ($definition instanceof FieldStorageDefinitionInterface) {
+      $manager->installFieldStorageDefinition($name, 'visit', 'librechart_visit', $definition);
+    }
+  }
+}
+
+/**
+ * Seed the "None" allergy term used as the required allergies default.
+ *
+ * The allergies field becomes required and defaults to "None" (feature 005);
+ * ensure the term exists on already-deployed sites.
+ */
+function librechart_visit_update_9003(): void {
+  \Drupal\librechart_visit\Entity\Visit::getNoneAllergyTermId();
+}
+
+/**
+ * Backfill existing visits that have no allergies with the "None" term.
+ *
+ * Without this, the newly-required allergies field would block saving any
+ * visit created before feature 005 (feature 005, FR-017).
+ */
+function librechart_visit_update_9004(): void {
+  $none = \Drupal\librechart_visit\Entity\Visit::getNoneAllergyTermId();
+  $storage = \Drupal::entityTypeManager()->getStorage('visit');
+  $ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->notExists('allergies')
+    ->execute();
+  foreach ($storage->loadMultiple($ids) as $visit) {
+    if (!$visit instanceof ContentEntityInterface) {
+      continue;
+    }
+    $visit->set('allergies', [['target_id' => $none]]);
+    $visit->setNewRevision(FALSE);
+    $visit->save();
+  }
+}
+
+/**
+ * Migrate the renamed station: current_station 'teaching' becomes 'education'.
+ *
+ * The list_string allowed values change in code; this hook updates stored data
+ * in the base and revision tables so existing visits keep a valid value
+ * (feature 005, FR-022).
+ */
+function librechart_visit_update_9005(): void {
+  _librechart_visit_migrate_teaching_station();
+}
+
+/**
+ * Re-run the station migration across the base and revision tables.
+ *
+ * Update 9005 used the wrong revision table name; this hook ensures both
+ * `visit` and `visit_revision` are migrated (idempotent).
+ */
+function librechart_visit_update_9006(): void {
+  _librechart_visit_migrate_teaching_station();
+}
+
+/**
+ * Pharmacy cleanup: remove pharmacist_name, make notes plain text (feature 005).
+ *
+ * Removes the standalone pharmacist_name field and converts notes_to_pharmacist
+ * from text_long (rich text) to string_long (plain text), preserving any
+ * existing note content.
+ */
+function librechart_visit_update_9007(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Remove the standalone pharmacist_name field.
+  $pharmacist = $manager->getFieldStorageDefinition('pharmacist_name', 'visit');
+  if ($pharmacist !== NULL) {
+    $manager->uninstallFieldStorageDefinition($pharmacist);
+  }
+
+  // Convert notes_to_pharmacist text_long -> string_long, keeping content.
+  $old = $manager->getFieldStorageDefinition('notes_to_pharmacist', 'visit');
+  if ($old === NULL) {
+    return;
+  }
+  $database = \Drupal::database();
+  // The visit entity's id key column is `vid` (not `id`).
+  $tables = [['visit', 'vid'], ['visit_revision', 'revision_id']];
+
+  // 1. Capture existing plain-text values.
+  $captured = [];
+  foreach ($tables as [$table, $key]) {
+    if ($database->schema()->tableExists($table) && $database->schema()->fieldExists($table, 'notes_to_pharmacist__value')) {
+      $rows = $database->select($table, 't')
+        ->fields('t', [$key, 'notes_to_pharmacist__value'])
+        ->isNotNull('notes_to_pharmacist__value')
+        ->execute();
+      foreach ($rows as $row) {
+        $captured[$table][$row->{$key}] = $row->notes_to_pharmacist__value;
+      }
+    }
+  }
+
+  // 2. Swap the storage type.
+  $manager->uninstallFieldStorageDefinition($old);
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+  $new = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('visit')['notes_to_pharmacist'] ?? NULL;
+  if (!$new instanceof FieldStorageDefinitionInterface) {
+    return;
+  }
+  $manager->installFieldStorageDefinition('notes_to_pharmacist', 'visit', 'librechart_visit', $new);
+
+  // 3. Restore values into the new value column.
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
+  $storage = \Drupal::entityTypeManager()->getStorage('visit');
+  $value_col = $storage instanceof SqlEntityStorageInterface
+    ? $storage->getTableMapping()->getColumnNames('notes_to_pharmacist')['value']
+    : 'notes_to_pharmacist__value';
+  foreach ($tables as [$table, $key]) {
+    foreach ($captured[$table] ?? [] as $id => $value) {
+      $database->update($table)
+        ->fields([$value_col => $value])
+        ->condition($key, $id)
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Removes diagnosis fields that referenced drug/treatment vocabularies, plus
+ * the unused Orders and Referrals fields, from the Clinical Evaluation.
+ *
+ * These entity-reference fields pointed at taxonomies of medications and
+ * treatments (e.g. chronic-disease drugs, antibiotics, vitamins, PT
+ * treatments) rather than diagnosable conditions, so they do not belong on a
+ * diagnosis form. None hold any data. Their storage definitions are
+ * uninstalled, dropping the columns from the visit and visit_revision tables.
+ */
+function librechart_visit_update_9008(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $fields = [
+    'dx_chronic_diseases',
+    'dx_opthalmic_otic',
+    'dx_pain',
+    'dx_pt_treatment',
+    'dx_vitamins',
+    'dx_anti_infective',
+    'dx_misc',
+    'orders',
+    'referrals',
+  ];
+  foreach ($fields as $field) {
+    $definition = $manager->getFieldStorageDefinition($field, 'visit');
+    if ($definition !== NULL) {
+      $manager->uninstallFieldStorageDefinition($definition);
+    }
+  }
+}
+
+/**
+ * Removes the body-system review checkboxes from the Clinical Evaluation.
+ *
+ * The sys_* boolean fields (Cardiac, Dermatology, …, Wound / Ostomy) duplicated
+ * the per-system diagnosis fields and cluttered the form. They carry no
+ * workflow logic; their storage definitions are uninstalled, dropping the
+ * columns from the visit and visit_revision tables.
+ */
+function librechart_visit_update_9009(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $fields = [
+    'sys_cardiac',
+    'sys_derm',
+    'sys_endo',
+    'sys_ent',
+    'sys_eye',
+    'sys_gi',
+    'sys_gyn_ob',
+    'sys_mental_health',
+    'sys_musculoskeletal',
+    'sys_neuro',
+    'sys_respiratory',
+    'sys_uro_genital',
+    'sys_vascular',
+    'sys_wound_ostomy',
+  ];
+  foreach ($fields as $field) {
+    $definition = $manager->getFieldStorageDefinition($field, 'visit');
+    if ($definition !== NULL) {
+      $manager->uninstallFieldStorageDefinition($definition);
+    }
+  }
+}
+
+/**
+ * Removes the Teaching Topics, External Referral and Diagnostic Referral fields
+ * from the Education & Referrals station.
+ *
+ * These fields are no longer used on the form; the education_referrals
+ * paragraph and POS fields remain. None hold any data. Their storage
+ * definitions are uninstalled, dropping the columns from the visit and
+ * visit_revision tables.
+ */
+function librechart_visit_update_9010(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $fields = [
+    'teaching_topics',
+    'external_referral',
+    'diagnostic_referral',
+  ];
+  foreach ($fields as $field) {
+    $definition = $manager->getFieldStorageDefinition($field, 'visit');
+    if ($definition !== NULL) {
+      $manager->uninstallFieldStorageDefinition($definition);
+    }
+  }
+}
+
+/**
+ * Install the `non_formulary_medications` field on the Visit entity.
+ *
+ * Adds the Inline Entity Form reference for outside-hospital medication orders
+ * (NonFormularyMedication). Fresh sites pick it up from
+ * Visit::baseFieldDefinitions(); already-deployed sites need this hook to add
+ * the storage to the populated visit tables.
+ */
+function librechart_visit_update_9011(): void {
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['non_formulary_medications'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface) {
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('non_formulary_medications', 'visit', 'librechart_visit', $definition);
+  }
+}
+
+/**
+ * Migrates current_station 'teaching' to 'education' in all storage tables.
+ */
+function _librechart_visit_migrate_teaching_station(): void {
+  $database = \Drupal::database();
+  foreach (['visit', 'visit_revision'] as $table) {
+    if ($database->schema()->tableExists($table) && $database->schema()->fieldExists($table, 'current_station')) {
+      $database->update($table)
+        ->fields(['current_station' => 'education'])
+        ->condition('current_station', 'teaching')
+        ->execute();
+    }
+  }
 }

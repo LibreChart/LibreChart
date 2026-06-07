@@ -5,14 +5,19 @@ dependencies:
   module:
     - librechart_dictation
     - librechart_patient
+    - librechart_pharmacy
     - librechart_visit
 id: clinician
 label: Clinician
 weight: 7
 is_admin: false
 permissions:
+  - 'create non_formulary_medication entities'
+  - 'delete any non_formulary_medication entities'
+  - 'edit any non_formulary_medication entities'
   - 'edit any visit entities'
   - 'use dictation'
+  - 'view non_formulary_medication entities'
   - 'view patient entities'
   - 'view prescription_item entities'
   - 'view visit entities'

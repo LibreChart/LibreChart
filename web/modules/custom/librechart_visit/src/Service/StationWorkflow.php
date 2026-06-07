@@ -33,7 +33,7 @@ final class StationWorkflow {
     'clinical',
     'pt',
     'pharmacy',
-    'teaching',
+    'education',
   ];
 
   /**
@@ -81,7 +81,7 @@ final class StationWorkflow {
       'clinical' => (string) $this->t('Clinical Evaluation'),
       'pt' => (string) $this->t('Physical Therapy'),
       'pharmacy' => (string) $this->t('Pharmacy Dispensing'),
-      'teaching' => (string) $this->t('Teaching & Referrals'),
+      'education' => (string) $this->t('Education'),
       self::COMPLETE_SENTINEL => (string) $this->t('Complete'),
     ];
     return $labels[$station] ?? $station;
@@ -101,7 +101,7 @@ final class StationWorkflow {
       'clinical' => 'clinician',
       'pt' => 'physical_therapist',
       'pharmacy' => 'pharmacist',
-      'teaching' => 'teaching_coordinator',
+      'education' => 'teaching_coordinator',
       default => '',
     };
   }
@@ -111,7 +111,7 @@ final class StationWorkflow {
    *
    * Applies the PT-skip rule for clinical→pharmacy when pt_referral is false.
    * Returns NULL if the visit is already at the terminal workflow station
-   * (`teaching`) — the caller (advance submit handler) then writes the
+   * (`education`) — the caller (advance submit handler) then writes the
    * `complete` sentinel and the status field.
    *
    * Not used by the picker — the picker honors the user's exact choice
@@ -125,8 +125,8 @@ final class StationWorkflow {
       'lab' => 'clinical',
       'clinical' => ((bool) $visit->get('pt_referral')->value) ? 'pt' : 'pharmacy',
       'pt' => 'pharmacy',
-      'pharmacy' => 'teaching',
-      'teaching' => NULL,
+      'pharmacy' => 'education',
+      'education' => NULL,
       default => NULL,
     };
   }

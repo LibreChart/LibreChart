@@ -20,3 +20,25 @@ librechart_pharmacy.report_csv:
     _controller: '\Drupal\librechart_pharmacy\Controller\InventoryReportController::exportCsv'
   requirements:
     _permission: 'view drug_inventory entities'
+
+librechart_pharmacy.rename_drug:
+  path: '/pharmacy/drug/{taxonomy_term}/rename'
+  defaults:
+    _form: '\Drupal\librechart_pharmacy\Form\DrugRenameForm'
+    _title: 'Edit drug'
+  requirements:
+    _permission: 'rename drug terms'
+    taxonomy_term: \d+
+  options:
+    parameters:
+      taxonomy_term:
+        type: entity:taxonomy_term
+
+librechart_pharmacy.medication_autocomplete:
+  path: '/pharmacy/autocomplete/medications'
+  defaults:
+    _controller: '\Drupal\librechart_pharmacy\Controller\MedicationAutocompleteController::handle'
+  requirements:
+    _permission: 'view drug_inventory entities+create prescription_item entities'
+  options:
+    no_cache: TRUE

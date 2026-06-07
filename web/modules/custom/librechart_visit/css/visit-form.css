@@ -32,3 +32,108 @@
     gap: 0.5rem;
   }
 }
+
+/* =========================================================================
+   Triage — compact vitals grid.
+   The Triage field group leads with eight small numeric vital fields
+   (temperature, pulse, respiration, BP, height, weight, BMI) that otherwise
+   stack one per row and consume a lot of vertical space. Lay those numeric
+   widgets into a multi-column grid while leaving the wider text/select
+   fields (complaint, history, allergies, …) full-width and readable.
+   The grid container is the Claro/Gin details content wrapper; the eight
+   vital widgets are the only `.field--widget-number` children.
+   ========================================================================= */
+.field-group-triage > .claro-details__wrapper {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 0.75rem;
+  align-items: start;
+}
+/* Every field spans the full width by default… */
+.field-group-triage > .claro-details__wrapper > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+/* …except the numeric vital fields, which take a single column each. */
+.field-group-triage > .claro-details__wrapper > .field--widget-number {
+  grid-column: auto;
+}
+/* Make the numeric inputs fill their cell for an even, scannable layout. */
+.field-group-triage > .claro-details__wrapper > .field--widget-number input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .field-group-triage > .claro-details__wrapper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1rem;
+  }
+}
+
+/* Lead vitals (temperature, pulse, respiration, systolic, diastolic) share one
+   line. The five fields are wrapped in `.lc-field-row` by
+   librechart_visit_form_alter(); flex lays them out as equal narrow columns,
+   and within the triage grid the wrapper spans the full width (its own row) via
+   the `> *` rule above, so height/weight/BMI flow onto the next row. */
+.lc-field-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.lc-field-row > * {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-top: 0;
+}
+.lc-field-row input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* =========================================================================
+   Clinical Evaluation — diagnoses grid.
+   The per-system diagnosis fields (Cardiac, Dermatology, … Wound / Ostomy)
+   are narrow autocompletes that otherwise stack one per row. Lay them out
+   three across to save space, while leaving the wider fields (clinician name,
+   clinical notes, write-in, PT referral) full-width. The diagnosis fields are
+   the `.field--widget-select2-entity-reference` children.
+   ========================================================================= */
+.field-group-clinical > .claro-details__wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 0.75rem;
+  align-items: start;
+}
+/* Every field spans the full width by default… */
+.field-group-clinical > .claro-details__wrapper > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+/* …except the diagnosis autocompletes, which take a single column each. */
+.field-group-clinical > .claro-details__wrapper > .field--widget-select2-entity-reference {
+  grid-column: auto;
+}
+
+@media (max-width: 767px) {
+  .field-group-clinical > .claro-details__wrapper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1rem;
+  }
+}
+
+/* =========================================================================
+   Medications — fulfilled rows.
+   When a prescription is fulfilled (prescription_filled), the inline-entity-form
+   row is tagged `medication-row--fulfilled` by
+   librechart_visit_preprocess_inline_entity_form_entity_table(). Paint it the
+   same light green as the Triage station marker so pharmacists can see at a
+   glance which medications are done. The `td` rule and specificity override
+   the table's zebra striping.
+   ========================================================================= */
+.ief-entity-table tr.medication-row--fulfilled,
+.ief-entity-table tr.medication-row--fulfilled > td {
+  background-color: #dcfce7;
+}

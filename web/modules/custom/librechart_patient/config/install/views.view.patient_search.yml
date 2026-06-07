@@ -76,7 +76,14 @@ display:
           perm: 'view patient entities'
       cache:
         type: tag
-      sorts: {  }
+      sorts:
+        pid:
+          id: pid
+          table: patient
+          field: pid
+          relationship: none
+          plugin_id: standard
+          order: DESC
       filters:
         last_name:
           id: last_name

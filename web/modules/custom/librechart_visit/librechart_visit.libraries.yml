@@ -15,3 +15,23 @@ visit_form:
   css:
     component:
       css/visit-form.css: {}
+
+allergy_sticky:
+  version: 1.x
+  js:
+    js/allergy-sticky.js: {}
+  css:
+    component:
+      css/allergy-sticky.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+
+bmi_calc:
+  version: 1.x
+  js:
+    js/bmi-calc.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

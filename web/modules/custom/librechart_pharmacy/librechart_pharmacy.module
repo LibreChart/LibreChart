@@ -7,17 +7,24 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\librechart_pharmacy\Entity\DrugInventory;
 use Drupal\taxonomy\Entity\Term;
 
 /**
  * Vocabularies a pharmacist may file a newly-added drug under.
  *
- * Curated subset of the project's taxonomies — limited to the ones that
- * historically hold drug names (excludes diagnosis-only vocabularies like
- * cardiac_thoracic and the location vocabularies).
+ * Limited to medication/treatment-agent vocabularies only — the receipt and
+ * inventory drug pickers reference these, so they must not include condition
+ * (diagnosis) or location vocabularies. The empty *_treatment_agents
+ * formularies are included so drugs can be filed under them.
  *
  * @return array<string, string>
  *   Vocabulary machine name keyed to a human label.
@@ -25,21 +32,49 @@ use Drupal\taxonomy\Entity\Term;
 function librechart_pharmacy_drug_vocabularies(): array {
   return [
     'anti_infective_agents' => t('Anti-infective agents')->render(),
-    'chronic_diseases' => t('Chronic diseases')->render(),
+    'chronic_diseases' => t('Chronic disease medications')->render(),
     'pain_management' => t('Pain management')->render(),
     'vitamins_nutrients_lv' => t('Vitamins & nutrients')->render(),
-    'gi' => t('GI')->render(),
-    'derm' => t('Dermatologic')->render(),
-    'resp' => t('Respiratory')->render(),
-    'opthalmic_otic' => t('Ophthalmic / Otic')->render(),
-    'gyn_ob' => t('GYN / OB')->render(),
-    'eye' => t('Eye')->render(),
-    'ent' => t('ENT')->render(),
-    'endo' => t('Endocrine')->render(),
-    'neuro' => t('Neurology')->render(),
-    'uro_genital' => t('Urogenital')->render(),
+    'opthalmic_otic' => t('Ophthalmic / Otic agents')->render(),
     'miscellaneous' => t('Miscellaneous')->render(),
+    'allergy_treatment_agents' => t('Allergy treatment agents')->render(),
+    'cardiac_treatment_agents' => t('Cardiac treatment agents')->render(),
+    'dermatologic_agents' => t('Dermatologic agents')->render(),
+    'gastrointestinal_treatment_agent' => t('Gastrointestinal treatment agents')->render(),
+    'respiratory_treatments' => t('Respiratory treatments')->render(),
   ];
+}
+
+/**
+ * Implements hook_inline_entity_form_entity_form_alter().
+ *
+ * Renders a pair of adjacent fields side by side in pharmacy inline forms:
+ * Dosage + Frequency on prescription items, Strength + Frequency on
+ * non-formulary medications. Each pair is consecutive in the form display, so
+ * wrapping it in a flex container via prefix/suffix puts the two on one row.
+ *
+ * @param array<string, mixed> $entity_form
+ *   The inline entity form render array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The parent form's state.
+ */
+function librechart_pharmacy_inline_entity_form_entity_form_alter(array &$entity_form, FormStateInterface &$form_state): void {
+  // The adjacent field pair to lay side by side, keyed by entity type.
+  $side_by_side = [
+    'prescription_item' => ['dosage', 'frequency'],
+    'non_formulary_medication' => ['strength', 'frequency'],
+  ];
+  $entity_type = $entity_form['#entity_type'] ?? NULL;
+  if (!isset($side_by_side[$entity_type])) {
+    return;
+  }
+
+  [$first, $second] = $side_by_side[$entity_type];
+  if (isset($entity_form[$first], $entity_form[$second])) {
+    $entity_form[$first]['#prefix'] = '<div class="lc-field-row">';
+    $entity_form[$second]['#suffix'] = '</div>';
+    $entity_form['#attached']['library'][] = 'librechart_pharmacy/pharmacy';
+  }
 }
 
 /**
@@ -159,91 +194,157 @@ function librechart_pharmacy_inventory_receipt_validate_new_drug(array &$form, F
 }
 
 /**
- * Implements hook_preprocess_views_view_table().
- *
- * Marks rows in the inventory_report view where quantity_on_hand has dropped
- * to or below the configured low-stock threshold. The class hook drives the
- * red row tint and the "Low" badge defined in css/pharmacy.css.
+ * Implements hook_entity_insert().
  */
-function librechart_pharmacy_preprocess_views_view_table(array &$variables): void {
-  if ($variables['view']->id() !== 'inventory_report') {
+function librechart_pharmacy_entity_insert(EntityInterface $entity): void {
+  _librechart_pharmacy_dispatch_save($entity, NULL);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function librechart_pharmacy_entity_update(EntityInterface $entity): void {
+  $original = $entity->original ?? NULL;
+  _librechart_pharmacy_dispatch_save($entity, $original instanceof ContentEntityInterface ? $original : NULL);
+}
+
+/**
+ * Implements hook_entity_predelete().
+ *
+ * Restores stock for a filled prescription item that is being removed
+ * (feature 005, FR-011 edge case).
+ */
+function librechart_pharmacy_entity_predelete(EntityInterface $entity): void {
+  if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'prescription_item') {
     return;
   }
-
-  $variables['#attached']['library'][] = 'librechart_pharmacy/pharmacy';
-
-  foreach ($variables['rows'] as $i => &$row) {
-    $result_row = $variables['view']->result[$i] ?? NULL;
-    $entity = $result_row->_entity ?? NULL;
-    if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'drug_inventory') {
-      continue;
-    }
-    $on_hand = (int) $entity->get('quantity_on_hand')->value;
-    $threshold = (int) $entity->get('low_stock_threshold')->value;
-    if ($on_hand <= $threshold) {
-      $row['attributes']->addClass('inventory-row--low-stock');
-    }
+  $effective = _librechart_pharmacy_effective_quantity($entity);
+  if ($effective > 0) {
+    _librechart_pharmacy_adjust_inventory((int) $entity->get('drug')->target_id, $effective);
   }
 }
 
 /**
- * Implements hook_entity_postsave().
+ * Routes a saved entity to its inventory side effect.
  *
- * Decrements DrugInventory.quantity_on_hand when a PrescriptionItem is filled.
- * Increments DrugInventory.quantity_on_hand when an InventoryReceipt is saved.
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity that was just saved.
+ * @param \Drupal\Core\Entity\ContentEntityInterface|null $original
+ *   The pre-save state on update, or NULL on insert.
  */
-function librechart_pharmacy_entity_postsave(EntityInterface $entity, string $op): void {
+function _librechart_pharmacy_dispatch_save(EntityInterface $entity, ?ContentEntityInterface $original): void {
   if (!$entity instanceof ContentEntityInterface) {
     return;
   }
+  switch ($entity->getEntityTypeId()) {
+    case 'visit':
+      _librechart_pharmacy_link_visit_medications($entity);
+      break;
 
-  if ($entity->getEntityTypeId() === 'prescription_item' && $op !== 'delete') {
-    librechart_pharmacy_handle_prescription_fill($entity);
-  }
+    case 'prescription_item':
+      _librechart_pharmacy_apply_prescription_delta($entity, $original);
+      break;
 
-  if ($entity->getEntityTypeId() === 'inventory_receipt' && $op !== 'delete') {
-    librechart_pharmacy_handle_inventory_receipt($entity);
+    case 'inventory_receipt':
+      // Receipts are create-only; increment once, on insert.
+      if ($original === NULL) {
+        librechart_pharmacy_handle_inventory_receipt($entity);
+      }
+      break;
   }
 }
 
 /**
- * Decrements DrugInventory when a prescription is filled.
+ * Links a visit's embedded prescription items back to that visit.
  *
- * @param \Drupal\Core\Entity\ContentEntityInterface $prescription
- *   The PrescriptionItem entity being saved.
+ * @param \Drupal\Core\Entity\ContentEntityInterface $visit
+ *   The visit being saved.
  */
-function librechart_pharmacy_handle_prescription_fill(ContentEntityInterface $prescription): void {
-  if (!$prescription->get('prescription_filled')->value) {
+function _librechart_pharmacy_link_visit_medications(ContentEntityInterface $visit): void {
+  if (!$visit->hasField('medications')) {
+    return;
+  }
+  foreach ($visit->get('medications')->referencedEntities() as $item) {
+    if (!$item instanceof ContentEntityInterface) {
+      continue;
+    }
+    if ((int) ($item->get('visit')->target_id ?? 0) !== (int) $visit->id()) {
+      $item->set('visit', $visit->id());
+      $item->save();
+    }
+  }
+}
+
+/**
+ * Applies the inventory delta for a saved prescription item.
+ *
+ * Delta-based so the effect always matches the item's current fulfilled state
+ * and quantity: filling decrements, un-filling restores, re-saving an unchanged
+ * item is a no-op, and changing the drug moves stock between the two drugs
+ * (feature 005, FR-010/011/012). Matches the drug's single stock pool.
+ *
+ * @param \Drupal\Core\Entity\ContentEntityInterface $item
+ *   The prescription item just saved.
+ * @param \Drupal\Core\Entity\ContentEntityInterface|null $original
+ *   The pre-save state on update, or NULL on insert.
+ */
+function _librechart_pharmacy_apply_prescription_delta(ContentEntityInterface $item, ?ContentEntityInterface $original): void {
+  $new_drug = (int) $item->get('drug')->target_id;
+  $effective_new = _librechart_pharmacy_effective_quantity($item);
+  $old_drug = $original !== NULL ? (int) $original->get('drug')->target_id : $new_drug;
+  $effective_old = $original !== NULL ? _librechart_pharmacy_effective_quantity($original) : 0;
+
+  if ($old_drug !== $new_drug) {
+    // Drug changed: restore the old drug, charge the new one.
+    if ($effective_old > 0) {
+      _librechart_pharmacy_adjust_inventory($old_drug, $effective_old);
+    }
+    if ($effective_new > 0) {
+      _librechart_pharmacy_adjust_inventory($new_drug, -$effective_new);
+    }
     return;
   }
 
-  $quantity = (int) $prescription->get('quantity_dispensed')->value;
-  if ($quantity <= 0) {
+  $delta = $effective_new - $effective_old;
+  if ($delta !== 0) {
+    _librechart_pharmacy_adjust_inventory($new_drug, -$delta);
+  }
+}
+
+/**
+ * Returns the units a prescription item currently draws from stock.
+ *
+ * @param \Drupal\Core\Entity\ContentEntityInterface $item
+ *   The prescription item.
+ *
+ * @return int
+ *   The dispensed quantity when filled, otherwise zero.
+ */
+function _librechart_pharmacy_effective_quantity(ContentEntityInterface $item): int {
+  if (!(bool) $item->get('prescription_filled')->value) {
+    return 0;
+  }
+  return max(0, (int) $item->get('quantity_dispensed')->value);
+}
+
+/**
+ * Adjusts the primary inventory record for a drug.
+ *
+ * @param int $drug_id
+ *   The drug taxonomy term id.
+ * @param int $change
+ *   Units to add (positive) or remove (negative); floored at zero.
+ */
+function _librechart_pharmacy_adjust_inventory(int $drug_id, int $change): void {
+  if ($change === 0) {
     return;
   }
-
-  $drug_id = $prescription->get('drug')->target_id;
-  $visit = $prescription->get('visit')->entity;
-  if (!$visit instanceof ContentEntityInterface) {
+  $inventory = DrugInventory::primaryForDrug($drug_id);
+  if ($inventory === NULL) {
     return;
   }
-  $clinic_site_id = $visit->get('clinic_site')->target_id;
-
-  $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
-  $query = $storage->getQuery()
-    ->accessCheck(FALSE)
-    ->condition('drug', $drug_id)
-    ->condition('clinic_site', $clinic_site_id);
-  $ids = $query->execute();
-
-  if (empty($ids)) {
-    return;
-  }
-
-  /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
-  $inventory = $storage->load(reset($ids));
   $current = (int) $inventory->get('quantity_on_hand')->value;
-  $inventory->set('quantity_on_hand', max(0, $current - $quantity));
+  $inventory->set('quantity_on_hand', max(0, $current + $change));
   $inventory->save();
 }
 
@@ -288,69 +389,54 @@ function librechart_pharmacy_handle_inventory_receipt(ContentEntityInterface $re
 }
 
 /**
- * Implements hook_entity_presave().
+ * Implements hook_entity_type_alter().
  *
- * Validates PrescriptionItem before fill — low-stock warning.
+ * Attaches the insufficient-stock validation constraint to PrescriptionItem so
+ * fulfilling more than the available stock is blocked with a remaining-quantity
+ * message (feature 005, FR-013). Replaces the former override-reason flow.
  *
- * @throws \Drupal\Core\Entity\EntityStorageException
- *   When stock is insufficient and no override reason is provided.
+ * @param array<string, \Drupal\Core\Entity\EntityTypeInterface> $entity_types
+ *   The entity type definitions.
  */
-function librechart_pharmacy_entity_presave(EntityInterface $entity): void {
-  if ($entity->getEntityTypeId() !== 'prescription_item') {
-    return;
+function librechart_pharmacy_entity_type_alter(array &$entity_types): void {
+  if (isset($entity_types['prescription_item'])) {
+    $entity_types['prescription_item']->addConstraint('SufficientStock');
   }
+}
 
-  if (!$entity instanceof ContentEntityInterface) {
-    return;
+/**
+ * Implements hook_entity_field_access().
+ *
+ * Only the Pharmacist role may change a medication's fulfilled state or record
+ * who dispensed it — independent of the visit's current station (feature 005,
+ * Clarification Q1).
+ *
+ * @param string $operation
+ *   The field operation being checked.
+ * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+ *   The field being accessed.
+ * @param \Drupal\Core\Session\AccountInterface $account
+ *   The account requesting access.
+ * @param \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\FieldItemInterface>|null $items
+ *   The field values, when available.
+ *
+ * @return \Drupal\Core\Access\AccessResultInterface
+ *   The access result.
+ */
+function librechart_pharmacy_entity_field_access(
+  string $operation,
+  FieldDefinitionInterface $field_definition,
+  AccountInterface $account,
+  ?FieldItemListInterface $items = NULL,
+): AccessResultInterface {
+  if ($operation !== 'edit' || $field_definition->getTargetEntityTypeId() !== 'prescription_item') {
+    return AccessResult::neutral();
   }
-
-  if (!$entity->get('prescription_filled')->value) {
-    return;
+  if (!in_array($field_definition->getName(), ['prescription_filled', 'fulfilled_by'], TRUE)) {
+    return AccessResult::neutral();
   }
-
-  $quantity = (int) $entity->get('quantity_dispensed')->value;
-  $drug_id = $entity->get('drug')->target_id;
-  $visit = $entity->get('visit')->entity;
-  if (!$visit instanceof ContentEntityInterface || !$drug_id) {
-    return;
-  }
-  $clinic_site_id = $visit->get('clinic_site')->target_id;
-
-  $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
-  $query = $storage->getQuery()
-    ->accessCheck(FALSE)
-    ->condition('drug', $drug_id)
-    ->condition('clinic_site', $clinic_site_id);
-  $ids = $query->execute();
-
-  if (empty($ids)) {
-    return;
-  }
-
-  /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
-  $inventory = $storage->load(reset($ids));
-  $on_hand = (int) $inventory->get('quantity_on_hand')->value;
-  $override_reason = $entity->get('override_reason')->value;
-
-  if ($quantity > $on_hand && empty($override_reason)) {
-    $drug_label = $entity->get('drug')->entity->label() ?? 'Unknown drug';
-    throw new \Drupal\Core\Entity\EntityStorageException(
-      (string) t('Insufficient stock — @drug has @count on hand. Enter a reason to override.', [
-        '@drug' => $drug_label,
-        '@count' => $on_hand,
-      ])
-    );
-  }
-
-  if ($quantity > $on_hand && !empty($override_reason)) {
-    \Drupal::logger('librechart_pharmacy')->warning(
-      'Pharmacy override: @drug dispensed @qty (on hand: @onhand). Reason: @reason',
-      [
-        '@drug' => $entity->get('drug')->entity->label() ?? 'Unknown',
-        '@qty' => $quantity,
-        '@onhand' => $on_hand,
-        '@reason' => $override_reason,
-      ]
-    );
-  }
+  $allowed = in_array('pharmacist', $account->getRoles(), TRUE)
+    || $account->hasPermission('administer prescription_item entities');
+  $result = $allowed ? AccessResult::neutral() : AccessResult::forbidden();
+  return $result->addCacheContexts(['user.roles']);
 }

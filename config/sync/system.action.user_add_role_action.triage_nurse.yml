@@ -7,7 +7,7 @@ dependencies:
   module:
     - user
 id: user_add_role_action.triage_nurse
-label: 'Add the Triage Nurse role to the selected user(s)'
+label: 'Add the Triage role to the selected user(s)'
 type: user
 plugin: user_add_role_action
 configuration:

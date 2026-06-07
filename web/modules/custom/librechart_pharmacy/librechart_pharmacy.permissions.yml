@@ -28,6 +28,26 @@ edit any drug_inventory entities:
 view drug_inventory entities:
   title: 'View drug inventory'
 
+rename drug terms:
+  title: 'Rename drugs'
+  description: 'Change the name of a drug from the pharmacy inventory report.'
+
+administer non_formulary_medication entities:
+  title: 'Administer non-formulary medications'
+  restrict access: true
+
+create non_formulary_medication entities:
+  title: 'Create non-formulary medications'
+
+edit any non_formulary_medication entities:
+  title: 'Edit any non-formulary medication'
+
+delete any non_formulary_medication entities:
+  title: 'Delete any non-formulary medication'
+
+view non_formulary_medication entities:
+  title: 'View non-formulary medications'
+
 administer inventory_receipt entities:
   title: 'Administer inventory receipts'
   restrict access: true

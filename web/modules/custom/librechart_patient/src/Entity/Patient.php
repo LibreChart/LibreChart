@@ -192,7 +192,6 @@ class Patient extends ContentEntityBase implements PatientInterface {
       ->setSetting('allowed_values', [
         'male' => new TranslatableMarkup('Male'),
         'female' => new TranslatableMarkup('Female'),
-        'other' => new TranslatableMarkup('Other'),
       ])
       ->setDisplayOptions('form', [
         'type' => 'options_select',
@@ -251,16 +250,13 @@ class Patient extends ContentEntityBase implements PatientInterface {
       ->setSetting('handler_settings', [
         'target_bundles' => ['village_town' => 'village_town'],
       ])
-      ->setDisplayOptions('form', [
-        'type' => 'options_select',
-        'weight' => 16,
-      ])
+      // Hidden from the add/edit form (the field and its data are retained and
+      // still shown on the patient view display).
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'entity_reference_label',
         'weight' => 16,
       ])
-      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     return $fields;

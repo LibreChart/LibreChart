@@ -12,19 +12,12 @@ librechart_pharmacy.receipts:
   parent: librechart_pharmacy.dashboard
   weight: 10
 
-librechart_pharmacy.inventory:
-  title: 'Current inventory'
-  description: 'Drug inventory levels by clinic site.'
-  route_name: view.inventory_report.page_inventory_report
-  parent: librechart_pharmacy.dashboard
-  weight: 20
-
 librechart_pharmacy.report:
   title: 'Inventory report'
-  description: 'Date-range report with received and dispensed totals.'
+  description: 'On-hand stock per drug with received and dispensed totals.'
   route_name: librechart_pharmacy.report
   parent: librechart_pharmacy.dashboard
-  weight: 30
+  weight: 20
 
 librechart_pharmacy.add_receipt:
   title: 'Record inventory receipt'

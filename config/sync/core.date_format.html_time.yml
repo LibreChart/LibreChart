@@ -7,4 +7,4 @@ _core:
 id: html_time
 label: 'HTML Time'
 locked: true
-pattern: 'H:i'
+pattern: 'H:i:s'

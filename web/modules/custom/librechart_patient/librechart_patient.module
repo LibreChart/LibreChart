@@ -13,6 +13,22 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\librechart_patient\Service\PatientDuplicateChecker;
 
 /**
+ * Implements hook_gin_ignore_sticky_form_actions().
+ *
+ * Opts the patient form out of Gin's sticky-action bar. On the patient chart
+ * the patient form is embedded alongside the visit form; Gin's sticky header
+ * Save submits only the patient form, so clicking it reloads the page without
+ * saving the visit edits below it. Removing the sticky duplicate leaves the
+ * in-form Save buttons, which submit the correct form (feature 005).
+ *
+ * @return array<int, string>
+ *   Form ids to exclude from Gin's sticky form actions.
+ */
+function librechart_patient_gin_ignore_sticky_form_actions(): array {
+  return ['patient_add_form', 'patient_edit_form'];
+}
+
+/**
  * Implements hook_form_alter().
  *
  * Adds a duplicate patient warning on the patient add form.

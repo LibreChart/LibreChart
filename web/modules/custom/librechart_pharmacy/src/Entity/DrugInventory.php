@@ -60,16 +60,65 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 class DrugInventory extends ContentEntityBase {
 
   /**
+   * Loads the primary inventory record for a drug.
+   *
+   * The clinic operates a single stock pool (feature 005), so a drug maps to a
+   * single inventory record in production. Where seed/test data holds more than
+   * one record per drug, the lowest-id record is used consistently for display,
+   * validation, and adjustment so they always agree.
+   *
+   * @param int $drug_id
+   *   The drug taxonomy term id.
+   *
+   * @return self|null
+   *   The inventory record, or NULL when the drug is not stocked.
+   */
+  public static function primaryForDrug(int $drug_id): ?self {
+    if ($drug_id <= 0) {
+      return NULL;
+    }
+    $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
+    $ids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('drug', $drug_id)
+      ->sort('id')
+      ->range(0, 1)
+      ->execute();
+    if (empty($ids)) {
+      return NULL;
+    }
+    $inventory = $storage->load(reset($ids));
+    return $inventory instanceof self ? $inventory : NULL;
+  }
+
+  /**
+   * Returns the quantity available, never below zero.
+   *
+   * @return int
+   *   The current quantity on hand.
+   */
+  public function availableStock(): int {
+    return max(0, (int) $this->get('quantity_on_hand')->value);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    // Restrict to the project's drug vocabularies so the picker lists
+    // medications only (shared with the receipt form and the "add new drug"
+    // category list — see librechart_pharmacy_drug_vocabularies()).
+    $drug_vocabularies = array_keys(librechart_pharmacy_drug_vocabularies());
     $fields['drug'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(new TranslatableMarkup('Drug'))
       ->setRequired(TRUE)
       ->setSetting('target_type', 'taxonomy_term')
       ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', [
+        'target_bundles' => array_combine($drug_vocabularies, $drug_vocabularies),
+      ])
       ->setDisplayOptions('form', ['type' => 'options_select', 'weight' => 1])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 1])
       ->setDisplayConfigurable('form', TRUE)

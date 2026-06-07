@@ -196,9 +196,13 @@ table.lc-table tbody tr:hover,
     background: #f4f4f5;
     z-index: 3;                  /* above row-sticky AND col-sticky cells */
   }
-  /* Preserve low-stock pink tint under the sticky white background. */
+  /* Preserve the stock tint under the sticky first column: low = yellow,
+     out of stock = red (feature 005, FR-028). */
   .inventory-row--low-stock td:first-child {
-    background: #fff4f4;
+    background: #fff8c5;
+  }
+  .inventory-row--out-of-stock td:first-child {
+    background: #ffd7d5;
   }
   /* Tighter padding & sizing for phones. */
   .views-table td,
@@ -217,7 +221,10 @@ table.lc-table tbody tr:hover,
     background: #f8fafc;
   }
   .inventory-row--low-stock:hover td:first-child {
-    background: #fff4f4;
+    background: #fff8c5;
+  }
+  .inventory-row--out-of-stock:hover td:first-child {
+    background: #ffd7d5;
   }
 }
 

@@ -1,0 +1,49 @@
+/**
+ * @file
+ * Sticky red allergy pills pinned to the bottom of the visit form.
+ *
+ * Feature 005 (FR-018): keeps recorded allergies visible to clinicians and
+ * pharmacists at all scroll positions.
+ */
+
+.lc-allergy-sticky {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  padding: 0.5rem 0.75rem;
+  background: #2b0b0b;
+  border-top: 2px solid #d83434;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.lc-allergy-sticky--visible {
+  display: block;
+}
+
+.lc-allergy-sticky::before {
+  content: "Allergies:";
+  display: inline-block;
+  margin-right: 0.5rem;
+  color: #ffd7d5;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+
+.lc-allergy-pill {
+  display: inline-block;
+  margin: 0.15rem 0.25rem;
+  padding: 0.2rem 0.7rem;
+  background-color: #d83434;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  vertical-align: middle;
+}

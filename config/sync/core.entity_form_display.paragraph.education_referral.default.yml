@@ -1,0 +1,29 @@
+uuid: 637c578d-1d11-4077-b906-2a76c6b15a5f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.education_referral.complete
+    - field.field.paragraph.education_referral.education_class
+    - paragraphs.paragraphs_type.education_referral
+id: paragraph.education_referral.default
+targetEntityType: paragraph
+bundle: education_referral
+mode: default
+content:
+  complete:
+    type: boolean_checkbox
+    weight: 1
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  education_class:
+    type: options_select
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

@@ -89,14 +89,9 @@ class PharmacyDashboardController extends ControllerBase {
         $this->t('Log incoming stock: drug, clinic site, quantity, and date.'),
         Url::fromRoute('entity.inventory_receipt.add_form'),
       ),
-      'view_inventory' => $this->buildCard(
-        $this->t('Current inventory'),
-        $this->t('On-hand quantities by drug and clinic site, with low-stock highlighting.'),
-        Url::fromRoute('view.inventory_report.page_inventory_report'),
-      ),
       'run_report' => $this->buildCard(
         $this->t('Inventory report'),
-        $this->t('Filter by clinic site and date range; see received and dispensed totals; export CSV.'),
+        $this->t('On-hand quantities per drug with low/out-of-stock highlighting; search by drug name and date range; see received and dispensed totals; export CSV.'),
         Url::fromRoute('librechart_pharmacy.report'),
       ),
       'view_receipts' => $this->buildCard(

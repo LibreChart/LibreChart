@@ -1,0 +1,29 @@
+uuid: d1d31966-e6c4-4740-b3ee-2e468e7f2358
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.education_class
+    - paragraphs.paragraphs_type.education_referral
+    - taxonomy.vocabulary.education
+id: paragraph.education_referral.education_class
+field_name: education_class
+entity_type: paragraph
+bundle: education_referral
+label: 'Education class'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      education: education
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
