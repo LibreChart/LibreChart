@@ -211,6 +211,7 @@ class Visit extends ContentEntityBase {
       ->setSetting('handler_settings', [
         'target_bundles' => ['clinic_sites' => 'clinic_sites'],
       ])
+      ->setDefaultValueCallback(static::class . '::getDefaultClinicSite')
       ->setDisplayOptions('form', [
         'type' => 'options_select',
         'weight' => 4,
@@ -708,6 +709,44 @@ class Visit extends ContentEntityBase {
    */
   public static function getDefaultAllergies(): array {
     return [['target_id' => static::getNoneAllergyTermId()]];
+  }
+
+  /**
+   * Default value callback for the clinic_site field.
+   *
+   * Clinic site is required; new visits default to "Málaga", the clinic's home
+   * site, so staff need only change it for visits recorded elsewhere.
+   *
+   * @return array<int, array<string, int>>
+   *   A default value referencing the "Málaga" clinic-site term.
+   */
+  public static function getDefaultClinicSite(): array {
+    return [['target_id' => static::getMalagaClinicSiteTermId()]];
+  }
+
+  /**
+   * Returns the id of the "Málaga" clinic-site term, creating it if absent.
+   *
+   * The id (not the label) is the stable handle used for the default value, so
+   * the behaviour survives translation of the term's name.
+   *
+   * @return int
+   *   The "Málaga" clinic-site term id.
+   */
+  public static function getMalagaClinicSiteTermId(): int {
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $existing = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('vid', 'clinic_sites')
+      ->condition('name', 'Málaga')
+      ->range(0, 1)
+      ->execute();
+    if (!empty($existing)) {
+      return (int) reset($existing);
+    }
+    $term = $storage->create(['vid' => 'clinic_sites', 'name' => 'Málaga']);
+    $term->save();
+    return (int) $term->id();
   }
 
   /**
