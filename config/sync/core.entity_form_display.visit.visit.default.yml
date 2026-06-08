@@ -148,6 +148,22 @@ third_party_settings:
         open: false
         description: ''
         required_fields: false
+    group_discharge:
+      children:
+        - discharge_sunglasses
+        - discharge_readers
+        - discharge_notes
+      label: Discharge
+      region: content
+      parent_name: ''
+      weight: 70
+      format_type: details
+      format_settings:
+        classes: field-group-discharge
+        id: ''
+        open: false
+        description: ''
+        required_fields: false
 id: visit.visit.default
 targetEntityType: visit
 bundle: visit
