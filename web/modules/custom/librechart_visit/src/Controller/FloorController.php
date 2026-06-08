@@ -35,11 +35,21 @@ final class FloorController extends ControllerBase {
   }
 
   /**
+   * The `current_station` value whose column gets specialty coloring.
+   */
+  private const CLINICAL_STATION = 'clinical';
+
+  /**
    * Builds the board render array.
    */
   public function board(): array {
     $visit_storage = $this->entityTypeManager()->getStorage('visit');
     $patient_storage = $this->entityTypeManager()->getStorage('patient');
+
+    // Load every specialty term once, keyed by id, carrying its name and
+    // color. Serves both the per-patient color lookup and the legend, and
+    // keeps the order admins set on the vocabulary.
+    $specialties = $this->loadSpecialties();
 
     // Single query for all in-progress visits, ordered by visit_date ASC
     // so the longest-waiting patient appears at the top of each column.
@@ -79,7 +89,7 @@ final class FloorController extends ControllerBase {
     foreach ($this->workflow->workflowStations() as $station) {
       $items = [];
       foreach ($by_station[$station] as $visit) {
-        $items[] = $this->buildVisitRow($visit, $patients);
+        $items[] = $this->buildVisitRow($visit, $patients, $station, $specialties);
       }
       $columns[$station] = [
         '#type' => 'container',
@@ -108,13 +118,97 @@ final class FloorController extends ControllerBase {
     return [
       '#attached' => ['library' => ['librechart_visit/station_strip']],
       '#cache' => [
-        'tags' => ['visit_list', 'patient_list'],
+        // taxonomy_term_list covers specialty term/color edits so the board's
+        // colors and legend refresh when an admin changes a specialty.
+        'tags' => ['visit_list', 'patient_list', 'taxonomy_term_list'],
         'contexts' => ['user.permissions'],
       ],
       'board' => [
         '#type' => 'container',
         '#attributes' => ['class' => ['floor-board']],
       ] + $columns,
+      'legend' => $this->buildLegend($specialties),
+    ];
+  }
+
+  /**
+   * Loads specialty terms keyed by id, in vocabulary order.
+   *
+   * @return array<int, array{name: string, color: string}>
+   *   Map of term id to its name and (possibly empty) hex color.
+   */
+  private function loadSpecialties(): array {
+    $term_storage = $this->entityTypeManager()->getStorage('taxonomy_term');
+    $tids = $term_storage->getQuery()
+      ->accessCheck(TRUE)
+      ->condition('vid', 'specialties')
+      ->sort('weight')
+      ->sort('name')
+      ->execute();
+    $specialties = [];
+    foreach ($tids ? $term_storage->loadMultiple($tids) : [] as $term) {
+      $color = $term->hasField('field_color') ? trim((string) $term->get('field_color')->value) : '';
+      $specialties[(int) $term->id()] = [
+        'name' => (string) $term->label(),
+        'color' => $color,
+      ];
+    }
+    return $specialties;
+  }
+
+  /**
+   * Builds the color key shown beneath the board.
+   *
+   * @param array<int, array{name: string, color: string}> $specialties
+   *   Specialty terms keyed by id.
+   *
+   * @return array<string, mixed>
+   *   Render array for the legend (empty when no specialties exist).
+   */
+  private function buildLegend(array $specialties): array {
+    if (!$specialties) {
+      return [];
+    }
+    $items = [];
+    foreach ($specialties as $specialty) {
+      // Build the swatch as an html_tag so the inline color survives rendering
+      // (raw #markup is XSS-filtered, which strips the style attribute).
+      $swatch_attributes = ['class' => ['floor-legend__swatch']];
+      if ($specialty['color'] !== '') {
+        $swatch_attributes['style'] = 'background-color:' . $specialty['color'];
+      }
+      else {
+        $swatch_attributes['class'][] = 'floor-legend__swatch--none';
+      }
+      $items[] = [
+        '#wrapper_attributes' => ['class' => ['floor-legend__item']],
+        'swatch' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => $swatch_attributes,
+        ],
+        'label' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['floor-legend__label']],
+          '#value' => $specialty['name'],
+        ],
+      ];
+    }
+    return [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['floor-legend']],
+      'title' => [
+        '#type' => 'html_tag',
+        '#tag' => 'span',
+        '#attributes' => ['class' => ['floor-legend__title']],
+        '#value' => $this->t('Specialties'),
+      ],
+      'list' => [
+        '#theme' => 'item_list',
+        '#items' => $items,
+        '#attributes' => ['class' => ['floor-legend__list']],
+      ],
     ];
   }
 
@@ -125,16 +219,20 @@ final class FloorController extends ControllerBase {
    *   The visit.
    * @param array<int, \Drupal\Core\Entity\ContentEntityInterface> $patients
    *   Pre-loaded patient map keyed by patient id.
+   * @param string $station
+   *   The column's station; coloring only applies to the clinical station.
+   * @param array<int, array{name: string, color: string}> $specialties
+   *   Specialty terms keyed by id.
    *
    * @return array<string, mixed>
    *   Render array for one list item.
    */
-  private function buildVisitRow(ContentEntityInterface $visit, array $patients): array {
+  private function buildVisitRow(ContentEntityInterface $visit, array $patients, string $station, array $specialties): array {
     $pid = (int) ($visit->get('patient')->target_id ?? 0);
     $patient = $patients[$pid] ?? NULL;
     $last = $patient ? $patient->get('last_name')->value : $this->t('Unknown');
     $first = $patient ? $patient->get('first_name')->value : '';
-    return [
+    $link = [
       '#type' => 'link',
       '#title' => $this->t('@last, @first', [
         '@last' => $last,
@@ -142,6 +240,52 @@ final class FloorController extends ControllerBase {
       ]),
       '#url' => $patient ? $patient->toUrl('edit-form') : $visit->toUrl('edit-form'),
     ];
+
+    // In the Clinical Evaluation column, tint the name with the color of the
+    // patient's primary (first) specialty. Multiple specialties take the first.
+    if ($station === self::CLINICAL_STATION) {
+      $primary = (int) ($visit->get('specialties')->target_id ?? 0);
+      $color = $specialties[$primary]['color'] ?? '';
+      if ($color !== '') {
+        $link['#attributes']['class'][] = 'has-specialty';
+        $link['#attributes']['style'] = sprintf(
+          'background-color:%s;color:%s',
+          $color,
+          $this->contrastColor($color),
+        );
+      }
+    }
+
+    return $link;
+  }
+
+  /**
+   * Picks a readable text color (#111 or #fff) for a hex background.
+   *
+   * Uses the standard relative-luminance threshold so dark specialty colors
+   * get light text and light colors get dark text. Falls back to dark text
+   * when the value is not a usable 3- or 6-digit hex color.
+   *
+   * @param string $hex
+   *   A hex color such as "#2563eb" or "#abc".
+   *
+   * @return string
+   *   Either "#111111" or "#ffffff".
+   */
+  private function contrastColor(string $hex): string {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) === 3) {
+      $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    }
+    if (strlen($hex) !== 6 || !ctype_xdigit($hex)) {
+      return '#111111';
+    }
+    $r = hexdec(substr($hex, 0, 2)) / 255;
+    $g = hexdec(substr($hex, 2, 2)) / 255;
+    $b = hexdec(substr($hex, 4, 2)) / 255;
+    // Perceived luminance (sRGB coefficients).
+    $luminance = 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+    return $luminance > 0.6 ? '#111111' : '#ffffff';
   }
 
 }

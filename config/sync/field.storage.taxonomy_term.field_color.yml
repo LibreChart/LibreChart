@@ -1,0 +1,21 @@
+uuid: 50fcc778-fe4b-4639-9f4b-3978e6a093b1
+langcode: en
+status: true
+dependencies:
+  module:
+    - taxonomy
+id: taxonomy_term.field_color
+field_name: field_color
+entity_type: taxonomy_term
+type: string
+settings:
+  max_length: 7
+  case_sensitive: false
+  is_ascii: true
+module: core
+locked: false
+cardinality: 1
+translatable: false
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

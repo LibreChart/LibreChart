@@ -1,0 +1,27 @@
+uuid: 900fc004-4054-4e89-887b-2b8e6e1ac73a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.specialties.field_color
+    - taxonomy.vocabulary.specialties
+id: taxonomy_term.specialties.default
+targetEntityType: taxonomy_term
+bundle: specialties
+mode: default
+content:
+  field_color:
+    type: string
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  description: true
+  entity_print_view_epub: true
+  entity_print_view_pdf: true
+  entity_print_view_word_docx: true
+  langcode: true
+  search_api_excerpt: true

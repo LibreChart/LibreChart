@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.specialties.field_color
+    - taxonomy.vocabulary.specialties
+id: taxonomy_term.specialties.default
+targetEntityType: taxonomy_term
+bundle: specialties
+mode: default
+content:
+  field_color:
+    type: string
+    label: inline
+    weight: 0
+    region: content
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+hidden:
+  description: true

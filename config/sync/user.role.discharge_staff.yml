@@ -1,0 +1,16 @@
+uuid: 60752b42-d1ca-44fe-9d04-b0747536df00
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_patient
+    - librechart_visit
+id: discharge_staff
+label: 'Discharge Staff'
+weight: 11
+is_admin: false
+permissions:
+  - 'edit any visit entities'
+  - 'view patient entities'
+  - 'view prescription_item entities'
+  - 'view visit entities'
