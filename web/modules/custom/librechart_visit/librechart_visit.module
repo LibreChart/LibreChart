@@ -521,7 +521,9 @@ function _librechart_visit_attach_station_strip(array &$form, FormStateInterface
     if ($is_complete || ($current_index_int !== -1 && $i < $current_index_int)) {
       $classes[] = 'station-strip__step--done';
     }
-    elseif (!$is_complete && $i === $current_index_int) {
+    elseif ($i === $current_index_int) {
+      // Reached only when $is_complete is false (the if above caught the
+      // complete case), so the current station is highlighted.
       $classes[] = 'station-strip__step--current';
     }
     $strip[$station] = [
@@ -675,19 +677,16 @@ function _librechart_visit_attach_reopen_control(array &$form, StationWorkflow $
 /**
  * Resolves the Visit entity from the form state.
  *
- * @return \Drupal\Core\Entity\ContentEntityInterface|null
+ * @return \Drupal\librechart_visit\Entity\Visit|null
  *   The visit entity, or NULL if this isn't a Visit form.
  */
-function _librechart_visit_get_form_entity(FormStateInterface $form_state): ?ContentEntityInterface {
+function _librechart_visit_get_form_entity(FormStateInterface $form_state): ?Visit {
   $form_object = $form_state->getFormObject();
   if (!method_exists($form_object, 'getEntity')) {
     return NULL;
   }
   $entity = $form_object->getEntity();
-  if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'visit') {
-    return NULL;
-  }
-  return $entity;
+  return $entity instanceof Visit ? $entity : NULL;
 }
 
 /**
@@ -713,6 +712,9 @@ function _librechart_visit_user_can_transition(ContentEntityInterface $visit, Ac
  * checkbox element only carries #return_value. Without this alias, show/hide
  * logic for fields whose dependee is a boolean checkbox (e.g. pt_referral,
  * lab_ordered) silently inverts.
+ *
+ * @param array<array-key, mixed> $element
+ *   The render element, passed by reference and mutated in place.
  */
 function _librechart_visit_alias_checkbox_on_value(array &$element): void {
   // hook_form_alter runs before element-type defaults (e.g. #return_value=1
