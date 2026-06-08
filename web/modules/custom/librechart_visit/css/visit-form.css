@@ -70,16 +70,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 1rem;
   }
-  /* The five lead vitals (temperature, pulse, respiration, systolic, diastolic)
-     can't fit one legible row on a phone; let them wrap two-up to match the
-     triage grid above. */
-  .lc-field-row {
-    flex-wrap: wrap;
-    gap: 0.75rem 1rem;
-  }
-  .lc-field-row > * {
-    flex: 1 1 calc(50% - 0.5rem);
-  }
 }
 
 /* Lead vitals (temperature, pulse, respiration, systolic, diastolic) share one
@@ -100,6 +90,19 @@
 .lc-field-row input[type="number"] {
   width: 100%;
   box-sizing: border-box;
+}
+
+/* On phones the five vitals can't fit one legible row; wrap them two-up. This
+   block must come after the base .lc-field-row rules above so it wins on source
+   order (equal specificity). */
+@media (max-width: 767px) {
+  .lc-field-row {
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+  }
+  .lc-field-row > * {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
 }
 
 /* =========================================================================
