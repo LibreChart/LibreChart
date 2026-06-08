@@ -7,7 +7,7 @@ dependencies:
     - librechart_patient
     - librechart_visit
 id: triage_nurse
-label: 'Triage'
+label: Triage
 weight: 5
 is_admin: false
 permissions:

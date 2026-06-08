@@ -13,10 +13,12 @@ weight: 7
 is_admin: false
 permissions:
   - 'create non_formulary_medication entities'
+  - 'create prescription_item entities'
   - 'delete any non_formulary_medication entities'
   - 'edit any non_formulary_medication entities'
   - 'edit any visit entities'
   - 'use dictation'
+  - 'view drug_inventory entities'
   - 'view non_formulary_medication entities'
   - 'view patient entities'
   - 'view prescription_item entities'
