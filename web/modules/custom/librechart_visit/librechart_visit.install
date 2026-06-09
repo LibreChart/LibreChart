@@ -333,6 +333,27 @@ function librechart_visit_update_9013(): void {
  */
 function librechart_visit_install(): void {
   \Drupal\librechart_visit\Entity\Visit::seedSpecialties();
+  \Drupal\librechart_visit\Entity\Visit::seedEducation();
+}
+
+/**
+ * Replaces the legacy education classes with the refined topic list.
+ *
+ * The education topics are content, so the refined list (General, Diabetes,
+ * Hypertension, etc.) must be applied in code. Any existing term that is not
+ * part of the new list is deleted, then the refined topics are seeded.
+ *
+ * @see \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED
+ */
+function librechart_visit_update_9014(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $keep = \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED;
+  foreach ($storage->loadByProperties(['vid' => 'education']) as $term) {
+    if (!in_array($term->label(), $keep, TRUE)) {
+      $term->delete();
+    }
+  }
+  \Drupal\librechart_visit\Entity\Visit::seedEducation();
 }
 
 /**

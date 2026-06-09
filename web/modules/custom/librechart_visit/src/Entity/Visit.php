@@ -96,6 +96,25 @@ class Visit extends ContentEntityBase {
   ];
 
   /**
+   * The starter education topics seeded into the `education` vocabulary.
+   *
+   * Admins can add more topics through the taxonomy UI after install, so this
+   * list only bootstraps a fresh or upgrading site.
+   *
+   * @var string[]
+   */
+  public const EDUCATION_SEED = [
+    'General',
+    'Pre-diabetes',
+    'Diabetes',
+    'Hypertension',
+    'Lipid/Cholesterol',
+    'Dental hygiene',
+    'Sex',
+    'Breast',
+  ];
+
+  /**
    * {@inheritdoc}
    *
    * Implements optimistic locking: if the changed timestamp in the database
@@ -801,6 +820,34 @@ class Visit extends ContentEntityBase {
         'vid' => 'specialties',
         'name' => $name,
         'field_color' => $color,
+      ])->save();
+    }
+  }
+
+  /**
+   * Seeds the starter education topics into the `education` vocabulary.
+   *
+   * Idempotent: a topic is created only when no term of that name already
+   * exists in the `education` vocabulary, so re-running (fresh install plus
+   * update hook) never duplicates terms.
+   *
+   * @see \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED
+   */
+  public static function seedEducation(): void {
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    foreach (static::EDUCATION_SEED as $name) {
+      $existing = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('vid', 'education')
+        ->condition('name', $name)
+        ->range(0, 1)
+        ->execute();
+      if (!empty($existing)) {
+        continue;
+      }
+      $storage->create([
+        'vid' => 'education',
+        'name' => $name,
       ])->save();
     }
   }
