@@ -32,8 +32,8 @@ final class StationWorkflow {
     'lab',
     'clinical',
     'pt',
-    'pharmacy',
     'education',
+    'pharmacy',
     'discharge',
   ];
 
@@ -112,7 +112,7 @@ final class StationWorkflow {
   /**
    * Returns the next station for the linear "Send to next station" shortcut.
    *
-   * Applies the PT-skip rule for clinical→pharmacy when pt_referral is false.
+   * Applies the PT-skip rule for clinical→education when pt_referral is false.
    * Returns NULL if the visit is already at the terminal workflow station
    * (`discharge`) — the caller (advance submit handler) then writes the
    * `complete` sentinel and the status field.
@@ -126,10 +126,10 @@ final class StationWorkflow {
       'registration' => 'triage',
       'triage' => 'lab',
       'lab' => 'clinical',
-      'clinical' => ((bool) $visit->get('pt_referral')->value) ? 'pt' : 'pharmacy',
-      'pt' => 'pharmacy',
-      'pharmacy' => 'education',
-      'education' => 'discharge',
+      'clinical' => ((bool) $visit->get('pt_referral')->value) ? 'pt' : 'education',
+      'pt' => 'education',
+      'education' => 'pharmacy',
+      'pharmacy' => 'discharge',
       'discharge' => NULL,
       default => NULL,
     };

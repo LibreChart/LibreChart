@@ -274,8 +274,8 @@ class Visit extends ContentEntityBase {
         'lab' => new TranslatableMarkup('Lab Orders & Results'),
         'clinical' => new TranslatableMarkup('Clinical Evaluation'),
         'pt' => new TranslatableMarkup('Physical Therapy'),
-        'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
         'education' => new TranslatableMarkup('Education'),
+        'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
         'discharge' => new TranslatableMarkup('Discharge'),
         'complete' => new TranslatableMarkup('Complete'),
       ])
