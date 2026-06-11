@@ -310,7 +310,7 @@ function librechart_visit_update_9012(): void {
  *
  * Adds the multi-value specialty reference (selected at triage, used to color
  * the Clinical Evaluation column on the Floor board) to already-deployed Visit
- * tables, then seeds the GP/GYN/Pediatrics/Wounds terms with their default
+ * tables, then seeds the Internal Medicine/GYN/Pediatrics/Wounds terms with
  * colors. Run after importing the new specialties vocabulary and field_color
  * config so the seed can set colors.
  */
@@ -354,6 +354,24 @@ function librechart_visit_update_9014(): void {
     }
   }
   \Drupal\librechart_visit\Entity\Visit::seedEducation();
+}
+
+/**
+ * Renames the legacy 'GP' specialty term to 'Internal Medicine'.
+ *
+ * The specialty is content, so the rename must be applied in code on
+ * already-deployed sites. Renaming the existing term keeps its term ID, so
+ * visit references and the admin-set Floor-board color are preserved. The
+ * fresh-install seed already creates the term under its new name.
+ *
+ * @see \Drupal\librechart_visit\Entity\Visit::SPECIALTY_SEED
+ */
+function librechart_visit_update_9015(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $terms = $storage->loadByProperties(['vid' => 'specialties', 'name' => 'GP']);
+  foreach ($terms as $term) {
+    $term->setName('Internal Medicine')->save();
+  }
 }
 
 /**

@@ -89,7 +89,7 @@ class Visit extends ContentEntityBase {
    * @var array<string, string>
    */
   public const SPECIALTY_SEED = [
-    'GP' => '#2563eb',
+    'Internal Medicine' => '#2563eb',
     'GYN' => '#db2777',
     'Pediatrics' => '#16a34a',
     'Wounds' => '#ea580c',
