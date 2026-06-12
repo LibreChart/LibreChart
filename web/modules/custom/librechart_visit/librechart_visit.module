@@ -209,6 +209,25 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
     $form['current_station']['#access'] = FALSE;
   }
 
+  // Visit date is not user-editable (hidden in the form display); it is the
+  // visit's creation date set by Visit::getDefaultVisitDate(). Show it read-only
+  // in DD/MM/YYYY format.
+  $visit_for_date = _librechart_visit_get_form_entity($form_state);
+  if ($visit_for_date instanceof ContentEntityInterface
+      && !$visit_for_date->get('visit_date')->isEmpty()) {
+    // visit_date may be an ISO 'Y-m-d\TH:i:s' string or, for visits created via
+    // the default-value callback, a Unix timestamp. Handle both, output DD/MM/YYYY.
+    $raw = (string) $visit_for_date->get('visit_date')->value;
+    $ts = ctype_digit($raw) ? (int) $raw : strtotime(substr($raw, 0, 10));
+    $form['visit_date_display'] = [
+      '#type' => 'item',
+      '#title' => t('Visit Date'),
+      '#markup' => $ts ? date('d/m/Y', $ts) : '',
+      '#weight' => 2,
+      '#wrapper_attributes' => ['class' => ['visit-date-display']],
+    ];
+  }
+
   // Patient reference handling.
   //  - On the edit form: always hide. The patient↔visit relationship is
   //    fixed once a visit is created and must not be changed.
@@ -438,6 +457,7 @@ function _librechart_visit_station_field_group_map(): array {
     'pt' => 'group_pt',
     'pharmacy' => 'group_pharmacy',
     'education' => 'group_education',
+    'discharge' => 'group_discharge',
   ];
 }
 
@@ -501,7 +521,9 @@ function _librechart_visit_attach_station_strip(array &$form, FormStateInterface
     if ($is_complete || ($current_index_int !== -1 && $i < $current_index_int)) {
       $classes[] = 'station-strip__step--done';
     }
-    elseif (!$is_complete && $i === $current_index_int) {
+    elseif ($i === $current_index_int) {
+      // Reached only when $is_complete is false (the if above caught the
+      // complete case), so the current station is highlighted.
       $classes[] = 'station-strip__step--current';
     }
     $strip[$station] = [
@@ -547,7 +569,7 @@ function _librechart_visit_attach_transition_controls(array &$form, FormStateInt
     return;
   }
 
-  if (!_librechart_visit_user_owns_current_station($visit, $user)) {
+  if (!_librechart_visit_user_can_transition($visit, $user)) {
     return;
   }
 
@@ -586,7 +608,9 @@ function _librechart_visit_attach_transition_controls(array &$form, FormStateInt
       '#name' => 'op_advance',
       '#value' => $linear_label,
       '#submit' => ['librechart_visit_visit_advance_submit'],
-      '#limit_validation_errors' => [],
+      // Validate the full form (do NOT limit validation) so the user's typed
+      // field values survive into the submit handler and are saved alongside the
+      // station change — staff often hit Send without hitting Save first.
       '#button_type' => 'primary',
     ],
   ];
@@ -612,7 +636,8 @@ function _librechart_visit_attach_transition_controls(array &$form, FormStateInt
     '#name' => 'op_picker',
     '#value' => t('Send'),
     '#submit' => ['librechart_visit_visit_picker_submit'],
-    '#limit_validation_errors' => [['station_picker']],
+    // Full validation (not limited to the picker) so typed field values are
+    // saved with the station change. See the advance button above.
   ];
 }
 
@@ -652,37 +677,31 @@ function _librechart_visit_attach_reopen_control(array &$form, StationWorkflow $
 /**
  * Resolves the Visit entity from the form state.
  *
- * @return \Drupal\Core\Entity\ContentEntityInterface|null
+ * @return \Drupal\librechart_visit\Entity\Visit|null
  *   The visit entity, or NULL if this isn't a Visit form.
  */
-function _librechart_visit_get_form_entity(FormStateInterface $form_state): ?ContentEntityInterface {
+function _librechart_visit_get_form_entity(FormStateInterface $form_state): ?Visit {
   $form_object = $form_state->getFormObject();
   if (!method_exists($form_object, 'getEntity')) {
     return NULL;
   }
   $entity = $form_object->getEntity();
-  if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'visit') {
-    return NULL;
-  }
-  return $entity;
+  return $entity instanceof Visit ? $entity : NULL;
 }
 
 /**
- * Returns TRUE iff the current user owns the visit's current station, or
- * has the `administer visit entities` permission (FR-004, FR-014).
+ * Returns TRUE if the current user may move the visit between stations.
  *
- * Single source of truth shared by the linear button and the picker so the
- * two controls cannot diverge on access.
+ * Moving a patient is open to any staff who can edit the visit
+ * ($visit->access('update'), i.e. the `edit any visit entities` permission held
+ * by every station role, plus admins). Per-station clinical field-edit access is
+ * enforced separately in librechart_visit_entity_field_access(), so a runner or
+ * nurse can advance a patient without gaining the ability to edit, say, the
+ * medication list. Single source of truth shared by the linear button and the
+ * picker so the two controls cannot diverge on access.
  */
-function _librechart_visit_user_owns_current_station(ContentEntityInterface $visit, AccountInterface $user): bool {
-  if ($user->hasPermission('administer visit entities')) {
-    return TRUE;
-  }
-  /** @var \Drupal\librechart_visit\Service\StationWorkflow $workflow */
-  $workflow = \Drupal::service('librechart_visit.station_workflow');
-  $current = (string) $visit->get('current_station')->value;
-  $owner_role = $workflow->ownerRole($current);
-  return $owner_role !== '' && in_array($owner_role, $user->getRoles(), TRUE);
+function _librechart_visit_user_can_transition(ContentEntityInterface $visit, AccountInterface $user): bool {
+  return $visit->access('update', $user);
 }
 
 /**
@@ -693,6 +712,9 @@ function _librechart_visit_user_owns_current_station(ContentEntityInterface $vis
  * checkbox element only carries #return_value. Without this alias, show/hide
  * logic for fields whose dependee is a boolean checkbox (e.g. pt_referral,
  * lab_ordered) silently inverts.
+ *
+ * @param array<array-key, mixed> $element
+ *   The render element, passed by reference and mutated in place.
  */
 function _librechart_visit_alias_checkbox_on_value(array &$element): void {
   // hook_form_alter runs before element-type defaults (e.g. #return_value=1
@@ -726,6 +748,7 @@ function _librechart_visit_alias_checkbox_on_value(array &$element): void {
  *   Physical Therapy: physical_therapist
  *   Education: teaching_coordinator
  *   Pharmacy: pharmacist
+ *   Discharge: discharge_staff
  *
  * @param string $operation
  *   The field operation (view, edit).
@@ -837,6 +860,16 @@ function librechart_visit_entity_field_access(
       ->addCacheContexts($cache);
   }
 
+  // Discharge fields — editable only by discharge_staff.
+  $discharge_fields = ['discharge_sunglasses', 'discharge_readers', 'discharge_notes'];
+  if (in_array($field_name, $discharge_fields, TRUE)) {
+    if (in_array('discharge_staff', $roles, TRUE)) {
+      return AccessResult::neutral()->addCacheContexts($cache);
+    }
+    return AccessResult::forbidden('Only discharge staff may edit discharge fields.')
+      ->addCacheContexts($cache);
+  }
+
   return AccessResult::neutral();
 }
 
@@ -865,7 +898,7 @@ function librechart_visit_visit_advance_submit(array &$form, FormStateInterface 
   $workflow = \Drupal::service('librechart_visit.station_workflow');
   $user = \Drupal::currentUser();
 
-  if (!_librechart_visit_user_owns_current_station($visit, $user)) {
+  if (!_librechart_visit_user_can_transition($visit, $user)) {
     $form_state->setErrorByName('', t('You may not transition this visit.'));
     return;
   }
@@ -873,7 +906,7 @@ function librechart_visit_visit_advance_submit(array &$form, FormStateInterface 
   $prior = (string) $visit->get('current_station')->value;
   $prior_label = $workflow->label($prior);
   $next = $workflow->nextStation($visit);
-  $next_label = $next === NULL ? $workflow->label('education') : $workflow->label($next);
+  $next_label = $next === NULL ? $workflow->label('discharge') : $workflow->label($next);
 
   if ($next === NULL) {
     // Terminal transition: status + current_station both flip atomically.

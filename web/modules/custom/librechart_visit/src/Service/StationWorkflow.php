@@ -32,8 +32,9 @@ final class StationWorkflow {
     'lab',
     'clinical',
     'pt',
-    'pharmacy',
     'education',
+    'pharmacy',
+    'discharge',
   ];
 
   /**
@@ -82,6 +83,7 @@ final class StationWorkflow {
       'pt' => (string) $this->t('Physical Therapy'),
       'pharmacy' => (string) $this->t('Pharmacy Dispensing'),
       'education' => (string) $this->t('Education'),
+      'discharge' => (string) $this->t('Discharge'),
       self::COMPLETE_SENTINEL => (string) $this->t('Complete'),
     ];
     return $labels[$station] ?? $station;
@@ -102,6 +104,7 @@ final class StationWorkflow {
       'pt' => 'physical_therapist',
       'pharmacy' => 'pharmacist',
       'education' => 'teaching_coordinator',
+      'discharge' => 'discharge_staff',
       default => '',
     };
   }
@@ -109,9 +112,9 @@ final class StationWorkflow {
   /**
    * Returns the next station for the linear "Send to next station" shortcut.
    *
-   * Applies the PT-skip rule for clinical→pharmacy when pt_referral is false.
+   * Applies the PT-skip rule for clinical→education when pt_referral is false.
    * Returns NULL if the visit is already at the terminal workflow station
-   * (`education`) — the caller (advance submit handler) then writes the
+   * (`discharge`) — the caller (advance submit handler) then writes the
    * `complete` sentinel and the status field.
    *
    * Not used by the picker — the picker honors the user's exact choice
@@ -123,10 +126,11 @@ final class StationWorkflow {
       'registration' => 'triage',
       'triage' => 'lab',
       'lab' => 'clinical',
-      'clinical' => ((bool) $visit->get('pt_referral')->value) ? 'pt' : 'pharmacy',
-      'pt' => 'pharmacy',
-      'pharmacy' => 'education',
-      'education' => NULL,
+      'clinical' => ((bool) $visit->get('pt_referral')->value) ? 'pt' : 'education',
+      'pt' => 'education',
+      'education' => 'pharmacy',
+      'pharmacy' => 'discharge',
+      'discharge' => NULL,
       default => NULL,
     };
   }
@@ -139,8 +143,10 @@ final class StationWorkflow {
    *      explicitly rejected; only workflow stations are picker targets.
    *   2. $target != the visit's current_station — same-station is a no-op
    *      and excluded from the picker UI.
-   *   3. $user has the owning role for the current station OR has the
-   *      `administer visit entities` permission.
+   *   3. $user may edit the visit ($visit->access('update')). Moving a patient
+   *      between stations is open to any staff who can edit visits; per-station
+   *      field-edit access (hook_entity_field_access) keeps clinical data
+   *      locked to the owning role.
    *   4. The visit's status is not 'complete' — completed visits use the
    *      reopen control instead.
    *
@@ -162,11 +168,10 @@ final class StationWorkflow {
     if ((string) $visit->get('status')->value === 'complete') {
       return FALSE;
     }
-    if ($user->hasPermission('administer visit entities')) {
-      return TRUE;
-    }
-    $owner_role = $this->ownerRole($current);
-    return $owner_role !== '' && in_array($owner_role, $user->getRoles(), TRUE);
+    // Any user who may edit the visit can move it between stations. Per-station
+    // clinical field-edit access is enforced separately in
+    // hook_entity_field_access, so this does not loosen who can change data.
+    return $visit->access('update', $user);
   }
 
 }

@@ -4,6 +4,9 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.user.compact
+    - field.field.user.user.field_first_name
+    - field.field.user.user.field_last_name
+    - field.field.user.user.field_title
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
@@ -32,5 +35,12 @@ content:
     weight: 0
     region: content
 hidden:
+  entity_print_view_epub: true
+  entity_print_view_pdf: true
+  entity_print_view_word_docx: true
+  field_first_name: true
+  field_last_name: true
+  field_title: true
   langcode: true
   member_for: true
+  search_api_excerpt: true

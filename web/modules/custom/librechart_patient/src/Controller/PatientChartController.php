@@ -163,7 +163,13 @@ class PatientChartController extends ControllerBase {
    */
   private function formatVisitDate($visit): string {
     $raw = (string) $visit->get('visit_date')->value;
-    return $raw !== '' ? substr($raw, 0, 10) : '';
+    if ($raw === '') {
+      return '';
+    }
+    // visit_date may be stored as an ISO 'Y-m-d…' string or, for visits created
+    // via the default-value callback, a Unix timestamp. Handle both.
+    $ts = ctype_digit($raw) ? (int) $raw : strtotime(substr($raw, 0, 10));
+    return $ts ? date('d/m/Y', $ts) : '';
   }
 
 }

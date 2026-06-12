@@ -47,7 +47,7 @@ flowchart TD
     end
 
     V -->|Yes| W
-    V -->|No| X
+    V -->|No| TEACH1
 
     subgraph PT["Station 5 · Physical Therapy (Physical Therapist) — visible only when PT Referral = true"]
         W[Record PT Treatment Notes — Dictation supported]
@@ -55,7 +55,16 @@ flowchart TD
         W2 --> W3[Auto-record PT/OT name]
     end
 
-    subgraph PHARMACY["Station 6 · Pharmacy Dispensing (Pharmacist)"]
+    W3 --> TEACH1
+
+    subgraph TEACH["Station 6 · Teaching & Referrals (Teaching Coordinator)"]
+        TEACH1[Record teaching topics given to patient]
+        TEACH1 --> TEACH2[Record external referrals or diagnostic provider]
+    end
+
+    TEACH2 --> X
+
+    subgraph PHARMACY["Station 7 · Pharmacy Dispensing (Pharmacist)"]
         X[Review clinician notes & prescription items]
         X --> X2[Add PrescriptionItem per drug: Drug · Dosage · Quantity]
         X2 --> X3{Qty > stock on hand?}
@@ -64,15 +73,7 @@ flowchart TD
         X4 --> X5
     end
 
-    W3 --> TEACH
-    X5 --> TEACH
-
-    subgraph TEACH["Station 7 · Teaching & Referrals (Teaching Coordinator)"]
-        TEACH1[Record teaching topics given to patient]
-        TEACH1 --> TEACH2[Record external referrals or diagnostic provider]
-    end
-
-    TEACH2 --> DONE[Mark Visit: Complete — All station data saved · Revision history retained]
+    X5 --> DONE[Mark Visit: Complete — All station data saved · Revision history retained]
     DONE --> END([Patient Exits — Record accessible to all clinical staff])
 
     style REG fill:#dbeafe,stroke:#3b82f6,color:#000000

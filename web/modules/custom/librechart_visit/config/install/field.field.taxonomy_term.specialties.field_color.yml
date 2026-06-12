@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_color
+    - taxonomy.vocabulary.specialties
+  module:
+    - taxonomy
+id: taxonomy_term.specialties.field_color
+field_name: field_color
+entity_type: taxonomy_term
+bundle: specialties
+label: Color
+description: 'Hex color used for this specialty on the Floor board, e.g. #2563eb.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

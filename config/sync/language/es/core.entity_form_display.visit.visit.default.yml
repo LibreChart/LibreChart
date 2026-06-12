@@ -1,0 +1,12 @@
+third_party_settings:
+  field_group:
+    group_triage:
+      label: Triaje
+    group_lab:
+      label: 'Órdenes y resultados de laboratorio'
+    group_clinical:
+      label: 'Evaluación clínica'
+    group_pt:
+      label: Fisioterapia
+    group_pharmacy:
+      label: Farmacia

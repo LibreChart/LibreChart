@@ -1,0 +1,9 @@
+uuid: d6d90b83-0627-4a4a-8d1e-1c5b8717fac2
+langcode: en
+status: true
+dependencies: {  }
+name: Specialties
+vid: specialties
+description: 'Clinical specialties a patient is seen by. Each term carries a color used on the Floor board.'
+weight: 0
+new_revision: false

@@ -92,6 +92,19 @@
   box-sizing: border-box;
 }
 
+/* On phones the five vitals can't fit one legible row; wrap them two-up. This
+   block must come after the base .lc-field-row rules above so it wins on source
+   order (equal specificity). */
+@media (max-width: 767px) {
+  .lc-field-row {
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+  }
+  .lc-field-row > * {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}
+
 /* =========================================================================
    Clinical Evaluation — diagnoses grid.
    The per-system diagnosis fields (Cardiac, Dermatology, … Wound / Ostomy)

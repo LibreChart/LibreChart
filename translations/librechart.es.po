@@ -1,0 +1,323 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: librechart\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "First Name"
+msgstr "Nombre"
+
+msgid "Last Name"
+msgstr "Apellido"
+
+msgid "Date of Birth"
+msgstr "Fecha de nacimiento"
+
+msgid "Sex"
+msgstr "Sexo"
+
+msgid "Male"
+msgstr "Masculino"
+
+msgid "Female"
+msgstr "Femenino"
+
+msgid "Cédula"
+msgstr "Cédula"
+
+msgid "Municipality"
+msgstr "Municipio"
+
+msgid "Village / Town"
+msgstr "Vereda / Pueblo"
+
+msgid "Patient"
+msgstr "Paciente"
+
+msgid "Visit Date"
+msgstr "Fecha de la visita"
+
+msgid "Patient Type"
+msgstr "Tipo de paciente"
+
+msgid "Adult"
+msgstr "Adulto"
+
+msgid "Pediatric"
+msgstr "Pediátrico"
+
+msgid "Clinic Site"
+msgstr "Sitio de atención"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "In Progress"
+msgstr "En progreso"
+
+msgid "Complete"
+msgstr "Completado"
+
+msgid "Current Station"
+msgstr "Estación actual"
+
+msgid "Registration"
+msgstr "Registro"
+
+msgid "Triage"
+msgstr "Triaje"
+
+msgid "Lab Orders & Results"
+msgstr "Órdenes y resultados de laboratorio"
+
+msgid "Clinical Evaluation"
+msgstr "Evaluación clínica"
+
+msgid "Physical Therapy"
+msgstr "Fisioterapia"
+
+msgid "Pharmacy Dispensing"
+msgstr "Dispensación de farmacia"
+
+msgid "Education"
+msgstr "Educación"
+
+msgid "Changed"
+msgstr "Modificado"
+
+msgid "Temperature"
+msgstr "Temperatura"
+
+msgid "Pulse"
+msgstr "Pulso"
+
+msgid "Respiration Rate"
+msgstr "Frecuencia respiratoria"
+
+msgid "Systolic BP"
+msgstr "Presión sistólica"
+
+msgid "Diastolic BP"
+msgstr "Presión diastólica"
+
+msgid "Height (cm)"
+msgstr "Talla (cm)"
+
+msgid "Weight (kg)"
+msgstr "Peso (kg)"
+
+msgid "BMI (auto-calculated)"
+msgstr "IMC (calculado automáticamente)"
+
+msgid "Chief Complaint"
+msgstr "Motivo de consulta"
+
+msgid "Past Medical History"
+msgstr "Antecedentes médicos"
+
+msgid "Allergies"
+msgstr "Alergias"
+
+msgid "Current Medications"
+msgstr "Medicamentos actuales"
+
+msgid "Pregnancy History"
+msgstr "Antecedentes de embarazo"
+
+msgid "LMP (Last Menstrual Period)"
+msgstr "FUM (Fecha de última menstruación)"
+
+msgid "Breastfeeding"
+msgstr "Lactancia materna"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid "No"
+msgstr "No"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "Clinical Notes"
+msgstr "Notas clínicas"
+
+msgid "Clinician Name"
+msgstr "Nombre del clínico"
+
+msgid "Diagnosis (Write-in)"
+msgstr "Diagnóstico (texto libre)"
+
+msgid "PT Referral"
+msgstr "Remisión a fisioterapia"
+
+msgid "Cardiac Diagnoses"
+msgstr "Diagnósticos cardíacos"
+
+msgid "Dermatology Diagnoses"
+msgstr "Diagnósticos dermatológicos"
+
+msgid "Endocrinology Diagnoses"
+msgstr "Diagnósticos endocrinológicos"
+
+msgid "ENT Diagnoses"
+msgstr "Diagnósticos otorrinolaringológicos"
+
+msgid "Eye Diagnoses"
+msgstr "Diagnósticos oftalmológicos"
+
+msgid "GI Diagnoses"
+msgstr "Diagnósticos gastrointestinales"
+
+msgid "GYN/OB Diagnoses"
+msgstr "Diagnósticos gineco-obstétricos"
+
+msgid "Mental Health Diagnoses"
+msgstr "Diagnósticos de salud mental"
+
+msgid "Musculoskeletal Diagnoses"
+msgstr "Diagnósticos musculoesqueléticos"
+
+msgid "Neurology Diagnoses"
+msgstr "Diagnósticos neurológicos"
+
+msgid "Respiratory Diagnoses"
+msgstr "Diagnósticos respiratorios"
+
+msgid "Urogenital Diagnoses"
+msgstr "Diagnósticos urogenitales"
+
+msgid "Vascular Diagnoses"
+msgstr "Diagnósticos vasculares"
+
+msgid "Wound/Ostomy Diagnoses"
+msgstr "Diagnósticos de heridas/ostomías"
+
+msgid "PT Notes"
+msgstr "Notas de fisioterapia"
+
+msgid "PT Interventions"
+msgstr "Intervenciones de fisioterapia"
+
+msgid "Physical Therapist Name"
+msgstr "Nombre del fisioterapeuta"
+
+msgid "Notes to Pharmacist"
+msgstr "Notas para el farmacéutico"
+
+msgid "Medications"
+msgstr "Medicamentos"
+
+msgid "Non-formulary medications"
+msgstr "Medicamentos fuera del formulario"
+
+msgid "Education referrals"
+msgstr "Remisiones a educación"
+
+msgid "POS"
+msgstr "POS"
+
+msgid "POS details"
+msgstr "Detalles de POS"
+
+msgid "Pharmacy"
+msgstr "Farmacia"
+
+msgid "Patient demographics"
+msgstr "Datos demográficos del paciente"
+
+msgid "Most recent visit — @date"
+msgstr "Visita más reciente — @date"
+
+msgid "No visits recorded for this patient yet."
+msgstr "Aún no hay visitas registradas para este paciente."
+
+msgid "Add visit for this patient"
+msgstr "Agregar visita para este paciente"
+
+msgid "Unknown site"
+msgstr "Sitio desconocido"
+
+msgid "Prior visits (@count)"
+msgstr "Visitas anteriores (@count)"
+
+msgid "New visit started for @first @last. Please complete triage."
+msgstr "Nueva visita iniciada para @first @last. Por favor complete el triaje."
+
+msgid "View inventory"
+msgstr "Ver inventario"
+
+msgid "Visit station progress"
+msgstr "Progreso de la visita por estaciones"
+
+msgid "Complete visit"
+msgstr "Completar visita"
+
+msgid "Send to @label"
+msgstr "Enviar a @label"
+
+msgid "Or send to:"
+msgstr "O enviar a:"
+
+msgid "- Or send to specific station -"
+msgstr "- O enviar a una estación específica -"
+
+msgid "Send"
+msgstr "Enviar"
+
+msgid "Reopen at station"
+msgstr "Reabrir en estación"
+
+msgid "- Reopen at station -"
+msgstr "- Reabrir en estación -"
+
+msgid "Reopen visit"
+msgstr "Reabrir visita"
+
+msgid "You may not transition this visit."
+msgstr "No tiene permiso para mover esta visita."
+
+msgid "Visit marked complete."
+msgstr "Visita marcada como completada."
+
+msgid "Visit sent to @label."
+msgstr "Visita enviada a @label."
+
+msgid "You may not transition this visit from its current station."
+msgstr "No puede mover esta visita desde su estación actual."
+
+msgid "Invalid reopen target or insufficient permissions."
+msgstr "Destino de reapertura inválido o permisos insuficientes."
+
+msgid "Visit reopened at @label."
+msgstr "Visita reabierta en @label."
+
+msgid "(empty)"
+msgstr "(vacío)"
+
+msgid "Unknown"
+msgstr "Desconocido"
+
+msgid "Patients"
+msgstr "Pacientes"
+
+msgid "patient"
+msgstr "paciente"
+
+msgid "patients"
+msgstr "pacientes"
+
+msgid "Visit"
+msgstr "Visita"
+
+msgid "Visits"
+msgstr "Visitas"
+
+msgid "visit"
+msgstr "visita"
+
+msgid "visits"
+msgstr "visitas"

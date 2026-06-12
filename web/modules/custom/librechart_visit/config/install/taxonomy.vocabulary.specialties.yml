@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+name: Specialties
+vid: specialties
+description: 'Clinical specialties a patient is seen by. Each term carries a color used on the Floor board.'
+weight: 0
+new_revision: false

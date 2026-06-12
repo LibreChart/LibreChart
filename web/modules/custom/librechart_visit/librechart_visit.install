@@ -285,6 +285,96 @@ function librechart_visit_update_9011(): void {
 }
 
 /**
+ * Install the discharge base fields and station (Discharge feature).
+ *
+ * Adds `discharge_sunglasses`, `discharge_readers` (booleans), and
+ * `discharge_notes` (plain text) to already-deployed Visit tables. The new
+ * `discharge` value on `current_station` is an allowed-values setting change
+ * picked up from code on cache rebuild, so it needs no data migration — every
+ * stored station value remains valid.
+ */
+function librechart_visit_update_9012(): void {
+  $definitions = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit');
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  foreach (['discharge_sunglasses', 'discharge_readers', 'discharge_notes'] as $name) {
+    $definition = $definitions[$name] ?? NULL;
+    if ($definition instanceof FieldStorageDefinitionInterface) {
+      $manager->installFieldStorageDefinition($name, 'visit', 'librechart_visit', $definition);
+    }
+  }
+}
+
+/**
+ * Install the `specialties` base field and seed the starter specialties.
+ *
+ * Adds the multi-value specialty reference (selected at triage, used to color
+ * the Clinical Evaluation column on the Floor board) to already-deployed Visit
+ * tables, then seeds the Internal Medicine/GYN/Pediatrics/Wounds terms with
+ * colors. Run after importing the new specialties vocabulary and field_color
+ * config so the seed can set colors.
+ */
+function librechart_visit_update_9013(): void {
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['specialties'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface) {
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('specialties', 'visit', 'librechart_visit', $definition);
+  }
+  \Drupal\librechart_visit\Entity\Visit::seedSpecialties();
+}
+
+/**
+ * Seeds the starter specialty terms on fresh installs.
+ *
+ * The specialties vocabulary and color field come from config/install, but the
+ * terms themselves are content and must be created in code. Idempotent, so it
+ * is safe alongside update_9013 on already-deployed sites.
+ */
+function librechart_visit_install(): void {
+  \Drupal\librechart_visit\Entity\Visit::seedSpecialties();
+  \Drupal\librechart_visit\Entity\Visit::seedEducation();
+}
+
+/**
+ * Replaces the legacy education classes with the refined topic list.
+ *
+ * The education topics are content, so the refined list (General, Diabetes,
+ * Hypertension, etc.) must be applied in code. Any existing term that is not
+ * part of the new list is deleted, then the refined topics are seeded.
+ *
+ * @see \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED
+ */
+function librechart_visit_update_9014(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $keep = \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED;
+  foreach ($storage->loadByProperties(['vid' => 'education']) as $term) {
+    if (!in_array($term->label(), $keep, TRUE)) {
+      $term->delete();
+    }
+  }
+  \Drupal\librechart_visit\Entity\Visit::seedEducation();
+}
+
+/**
+ * Renames the legacy 'GP' specialty term to 'Internal Medicine'.
+ *
+ * The specialty is content, so the rename must be applied in code on
+ * already-deployed sites. Renaming the existing term keeps its term ID, so
+ * visit references and the admin-set Floor-board color are preserved. The
+ * fresh-install seed already creates the term under its new name.
+ *
+ * @see \Drupal\librechart_visit\Entity\Visit::SPECIALTY_SEED
+ */
+function librechart_visit_update_9015(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $terms = $storage->loadByProperties(['vid' => 'specialties', 'name' => 'GP']);
+  foreach ($terms as $term) {
+    $term->setName('Internal Medicine')->save();
+  }
+}
+
+/**
  * Migrates current_station 'teaching' to 'education' in all storage tables.
  */
 function _librechart_visit_migrate_teaching_station(): void {

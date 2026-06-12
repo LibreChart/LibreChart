@@ -60,9 +60,13 @@
 .station-strip__step--current[data-station="pharmacy"] { background: #ec4899; }
 .station-strip__step--done[data-station="pharmacy"] { background: #fce7f3; color: #831843; }
 
-.station-strip__step[data-station="teaching"] { border-color: #16a34a; }
-.station-strip__step--current[data-station="teaching"] { background: #16a34a; }
-.station-strip__step--done[data-station="teaching"] { background: #f0fdf4; color: #14532d; }
+.station-strip__step[data-station="education"] { border-color: #16a34a; }
+.station-strip__step--current[data-station="education"] { background: #16a34a; }
+.station-strip__step--done[data-station="education"] { background: #f0fdf4; color: #14532d; }
+
+.station-strip__step[data-station="discharge"] { border-color: #0d9488; }
+.station-strip__step--current[data-station="discharge"] { background: #0d9488; }
+.station-strip__step--done[data-station="discharge"] { background: #ccfbf1; color: #134e4a; }
 
 /* Floor board (used by FloorController in US3). */
 .floor-board {
@@ -86,7 +90,8 @@
 .floor-board__column[data-station="clinical"]      { border-top-color: #8b5cf6; }
 .floor-board__column[data-station="pt"]            { border-top-color: #f97316; }
 .floor-board__column[data-station="pharmacy"]      { border-top-color: #ec4899; }
-.floor-board__column[data-station="teaching"]      { border-top-color: #16a34a; }
+.floor-board__column[data-station="education"]      { border-top-color: #16a34a; }
+.floor-board__column[data-station="discharge"]      { border-top-color: #0d9488; }
 
 .floor-board__header {
   padding: 0.5rem 0.75rem;
@@ -129,6 +134,68 @@
 .floor-board__empty {
   color: #a1a1aa;
   font-style: italic;
+}
+
+/* Specialty-tinted patient name (Clinical Evaluation column). The
+   background-color and text color are set inline from the specialty term. */
+.floor-board__body li a.has-specialty {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.floor-board__body li a.has-specialty:hover {
+  text-decoration: none;
+  filter: brightness(0.95);
+}
+
+/* Specialty color key beneath the board. */
+.floor-legend {
+  margin: 1.5rem 0 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.floor-legend__title {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #52525b;
+  margin-bottom: 0.5rem;
+}
+.floor-legend__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+.floor-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #1f2937;
+}
+.floor-legend__swatch {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex: 0 0 auto;
+}
+.floor-legend__swatch--none {
+  background: repeating-linear-gradient(
+    45deg,
+    #e4e4e7,
+    #e4e4e7 3px,
+    #fff 3px,
+    #fff 6px
+  );
 }
 
 /* Transition controls — inline button + dropdown + send button. */

@@ -80,6 +80,41 @@ class Visit extends ContentEntityBase {
   use RevisionLogEntityTrait;
 
   /**
+   * Starter specialties seeded into the `specialties` vocabulary.
+   *
+   * Maps the term name to its default Floor-board color (hex). Admins can add
+   * more specialties and edit colors through the taxonomy UI after install, so
+   * this list only bootstraps a fresh or upgrading site.
+   *
+   * @var array<string, string>
+   */
+  public const SPECIALTY_SEED = [
+    'Internal Medicine' => '#2563eb',
+    'GYN' => '#db2777',
+    'Pediatrics' => '#16a34a',
+    'Wounds' => '#ea580c',
+  ];
+
+  /**
+   * The starter education topics seeded into the `education` vocabulary.
+   *
+   * Admins can add more topics through the taxonomy UI after install, so this
+   * list only bootstraps a fresh or upgrading site.
+   *
+   * @var string[]
+   */
+  public const EDUCATION_SEED = [
+    'General',
+    'Pre-diabetes',
+    'Diabetes',
+    'Hypertension',
+    'Lipid/Cholesterol',
+    'Dental hygiene',
+    'Sex',
+    'Breast',
+  ];
+
+  /**
    * {@inheritdoc}
    *
    * Implements optimistic locking: if the changed timestamp in the database
@@ -195,6 +230,7 @@ class Visit extends ContentEntityBase {
       ->setSetting('handler_settings', [
         'target_bundles' => ['clinic_sites' => 'clinic_sites'],
       ])
+      ->setDefaultValueCallback(static::class . '::getDefaultClinicSite')
       ->setDisplayOptions('form', [
         'type' => 'options_select',
         'weight' => 4,
@@ -238,8 +274,9 @@ class Visit extends ContentEntityBase {
         'lab' => new TranslatableMarkup('Lab Orders & Results'),
         'clinical' => new TranslatableMarkup('Clinical Evaluation'),
         'pt' => new TranslatableMarkup('Physical Therapy'),
-        'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
         'education' => new TranslatableMarkup('Education'),
+        'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
+        'discharge' => new TranslatableMarkup('Discharge'),
         'complete' => new TranslatableMarkup('Complete'),
       ])
       ->setDefaultValue('registration')
@@ -369,6 +406,24 @@ class Visit extends ContentEntityBase {
       ->setDefaultValueCallback(static::class . '::getDefaultAllergies')
       ->setDisplayOptions('form', ['type' => 'entity_reference_autocomplete_tags', 'weight' => 30])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 30])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Clinical specialties the patient will be seen by (selected at triage).
+    // Each referenced term carries a color used on the Floor board; the first
+    // referenced term is treated as the patient's primary specialty.
+    $fields['specialties'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Specialties'))
+      ->setDescription(new TranslatableMarkup('Specialties this patient will be evaluated by in the clinic.'))
+      ->setRevisionable(TRUE)
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', [
+        'target_bundles' => ['specialties' => 'specialties'],
+      ])
+      ->setDisplayOptions('form', ['type' => 'options_buttons', 'weight' => 32])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 32])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -616,17 +671,50 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Discharge fields: the final station where the patient is checked out,
+    // final paperwork is given, and vision aids are handed out. Editable only
+    // by discharge_staff.
+    $fields['discharge_sunglasses'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('Sunglasses provided'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 80])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 80])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['discharge_readers'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('Reading glasses provided'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 81])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 81])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['discharge_notes'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(new TranslatableMarkup('Discharge notes'))
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', ['type' => 'string_textarea', 'weight' => 82])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'basic_string', 'weight' => 82])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     return $fields;
   }
 
   /**
    * Default value callback for visit_date field.
    *
-   * @return array<int, array<string, int>>
-   *   Default visit date value as today's timestamp.
+   * @return array<int, array<string, string>>
+   *   Default visit date as today's date in the datetime field's ISO format.
    */
   public static function getDefaultVisitDate(): array {
-    return [['value' => \Drupal::time()->getRequestTime()]];
+    // Store using the datetime field's ISO storage format (UTC), not a raw Unix
+    // timestamp, so the value parses, sorts, and renders correctly.
+    return [
+      ['value' => gmdate('Y-m-d\TH:i:s', \Drupal::time()->getRequestTime())],
+    ];
   }
 
   /**
@@ -640,6 +728,44 @@ class Visit extends ContentEntityBase {
    */
   public static function getDefaultAllergies(): array {
     return [['target_id' => static::getNoneAllergyTermId()]];
+  }
+
+  /**
+   * Default value callback for the clinic_site field.
+   *
+   * Clinic site is required; new visits default to "Málaga", the clinic's home
+   * site, so staff need only change it for visits recorded elsewhere.
+   *
+   * @return array<int, array<string, int>>
+   *   A default value referencing the "Málaga" clinic-site term.
+   */
+  public static function getDefaultClinicSite(): array {
+    return [['target_id' => static::getMalagaClinicSiteTermId()]];
+  }
+
+  /**
+   * Returns the id of the "Málaga" clinic-site term, creating it if absent.
+   *
+   * The id (not the label) is the stable handle used for the default value, so
+   * the behaviour survives translation of the term's name.
+   *
+   * @return int
+   *   The "Málaga" clinic-site term id.
+   */
+  public static function getMalagaClinicSiteTermId(): int {
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $existing = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('vid', 'clinic_sites')
+      ->condition('name', 'Málaga')
+      ->range(0, 1)
+      ->execute();
+    if (!empty($existing)) {
+      return (int) reset($existing);
+    }
+    $term = $storage->create(['vid' => 'clinic_sites', 'name' => 'Málaga']);
+    $term->save();
+    return (int) $term->id();
   }
 
   /**
@@ -666,6 +792,64 @@ class Visit extends ContentEntityBase {
     $term = $storage->create(['vid' => 'allergies', 'name' => 'None']);
     $term->save();
     return (int) $term->id();
+  }
+
+  /**
+   * Seeds the starter specialty terms with their default colors.
+   *
+   * Idempotent: a starter term is created only when no term of that name
+   * already exists in the `specialties` vocabulary, so re-running (fresh
+   * install plus update hook) never duplicates terms. Existing terms are left
+   * untouched so admin color edits are preserved.
+   *
+   * @see \Drupal\librechart_visit\Entity\Visit::SPECIALTY_SEED
+   */
+  public static function seedSpecialties(): void {
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    foreach (static::SPECIALTY_SEED as $name => $color) {
+      $existing = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('vid', 'specialties')
+        ->condition('name', $name)
+        ->range(0, 1)
+        ->execute();
+      if (!empty($existing)) {
+        continue;
+      }
+      $storage->create([
+        'vid' => 'specialties',
+        'name' => $name,
+        'field_color' => $color,
+      ])->save();
+    }
+  }
+
+  /**
+   * Seeds the starter education topics into the `education` vocabulary.
+   *
+   * Idempotent: a topic is created only when no term of that name already
+   * exists in the `education` vocabulary, so re-running (fresh install plus
+   * update hook) never duplicates terms.
+   *
+   * @see \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED
+   */
+  public static function seedEducation(): void {
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    foreach (static::EDUCATION_SEED as $name) {
+      $existing = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('vid', 'education')
+        ->condition('name', $name)
+        ->range(0, 1)
+        ->execute();
+      if (!empty($existing)) {
+        continue;
+      }
+      $storage->create([
+        'vid' => 'education',
+        'name' => $name,
+      ])->save();
+    }
   }
 
 }

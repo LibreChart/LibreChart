@@ -64,12 +64,11 @@ flowchart TD
     TRIAGE([Triage<br/>Vitals · Chief Complaint<br/>Medical History]) --> LAB
     LAB([Lab Orders<br/>& Results]) --> CLIN
 
-    CLIN([Clinical Evaluation<br/>Diagnoses · Assessments<br/>Referrals & Orders]) --> PHARM
-    CLIN --> PT
+    CLIN([Clinical Evaluation<br/>Diagnoses · Assessments<br/>Referrals & Orders]) --> PT
     CLIN --> TEACH
 
-    PT([Physical Therapy<br/>Treatment Notes]) --> COMPLETE
-    TEACH([Teaching &<br/>External Referrals]) --> COMPLETE
+    PT([Physical Therapy<br/>Treatment Notes]) --> TEACH
+    TEACH([Teaching &<br/>External Referrals]) --> PHARM
 
     PHARM([Pharmacy Dispensing<br/>Per-drug dosage · Prescription fill]) --> INV
     PHARM --> COMPLETE
