@@ -375,6 +375,24 @@ function librechart_visit_update_9015(): void {
 }
 
 /**
+ * Install the `reactions` field on the Visit entity.
+ *
+ * Free-text area for documenting reactions to the selected allergies. Fresh
+ * sites pick it up from Visit::baseFieldDefinitions(); already-deployed sites
+ * need this hook to add the storage to the populated visit tables. The field
+ * is revealed on the triage form only when allergies are selected, via a
+ * conditional_fields dependency in the form display config.
+ */
+function librechart_visit_update_9016(): void {
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['reactions'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface) {
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('reactions', 'visit', 'librechart_visit', $definition);
+  }
+}
+
+/**
  * Migrates current_station 'teaching' to 'education' in all storage tables.
  */
 function _librechart_visit_migrate_teaching_station(): void {

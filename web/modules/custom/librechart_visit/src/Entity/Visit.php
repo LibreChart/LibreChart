@@ -409,6 +409,16 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Reactions to the selected allergies. Revealed on the triage form only
+    // when one or more allergies are chosen (conditional_fields dependency).
+    $fields['reactions'] = BaseFieldDefinition::create('text_long')
+      ->setLabel(new TranslatableMarkup('Reactions'))
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', ['type' => 'text_textarea', 'weight' => 31])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'text_default', 'weight' => 31])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     // Clinical specialties the patient will be seen by (selected at triage).
     // Each referenced term carries a color used on the Floor board; the first
     // referenced term is treated as the patient's primary specialty.

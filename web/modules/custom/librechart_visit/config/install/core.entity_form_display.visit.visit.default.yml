@@ -26,6 +26,7 @@ third_party_settings:
         - complaint
         - past_medical_history
         - allergies
+        - reactions
         - specialties
         - current_medications
         - pregnancy_history
@@ -729,6 +730,31 @@ content:
       display_label: true
     third_party_settings:
       conditional_fields: null
+  reactions:
+    type: text_textarea
+    weight: 31
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        b7d4e2a1-9c3f-4e6a-8b21-5f0c7d9e3a64:
+          uuid: b7d4e2a1-9c3f-4e6a-8b21-5f0c7d9e3a64
+          entity_type: visit
+          bundle: visit
+          dependee: allergies
+          settings:
+            state: visible
+            reset: false
+            condition: '!empty'
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            effect: show
+            effect_options: {  }
+            selector: ''
   specialties:
     type: options_buttons
     weight: 32
