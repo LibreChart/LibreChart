@@ -18,6 +18,9 @@ settings:
       value: hgba1c
       label: HgbA1c
     -
+      value: cholesterol
+      label: Cholesterol
+    -
       value: hgb
       label: Hemoglobin
     -
