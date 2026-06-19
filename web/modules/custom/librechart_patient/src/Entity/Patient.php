@@ -6,6 +6,7 @@ namespace Drupal\librechart_patient\Entity;
 
 use Drupal\Core\Entity\Attribute\ContentEntityType;
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionLogEntityTrait;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -125,6 +126,20 @@ class Patient extends ContentEntityBase implements PatientInterface {
   public function getVillage(): ?int {
     $ref = $this->get('village_town')->target_id;
     return $ref !== NULL ? (int) $ref : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Records an audit-trail revision on every save, attributed to the editing
+   * user, so each demographic change preserves a full history.
+   */
+  public function preSave(EntityStorageInterface $storage): void {
+    parent::preSave($storage);
+
+    $this->setNewRevision(TRUE);
+    $this->setRevisionUserId((int) \Drupal::currentUser()->id());
+    $this->setRevisionCreationTime(\Drupal::time()->getRequestTime());
   }
 
   /**

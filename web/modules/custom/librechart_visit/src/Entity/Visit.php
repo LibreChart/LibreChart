@@ -128,6 +128,13 @@ class Visit extends ContentEntityBase {
   public function preSave(EntityStorageInterface $storage): void {
     parent::preSave($storage);
 
+    // Record an audit-trail revision on every save, attributed to the editor.
+    // setNewRevision() is idempotent, so station-transition saves that already
+    // call it (and set a descriptive log message) are unaffected.
+    $this->setNewRevision(TRUE);
+    $this->setRevisionUserId((int) \Drupal::currentUser()->id());
+    $this->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+
     // Only check on updates, not on initial create.
     if (!$this->isNew() && $this->original instanceof self) {
       $db_changed = $this->original->get('changed')->value;

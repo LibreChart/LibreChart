@@ -34,6 +34,26 @@ function librechart_patient_gin_ignore_sticky_form_actions(): array {
  * Adds a duplicate patient warning on the patient add form.
  */
 function librechart_patient_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (!in_array($form_id, ['patient_add_form', 'patient_edit_form'], TRUE)) {
+    return;
+  }
+
+  // Revisions are created automatically on every save (see Patient::preSave),
+  // so the core "Create new revision" / revision log controls are redundant.
+  // Hide them from everyone except administrators (the Revisions tab is
+  // already gated by permission).
+  $is_patient_admin = \Drupal::currentUser()->hasPermission('administer patient entities');
+  if (isset($form['revision_information'])) {
+    $form['revision_information']['#access'] = $is_patient_admin;
+  }
+  foreach (['revision', 'revision_log_message'] as $revision_key) {
+    if (isset($form[$revision_key])) {
+      $form[$revision_key]['#access'] = $is_patient_admin;
+    }
+  }
+
+  // The remaining duplicate-validation and redirect behavior applies only when
+  // registering a new patient.
   if ($form_id !== 'patient_add_form') {
     return;
   }
