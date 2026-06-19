@@ -37,9 +37,12 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
       'add' => 'Drupal\Core\Entity\ContentEntityForm',
       'edit' => 'Drupal\Core\Entity\ContentEntityForm',
       'delete' => 'Drupal\Core\Entity\ContentEntityDeleteForm',
+      'revision-revert' => 'Drupal\Core\Entity\Form\RevisionRevertForm',
+      'revision-delete' => 'Drupal\Core\Entity\Form\RevisionDeleteForm',
     ],
     'route_provider' => [
       'html' => 'Drupal\Core\Entity\Routing\AdminHtmlRouteProvider',
+      'revision' => 'Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider',
     ],
     'access' => 'Drupal\librechart_patient\PatientAccessControlHandler',
   ],

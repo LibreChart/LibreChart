@@ -46,10 +46,14 @@ function librechart_patient_form_alter(array &$form, FormStateInterface $form_st
   if (isset($form['revision_information'])) {
     $form['revision_information']['#access'] = $is_patient_admin;
   }
-  foreach (['revision', 'revision_log_message'] as $revision_key) {
-    if (isset($form[$revision_key])) {
-      $form[$revision_key]['#access'] = $is_patient_admin;
-    }
+  // Revisions are created automatically on every save (Patient::preSave), so the
+  // manual "Create new revision" checkbox is a no-op — hide it from everyone.
+  // Admins keep the log message field to annotate the change.
+  if (isset($form['revision'])) {
+    $form['revision']['#access'] = FALSE;
+  }
+  if (isset($form['revision_log_message'])) {
+    $form['revision_log_message']['#access'] = $is_patient_admin;
   }
 
   // The remaining duplicate-validation and redirect behavior applies only when

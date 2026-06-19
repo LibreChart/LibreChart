@@ -1,0 +1,5 @@
+entity.visit.version_history:
+  route_name: entity.visit.version_history
+  base_route: entity.visit.canonical
+  title: 'Revisions'
+  weight: 20
