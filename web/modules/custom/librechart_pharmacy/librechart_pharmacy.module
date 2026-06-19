@@ -103,6 +103,10 @@ function librechart_pharmacy_form_inventory_receipt_add_form_alter(array &$form,
   $form['new_drug'] = [
     '#type' => 'fieldset',
     '#title' => t('New drug'),
+    // The receipt form is not #tree, so without this the child inputs would
+    // flatten to top-level keys ('name', 'vocab'); the validate handler reads
+    // them at ['new_drug', 'name'] / ['new_drug', 'vocab'], so namespace them.
+    '#tree' => TRUE,
     '#weight' => ($form['drug']['#weight'] ?? 1) + 0.5,
     '#states' => [
       'visible' => [
@@ -189,8 +193,11 @@ function librechart_pharmacy_inventory_receipt_validate_new_drug(array &$form, F
   }
 
   // Push the term id back into the drug widget's form value so the entity
-  // form's value-extractor sees a populated entity_reference.
-  $form_state->setValue('drug', (int) $term->id());
+  // form's value-extractor sees a populated entity_reference. Use the field's
+  // canonical [delta => ['target_id' => id]] structure: the options widget's
+  // massageFormValues() requires an array, so a bare scalar id throws a
+  // TypeError during buildEntity().
+  $form_state->setValue('drug', [['target_id' => (int) $term->id()]]);
 }
 
 /**
