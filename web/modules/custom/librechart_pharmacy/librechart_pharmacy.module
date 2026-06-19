@@ -360,25 +360,22 @@ function librechart_pharmacy_handle_inventory_receipt(ContentEntityInterface $re
     return;
   }
 
-  $drug_id = $receipt->get('drug')->target_id;
-  $clinic_site_id = $receipt->get('clinic_site')->target_id;
+  $drug_id = (int) $receipt->get('drug')->target_id;
 
-  $storage = \Drupal::entityTypeManager()->getStorage('drug_inventory');
-  $query = $storage->getQuery()
-    ->accessCheck(FALSE)
-    ->condition('drug', $drug_id)
-    ->condition('clinic_site', $clinic_site_id);
-  $ids = $query->execute();
-
-  if (!empty($ids)) {
-    /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
-    $inventory = $storage->load(reset($ids));
-  }
-  else {
+  // The clinic runs a single stock pool per drug (feature 005): the inventory
+  // report, the stock validator, and the prescription decrement all act on the
+  // primary (lowest-id) record via DrugInventory::primaryForDrug(). Increment
+  // that same record so a receipt is reflected everywhere, whichever clinic
+  // site it happens to be filed under — keying receipts by (drug, clinic_site)
+  // instead stranded stock in records the rest of the system never reads.
+  $inventory = DrugInventory::primaryForDrug($drug_id);
+  if ($inventory === NULL) {
+    // Drug not stocked yet: open its inventory record, seeded from the
+    // receipt's clinic site.
     /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
     $inventory = \Drupal::entityTypeManager()->getStorage('drug_inventory')->create([
       'drug' => $drug_id,
-      'clinic_site' => $clinic_site_id,
+      'clinic_site' => $receipt->get('clinic_site')->target_id,
       'quantity_on_hand' => 0,
     ]);
   }
