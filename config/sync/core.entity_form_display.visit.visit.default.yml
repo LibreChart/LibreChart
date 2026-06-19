@@ -8,6 +8,7 @@ dependencies:
     - conditional_fields
     - field_group
     - inline_entity_form
+    - librechart_visit
     - paragraphs
     - select2
     - text
@@ -752,6 +753,7 @@ content:
             values_set: 1
             value: ''
             values: {  }
+            value_form: {  }
             effect: show
             effect_options: {  }
             selector: ''
