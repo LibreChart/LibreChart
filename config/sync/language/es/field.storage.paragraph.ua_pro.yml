@@ -1,0 +1,14 @@
+settings:
+  allowed_values:
+    -
+      label: Negativo
+    -
+      label: Trazas
+    -
+      label: '30 mg/dL (+)'
+    -
+      label: '100 mg/dL (++)'
+    -
+      label: '300 mg/dL (+++)'
+    -
+      label: '2000 mg/dL o más (++++)'

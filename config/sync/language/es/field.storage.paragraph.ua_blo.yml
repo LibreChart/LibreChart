@@ -1,0 +1,16 @@
+settings:
+  allowed_values:
+    -
+      label: Negativo
+    -
+      label: 'Trazas no hemolizadas'
+    -
+      label: 'Moderado no hemolizado'
+    -
+      label: 'Trazas hemolizadas'
+    -
+      label: 'Pequeño (+)'
+    -
+      label: 'Moderado (++)'
+    -
+      label: 'Grande (+++)'

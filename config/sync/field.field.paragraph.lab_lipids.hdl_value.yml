@@ -1,0 +1,23 @@
+uuid: c286df90-43d5-4c90-a7de-4d404f260817
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.hdl_value
+    - paragraphs.paragraphs_type.lab_lipids
+id: paragraph.lab_lipids.hdl_value
+field_name: hdl_value
+entity_type: paragraph
+bundle: lab_lipids
+label: HDL
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 20
+  max: 120
+  prefix: ''
+  suffix: ' mg/dL'
+field_type: integer

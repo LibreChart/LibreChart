@@ -1,0 +1,49 @@
+uuid: f56fc6e6-7766-45a0-970e-32a1545a60c5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_hba1c.lab_ordered
+    - field.field.paragraph.lab_hba1c.hba1c_qual
+    - field.field.paragraph.lab_hba1c.hba1c_value
+    - field.field.paragraph.lab_hba1c.lab_result_notes
+    - paragraphs.paragraphs_type.lab_hba1c
+  module:
+    - options
+    - text
+id: paragraph.lab_hba1c.default
+targetEntityType: paragraph
+bundle: lab_hba1c
+mode: default
+content:
+  hba1c_qual:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  hba1c_value:
+    type: number
+    weight: 2
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  lab_ordered:
+    type: boolean_checkbox
+    weight: 0
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  lab_result_notes:
+    type: text_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

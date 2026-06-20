@@ -1,0 +1,21 @@
+uuid: 868e6d5b-913d-4d9e-8436-d62fdb0aeec6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.hba1c_qual
+    - paragraphs.paragraphs_type.lab_hba1c
+  module:
+    - options
+id: paragraph.lab_hba1c.hba1c_qual
+field_name: hba1c_qual
+entity_type: paragraph
+bundle: lab_hba1c
+label: 'HbA1c (qualitative)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

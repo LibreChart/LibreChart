@@ -1,0 +1,14 @@
+settings:
+  allowed_values:
+    -
+      label: Negativo
+    -
+      label: 'Trazas (5mg/dL)'
+    -
+      label: 'Pequeño (15mg/dL)'
+    -
+      label: 'Moderado (40mg/dL)'
+    -
+      label: 'Grande (80mg/dL)'
+    -
+      label: 'Grande (150mg/dL)'

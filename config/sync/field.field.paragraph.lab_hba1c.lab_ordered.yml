@@ -1,0 +1,21 @@
+uuid: 1264f9fb-9546-43bc-b9eb-b2915c9be0b9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_hba1c
+id: paragraph.lab_hba1c.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_hba1c
+label: Completed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Completed
+  off_label: Pending
+field_type: boolean

@@ -1,0 +1,22 @@
+uuid: 8e9b84a4-48d4-4e51-9a45-67f52de285f7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_result_notes
+    - paragraphs.paragraphs_type.lab_hba1c
+  module:
+    - text
+id: paragraph.lab_hba1c.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+bundle: lab_hba1c
+label: 'Result Notes'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

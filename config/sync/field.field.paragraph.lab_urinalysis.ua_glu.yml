@@ -1,0 +1,21 @@
+uuid: 91f28ed9-e7eb-4faf-adbf-83177d83edeb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ua_glu
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+id: paragraph.lab_urinalysis.ua_glu
+field_name: ua_glu
+entity_type: paragraph
+bundle: lab_urinalysis
+label: 'GLU (Glucose)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,6 @@
+settings:
+  allowed_values:
+    -
+      label: 'Menos de 100 mg/dL'
+    -
+      label: 'Más de 400 mg/dL'

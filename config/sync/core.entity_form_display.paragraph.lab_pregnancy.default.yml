@@ -1,0 +1,41 @@
+uuid: 7cff47a4-4755-4785-a269-331ece7305f8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_pregnancy.lab_ordered
+    - field.field.paragraph.lab_pregnancy.pregnancy_result
+    - field.field.paragraph.lab_pregnancy.lab_result_notes
+    - paragraphs.paragraphs_type.lab_pregnancy
+  module:
+    - options
+    - text
+id: paragraph.lab_pregnancy.default
+targetEntityType: paragraph
+bundle: lab_pregnancy
+mode: default
+content:
+  lab_ordered:
+    type: boolean_checkbox
+    weight: 0
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  lab_result_notes:
+    type: text_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  pregnancy_result:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

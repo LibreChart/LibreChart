@@ -1,0 +1,22 @@
+uuid: 61881088-551d-486f-9222-0ed02e475834
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_result_notes
+    - paragraphs.paragraphs_type.lab_lipids
+  module:
+    - text
+id: paragraph.lab_lipids.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+bundle: lab_lipids
+label: 'Result Notes'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

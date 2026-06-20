@@ -4,7 +4,12 @@ status: true
 dependencies:
   config:
     - field.storage.visit.lab_results
-    - paragraphs.paragraphs_type.lab_result
+    - paragraphs.paragraphs_type.lab_glucose
+    - paragraphs.paragraphs_type.lab_hba1c
+    - paragraphs.paragraphs_type.lab_hemoglobin
+    - paragraphs.paragraphs_type.lab_lipids
+    - paragraphs.paragraphs_type.lab_pregnancy
+    - paragraphs.paragraphs_type.lab_urinalysis
   module:
     - entity_reference_revisions
     - librechart_visit
@@ -22,9 +27,29 @@ settings:
   handler: 'default:paragraph'
   handler_settings:
     target_bundles:
-      lab_result: lab_result
+      lab_glucose: lab_glucose
+      lab_hba1c: lab_hba1c
+      lab_hemoglobin: lab_hemoglobin
+      lab_urinalysis: lab_urinalysis
+      lab_pregnancy: lab_pregnancy
+      lab_lipids: lab_lipids
     target_bundles_drag_drop:
-      lab_result:
+      lab_glucose:
         weight: 0
+        enabled: true
+      lab_hba1c:
+        weight: 1
+        enabled: true
+      lab_hemoglobin:
+        weight: 2
+        enabled: true
+      lab_lipids:
+        weight: 5
+        enabled: true
+      lab_pregnancy:
+        weight: 4
+        enabled: true
+      lab_urinalysis:
+        weight: 3
         enabled: true
 field_type: entity_reference_revisions

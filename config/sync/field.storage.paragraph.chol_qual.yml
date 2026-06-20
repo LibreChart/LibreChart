@@ -1,0 +1,27 @@
+uuid: 8ed740a4-8c1a-49d2-934c-dcbffc8417b0
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.chol_qual
+field_name: chol_qual
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: less_than_100
+      label: 'Less than 100 mg/dL'
+    -
+      value: greater_than_400
+      label: 'Greater than 400 mg/dL'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

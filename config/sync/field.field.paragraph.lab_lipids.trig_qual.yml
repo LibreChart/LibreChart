@@ -1,0 +1,21 @@
+uuid: a1e61ee1-77d1-4d47-9d4f-c3de6ff965bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.trig_qual
+    - paragraphs.paragraphs_type.lab_lipids
+  module:
+    - options
+id: paragraph.lab_lipids.trig_qual
+field_name: trig_qual
+entity_type: paragraph
+bundle: lab_lipids
+label: 'Triglycerides (qualitative)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

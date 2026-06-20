@@ -1,0 +1,120 @@
+uuid: aa052423-32c5-4dce-8fd1-40e0af95cda4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_urinalysis.lab_ordered
+    - field.field.paragraph.lab_urinalysis.ua_leu
+    - field.field.paragraph.lab_urinalysis.ua_nit
+    - field.field.paragraph.lab_urinalysis.ua_uro
+    - field.field.paragraph.lab_urinalysis.ua_pro
+    - field.field.paragraph.lab_urinalysis.ua_ph
+    - field.field.paragraph.lab_urinalysis.ua_blo
+    - field.field.paragraph.lab_urinalysis.ua_sg
+    - field.field.paragraph.lab_urinalysis.ua_ket
+    - field.field.paragraph.lab_urinalysis.ua_bil
+    - field.field.paragraph.lab_urinalysis.ua_glu
+    - field.field.paragraph.lab_urinalysis.lab_result_notes
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+    - text
+id: paragraph.lab_urinalysis.default
+targetEntityType: paragraph
+bundle: lab_urinalysis
+mode: default
+content:
+  lab_ordered:
+    type: boolean
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  lab_result_notes:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  ua_bil:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  ua_blo:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  ua_glu:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  ua_ket:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  ua_leu:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  ua_nit:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  ua_ph:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  ua_pro:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  ua_sg:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  ua_uro:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden:
+  created: true
+  entity_print_view_epub: true
+  entity_print_view_pdf: true
+  entity_print_view_word_docx: true
+  search_api_excerpt: true
+  status: true

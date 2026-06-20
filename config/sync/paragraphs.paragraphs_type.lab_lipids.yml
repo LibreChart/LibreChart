@@ -1,0 +1,10 @@
+uuid: cfcceb6f-f405-4f95-b613-99c53fef03b2
+langcode: en
+status: true
+dependencies: {  }
+id: lab_lipids
+label: Lipids
+icon_uuid: null
+icon_default: null
+description: 'Lipid panel results.'
+behavior_plugins: {  }

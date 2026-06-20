@@ -1,0 +1,24 @@
+uuid: 1ac3d932-56a1-46e1-9bab-a20caef51160
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.glucose_qual
+field_name: glucose_qual
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

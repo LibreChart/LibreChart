@@ -1,0 +1,39 @@
+uuid: 6ea02cc9-2dd8-45b1-b50c-4e09a30fe511
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_pro
+field_name: ua_pro
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+    -
+      value: trace
+      label: Trace
+    -
+      value: '30'
+      label: '30 mg/dL (+)'
+    -
+      value: '100'
+      label: '100 mg/dL (++)'
+    -
+      value: '300'
+      label: '300 mg/dL (+++)'
+    -
+      value: '2000'
+      label: '2000 mg/dL or more (++++)'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

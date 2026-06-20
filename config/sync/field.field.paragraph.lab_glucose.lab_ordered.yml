@@ -1,0 +1,21 @@
+uuid: 9e456289-ee18-4345-bd3e-603b3c15d8ff
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_glucose
+id: paragraph.lab_glucose.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_glucose
+label: Completed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Completed
+  off_label: Pending
+field_type: boolean

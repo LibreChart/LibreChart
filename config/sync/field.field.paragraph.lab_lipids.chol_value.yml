@@ -1,0 +1,23 @@
+uuid: 6f1b78d7-f974-4d40-b7c6-8d32122701dd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.chol_value
+    - paragraphs.paragraphs_type.lab_lipids
+id: paragraph.lab_lipids.chol_value
+field_name: chol_value
+entity_type: paragraph
+bundle: lab_lipids
+label: Cholesterol
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 100.0
+  max: 400.0
+  prefix: ''
+  suffix: ' mg/dL'
+field_type: decimal

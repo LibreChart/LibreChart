@@ -1,0 +1,10 @@
+uuid: 28192547-661f-4af6-9edf-3cbcaa20bf88
+langcode: en
+status: true
+dependencies: {  }
+id: lab_glucose
+label: Glucose
+icon_uuid: null
+icon_default: null
+description: 'Glucose lab test result.'
+behavior_plugins: {  }

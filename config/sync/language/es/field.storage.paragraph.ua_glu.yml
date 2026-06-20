@@ -1,0 +1,14 @@
+settings:
+  allowed_values:
+    -
+      label: Negativo
+    -
+      label: '100 mg/dL'
+    -
+      label: '250 mg/dL'
+    -
+      label: '500 mg/dL'
+    -
+      label: '1000 mg/dL'
+    -
+      label: '2000 + mg/dL'

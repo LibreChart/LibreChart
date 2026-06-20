@@ -1,0 +1,6 @@
+settings:
+  allowed_values:
+    -
+      label: 'Menos de 4%'
+    -
+      label: 'Más de 13%'

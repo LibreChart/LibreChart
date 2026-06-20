@@ -1,0 +1,21 @@
+uuid: 8c8f1ee9-b221-405a-80f4-99f1b8e07388
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.chol_qual
+    - paragraphs.paragraphs_type.lab_lipids
+  module:
+    - options
+id: paragraph.lab_lipids.chol_qual
+field_name: chol_qual
+entity_type: paragraph
+bundle: lab_lipids
+label: 'Cholesterol (qualitative)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

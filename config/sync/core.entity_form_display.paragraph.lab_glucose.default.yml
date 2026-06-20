@@ -1,0 +1,49 @@
+uuid: a7fc2cd3-0d76-4371-b5bb-150901d95406
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_glucose.lab_ordered
+    - field.field.paragraph.lab_glucose.glucose_qual
+    - field.field.paragraph.lab_glucose.glucose_value
+    - field.field.paragraph.lab_glucose.lab_result_notes
+    - paragraphs.paragraphs_type.lab_glucose
+  module:
+    - options
+    - text
+id: paragraph.lab_glucose.default
+targetEntityType: paragraph
+bundle: lab_glucose
+mode: default
+content:
+  glucose_qual:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  glucose_value:
+    type: number
+    weight: 2
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  lab_ordered:
+    type: boolean_checkbox
+    weight: 0
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  lab_result_notes:
+    type: text_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

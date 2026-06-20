@@ -1,0 +1,27 @@
+uuid: 6d76d894-e858-4387-a97c-9e19461a634b
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.hba1c_qual
+field_name: hba1c_qual
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: less_than_4
+      label: 'Less than 4%'
+    -
+      value: more_than_13
+      label: 'More than 13%'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,21 @@
+uuid: 5ea46422-f4b0-4115-b4e6-e2d6dae3d1e9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_pregnancy
+id: paragraph.lab_pregnancy.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_pregnancy
+label: Completed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Completed
+  off_label: Pending
+field_type: boolean

@@ -1,0 +1,21 @@
+uuid: b7a73e6b-6035-41b2-b2f2-4145d3a55da2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ua_leu
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+id: paragraph.lab_urinalysis.ua_leu
+field_name: ua_leu
+entity_type: paragraph
+bundle: lab_urinalysis
+label: 'LEU (Leukocytes)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

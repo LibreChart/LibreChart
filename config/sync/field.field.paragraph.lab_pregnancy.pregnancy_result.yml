@@ -1,0 +1,21 @@
+uuid: 91bdd2cb-9534-466d-adff-8141c7feaab6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.pregnancy_result
+    - paragraphs.paragraphs_type.lab_pregnancy
+  module:
+    - options
+id: paragraph.lab_pregnancy.pregnancy_result
+field_name: pregnancy_result
+entity_type: paragraph
+bundle: lab_pregnancy
+label: 'Urine Pregnancy'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,21 @@
+uuid: 2f6019b6-4bfc-4d81-92ed-53b46433b751
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ua_sg
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+id: paragraph.lab_urinalysis.ua_sg
+field_name: ua_sg
+entity_type: paragraph
+bundle: lab_urinalysis
+label: 'SG (Specific Gravity)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

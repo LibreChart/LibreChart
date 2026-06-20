@@ -1,0 +1,23 @@
+uuid: 9356402c-a487-4c88-86f8-b565f8765c0e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.hgb_value
+    - paragraphs.paragraphs_type.lab_hemoglobin
+id: paragraph.lab_hemoglobin.hgb_value
+field_name: hgb_value
+entity_type: paragraph
+bundle: lab_hemoglobin
+label: Hemoglobin
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: 25.6
+  prefix: ''
+  suffix: ' g/dL'
+field_type: decimal

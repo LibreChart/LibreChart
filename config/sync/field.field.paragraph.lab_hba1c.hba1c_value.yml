@@ -1,0 +1,23 @@
+uuid: 50070cf2-25f8-4ddc-81eb-81301887eb36
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.hba1c_value
+    - paragraphs.paragraphs_type.lab_hba1c
+id: paragraph.lab_hba1c.hba1c_value
+field_name: hba1c_value
+entity_type: paragraph
+bundle: lab_hba1c
+label: HbA1c
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 4.0
+  max: 13.0
+  prefix: ''
+  suffix: '%'
+field_type: decimal

@@ -1,0 +1,39 @@
+uuid: ce7edd94-d35e-4fcb-872e-d1c987341e76
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_ket
+field_name: ua_ket
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+    -
+      value: trace_5
+      label: 'Trace (5mg/dL)'
+    -
+      value: small_15
+      label: 'Small (15mg/dL)'
+    -
+      value: moderate_40
+      label: 'Moderate (40mg/dL)'
+    -
+      value: large_80
+      label: 'Large (80mg/dL)'
+    -
+      value: large_150
+      label: 'Large (150mg/dL)'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

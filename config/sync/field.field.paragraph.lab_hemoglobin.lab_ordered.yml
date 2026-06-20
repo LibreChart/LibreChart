@@ -1,0 +1,21 @@
+uuid: f975819a-7705-431a-abd9-205f20f4a1a2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_hemoglobin
+id: paragraph.lab_hemoglobin.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_hemoglobin
+label: Completed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Completed
+  off_label: Pending
+field_type: boolean

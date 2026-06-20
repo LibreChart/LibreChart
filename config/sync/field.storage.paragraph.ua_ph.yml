@@ -1,0 +1,42 @@
+uuid: b76679a0-61eb-489e-8d8e-5cd50c42c57c
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_ph
+field_name: ua_ph
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: '5.0'
+      label: '5.0'
+    -
+      value: '6.0'
+      label: '6.0'
+    -
+      value: '6.5'
+      label: '6.5'
+    -
+      value: '7.0'
+      label: '7.0'
+    -
+      value: '7.5'
+      label: '7.5'
+    -
+      value: '8.0'
+      label: '8.0'
+    -
+      value: '8.5'
+      label: '8.5'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

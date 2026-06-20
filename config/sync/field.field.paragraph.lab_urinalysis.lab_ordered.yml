@@ -1,0 +1,21 @@
+uuid: ea707777-f15a-4346-ab84-6c75aa52462b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_urinalysis
+id: paragraph.lab_urinalysis.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_urinalysis
+label: Completed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Completed
+  off_label: Pending
+field_type: boolean

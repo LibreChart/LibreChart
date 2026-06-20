@@ -1,0 +1,12 @@
+settings:
+  allowed_values:
+    -
+      label: Negativo
+    -
+      label: Trazas
+    -
+      label: 'Pequeño (+)'
+    -
+      label: 'Moderado (++)'
+    -
+      label: 'Grande (+++)'

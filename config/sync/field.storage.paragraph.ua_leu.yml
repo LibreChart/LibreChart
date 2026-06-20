@@ -1,0 +1,36 @@
+uuid: 39ceb03a-268e-4144-93b1-cdd61020f582
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_leu
+field_name: ua_leu
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+    -
+      value: trace
+      label: Trace
+    -
+      value: small
+      label: 'Small (+)'
+    -
+      value: moderate
+      label: 'Moderate (++)'
+    -
+      value: large
+      label: 'Large (+++)'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

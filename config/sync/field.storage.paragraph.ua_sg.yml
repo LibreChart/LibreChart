@@ -1,0 +1,42 @@
+uuid: ae8ce460-2e46-4e5c-847e-b9da13dae1db
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_sg
+field_name: ua_sg
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: '1.000'
+      label: '1.000'
+    -
+      value: '1.005'
+      label: '1.005'
+    -
+      value: '1.010'
+      label: '1.010'
+    -
+      value: '1.015'
+      label: '1.015'
+    -
+      value: '1.020'
+      label: '1.020'
+    -
+      value: '1.025'
+      label: '1.025'
+    -
+      value: '1.030'
+      label: '1.030'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

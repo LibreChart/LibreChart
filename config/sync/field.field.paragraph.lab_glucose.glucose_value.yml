@@ -1,0 +1,23 @@
+uuid: 904b2662-efdf-470b-80db-975e8d0c4871
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.glucose_value
+    - paragraphs.paragraphs_type.lab_glucose
+id: paragraph.lab_glucose.glucose_value
+field_name: glucose_value
+entity_type: paragraph
+bundle: lab_glucose
+label: Glucose
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: 2000
+  prefix: ''
+  suffix: ' mg/dL'
+field_type: integer

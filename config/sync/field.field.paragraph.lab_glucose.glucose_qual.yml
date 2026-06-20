@@ -1,0 +1,21 @@
+uuid: d9020293-d7ba-4d87-8abf-efbdae73d297
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.glucose_qual
+    - paragraphs.paragraphs_type.lab_glucose
+  module:
+    - options
+id: paragraph.lab_glucose.glucose_qual
+field_name: glucose_qual
+entity_type: paragraph
+bundle: lab_glucose
+label: 'Glucose (qualitative)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

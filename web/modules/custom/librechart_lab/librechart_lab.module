@@ -13,13 +13,25 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Session\AccountInterface;
 
 /**
+ * Lab paragraph bundles, one per test type.
+ */
+const LIBRECHART_LAB_BUNDLES = [
+  'lab_glucose',
+  'lab_hba1c',
+  'lab_hemoglobin',
+  'lab_urinalysis',
+  'lab_pregnancy',
+  'lab_lipids',
+];
+
+/**
  * Implements hook_entity_field_access().
  *
- * Enforces role-based edit access on LabResult paragraph sub-fields.
+ * Enforces role-based edit access on lab paragraph sub-fields.
  *
  * Field to role mapping:
- *   lab_test, lab_ordered: triage_nurse, clinician (who orders the test)
- *   lab_result_value, lab_result_notes: lab_technician (who enters results)
+ *   lab_ordered: triage_nurse, clinician (who order the test)
+ *   every other result field: lab_technician (who enters the precise values)
  *
  * @param string $operation
  *   The field operation (view, edit).
@@ -39,13 +51,13 @@ function librechart_lab_entity_field_access(
   AccountInterface $account,
   ?FieldItemListInterface $items = NULL,
 ): AccessResult {
-  // Only restrict edit on LabResult paragraph fields.
+  // Only restrict edit on lab paragraph fields.
   if ($operation !== 'edit' || $field_definition->getTargetEntityTypeId() !== 'paragraph') {
     return AccessResult::neutral();
   }
 
   $bundle = $field_definition->getTargetBundle();
-  if ($bundle !== 'lab_result') {
+  if (!in_array($bundle, LIBRECHART_LAB_BUNDLES, TRUE)) {
     return AccessResult::neutral();
   }
 
@@ -58,8 +70,9 @@ function librechart_lab_entity_field_access(
   $roles = $account->getRoles();
   $cache = ['user.roles'];
 
-  // Lab ordering fields — editable by triage_nurse and clinician.
-  if (in_array($field_name, ['lab_test', 'lab_ordered'], TRUE)) {
+  // The "Completed" flag is the ordering control — set by triage_nurse and
+  // clinician, who order the test.
+  if ($field_name === 'lab_ordered') {
     foreach (['triage_nurse', 'clinician'] as $role) {
       if (in_array($role, $roles, TRUE)) {
         return AccessResult::neutral()->addCacheContexts($cache);
@@ -69,14 +82,11 @@ function librechart_lab_entity_field_access(
       ->addCacheContexts($cache);
   }
 
-  // Lab result entry fields — editable by lab_technician only.
-  if (in_array($field_name, ['lab_result_value', 'lab_result_notes'], TRUE)) {
-    if (in_array('lab_technician', $roles, TRUE)) {
-      return AccessResult::neutral()->addCacheContexts($cache);
-    }
-    return AccessResult::forbidden('Only lab technicians may enter lab results.')
-      ->addCacheContexts($cache);
+  // All remaining result fields are the precise values — editable by
+  // lab_technician only.
+  if (in_array('lab_technician', $roles, TRUE)) {
+    return AccessResult::neutral()->addCacheContexts($cache);
   }
-
-  return AccessResult::neutral();
+  return AccessResult::forbidden('Only lab technicians may enter lab results.')
+    ->addCacheContexts($cache);
 }

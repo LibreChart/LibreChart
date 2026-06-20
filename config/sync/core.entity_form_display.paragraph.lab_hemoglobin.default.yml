@@ -1,0 +1,41 @@
+uuid: b0757c07-5965-475d-aedf-ca0b015e3113
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_hemoglobin.lab_ordered
+    - field.field.paragraph.lab_hemoglobin.hgb_value
+    - field.field.paragraph.lab_hemoglobin.lab_result_notes
+    - paragraphs.paragraphs_type.lab_hemoglobin
+  module:
+    - text
+id: paragraph.lab_hemoglobin.default
+targetEntityType: paragraph
+bundle: lab_hemoglobin
+mode: default
+content:
+  hgb_value:
+    type: number
+    weight: 1
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  lab_ordered:
+    type: boolean_checkbox
+    weight: 0
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  lab_result_notes:
+    type: text_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

@@ -1,0 +1,21 @@
+uuid: f94f0572-4ab8-4f5e-aaf7-d09349763e41
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_ordered
+    - paragraphs.paragraphs_type.lab_lipids
+id: paragraph.lab_lipids.lab_ordered
+field_name: lab_ordered
+entity_type: paragraph
+bundle: lab_lipids
+label: Completed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Completed
+  off_label: Pending
+field_type: boolean

@@ -1,0 +1,22 @@
+uuid: 6582c70e-218c-40dd-b1bd-568ba9bb80d2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_result_notes
+    - paragraphs.paragraphs_type.lab_hemoglobin
+  module:
+    - text
+id: paragraph.lab_hemoglobin.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+bundle: lab_hemoglobin
+label: 'Result Notes'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

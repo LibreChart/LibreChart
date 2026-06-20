@@ -1,0 +1,27 @@
+uuid: 5c438a27-a50c-4e2c-acdf-7836afcd0d6f
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.trig_qual
+field_name: trig_qual
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: less_than_50
+      label: 'Less than 50 mg/dL'
+    -
+      value: greater_than_500
+      label: 'Greater than 500 mg/dL'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

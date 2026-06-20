@@ -1,0 +1,20 @@
+uuid: 379ec7b7-bd69-439c-9b7d-c3f1fe827174
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.ldl_value
+field_name: ldl_value
+entity_type: paragraph
+type: decimal
+settings:
+  precision: 10
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

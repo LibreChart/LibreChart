@@ -1,0 +1,23 @@
+uuid: 3dcc51b6-2b6a-4905-a53b-9006367641da
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ldl_value
+    - paragraphs.paragraphs_type.lab_lipids
+id: paragraph.lab_lipids.ldl_value
+field_name: ldl_value
+entity_type: paragraph
+bundle: lab_lipids
+label: 'Calc LDL'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ' mg/dL'
+field_type: decimal

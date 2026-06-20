@@ -1,0 +1,23 @@
+uuid: f4ec45ec-408d-4e0a-a539-7ce2af61ed26
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.trig_value
+    - paragraphs.paragraphs_type.lab_lipids
+id: paragraph.lab_lipids.trig_value
+field_name: trig_value
+entity_type: paragraph
+bundle: lab_lipids
+label: Triglycerides
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 50
+  max: 500
+  prefix: ''
+  suffix: ' mg/dL'
+field_type: integer

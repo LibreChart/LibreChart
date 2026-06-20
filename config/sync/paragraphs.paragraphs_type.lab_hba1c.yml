@@ -1,0 +1,10 @@
+uuid: 32c82c09-b0b1-4f2b-a7bc-818cda17a2ea
+langcode: en
+status: true
+dependencies: {  }
+id: lab_hba1c
+label: HbA1c
+icon_uuid: null
+icon_default: null
+description: 'Hemoglobin A1c lab test result.'
+behavior_plugins: {  }

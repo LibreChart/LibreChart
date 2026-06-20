@@ -1,0 +1,20 @@
+uuid: bb373dde-e369-4086-97e6-d77f3eaa591c
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.chol_value
+field_name: chol_value
+entity_type: paragraph
+type: decimal
+settings:
+  precision: 6
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,10 @@
+uuid: ad03b500-2689-44a2-bdfd-bbd3f84d1be3
+langcode: en
+status: true
+dependencies: {  }
+id: lab_pregnancy
+label: 'Urine Pregnancy'
+icon_uuid: null
+icon_default: null
+description: 'Urine pregnancy test result.'
+behavior_plugins: {  }

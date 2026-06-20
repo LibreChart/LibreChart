@@ -1,0 +1,12 @@
+settings:
+  allowed_values:
+    -
+      label: '0.2 mg/dL'
+    -
+      label: '1 mg/dL'
+    -
+      label: '2 mg/dL'
+    -
+      label: '4 mg/dL'
+    -
+      label: '8 mg/dL'

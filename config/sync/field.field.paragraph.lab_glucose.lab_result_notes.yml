@@ -1,0 +1,22 @@
+uuid: ee241f3a-baee-4f2d-b021-75162aacdbc8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_result_notes
+    - paragraphs.paragraphs_type.lab_glucose
+  module:
+    - text
+id: paragraph.lab_glucose.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+bundle: lab_glucose
+label: 'Result Notes'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

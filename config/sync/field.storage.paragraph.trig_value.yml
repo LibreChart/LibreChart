@@ -1,0 +1,20 @@
+uuid: afc8710a-0e12-468b-8534-0d9e3584ee31
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.trig_value
+field_name: trig_value
+entity_type: paragraph
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

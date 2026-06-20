@@ -1,0 +1,58 @@
+uuid: cbf1df35-ea6e-49f2-b13e-ab2e96f0859c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_glucose.lab_ordered
+    - field.field.paragraph.lab_glucose.glucose_qual
+    - field.field.paragraph.lab_glucose.glucose_value
+    - field.field.paragraph.lab_glucose.lab_result_notes
+    - paragraphs.paragraphs_type.lab_glucose
+  module:
+    - options
+    - text
+id: paragraph.lab_glucose.default
+targetEntityType: paragraph
+bundle: lab_glucose
+mode: default
+content:
+  glucose_qual:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  glucose_value:
+    type: number_integer
+    label: inline
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  lab_ordered:
+    type: boolean
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  lab_result_notes:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden:
+  created: true
+  entity_print_view_epub: true
+  entity_print_view_pdf: true
+  entity_print_view_word_docx: true
+  search_api_excerpt: true
+  status: true

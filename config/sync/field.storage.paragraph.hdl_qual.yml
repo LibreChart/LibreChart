@@ -1,0 +1,27 @@
+uuid: b25e0746-f479-43c8-b159-ef538b1fc94c
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.hdl_qual
+field_name: hdl_qual
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: less_than_20
+      label: 'Less than 20 mg/dL'
+    -
+      value: greater_than_120
+      label: 'Greater than 120 mg/dL'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

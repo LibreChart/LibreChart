@@ -1,0 +1,21 @@
+uuid: 2a51ed55-4c78-4930-b357-13ed870fde56
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ua_ph
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+id: paragraph.lab_urinalysis.ua_ph
+field_name: ua_ph
+entity_type: paragraph
+bundle: lab_urinalysis
+label: pH
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

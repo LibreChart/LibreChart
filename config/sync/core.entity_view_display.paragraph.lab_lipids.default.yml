@@ -1,0 +1,108 @@
+uuid: 167b8684-bfc9-4ba4-add8-ab2d55ab2147
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lab_lipids.lab_ordered
+    - field.field.paragraph.lab_lipids.chol_qual
+    - field.field.paragraph.lab_lipids.chol_value
+    - field.field.paragraph.lab_lipids.hdl_qual
+    - field.field.paragraph.lab_lipids.hdl_value
+    - field.field.paragraph.lab_lipids.trig_qual
+    - field.field.paragraph.lab_lipids.trig_value
+    - field.field.paragraph.lab_lipids.ldl_value
+    - field.field.paragraph.lab_lipids.lab_result_notes
+    - paragraphs.paragraphs_type.lab_lipids
+  module:
+    - options
+    - text
+id: paragraph.lab_lipids.default
+targetEntityType: paragraph
+bundle: lab_lipids
+mode: default
+content:
+  chol_qual:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  chol_value:
+    type: number_decimal
+    label: inline
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  hdl_qual:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  hdl_value:
+    type: number_integer
+    label: inline
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  lab_ordered:
+    type: boolean
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  lab_result_notes:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  ldl_value:
+    type: number_decimal
+    label: inline
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  trig_qual:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  trig_value:
+    type: number_integer
+    label: inline
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 6
+    region: content
+hidden:
+  created: true
+  entity_print_view_epub: true
+  entity_print_view_pdf: true
+  entity_print_view_word_docx: true
+  search_api_excerpt: true
+  status: true

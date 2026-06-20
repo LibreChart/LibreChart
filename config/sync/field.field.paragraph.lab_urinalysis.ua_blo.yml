@@ -1,0 +1,21 @@
+uuid: 07c05be8-886c-40c5-98c0-58fc6395f76d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ua_blo
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+id: paragraph.lab_urinalysis.ua_blo
+field_name: ua_blo
+entity_type: paragraph
+bundle: lab_urinalysis
+label: 'BLO (Blood)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

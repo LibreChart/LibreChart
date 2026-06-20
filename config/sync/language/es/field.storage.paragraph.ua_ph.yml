@@ -1,0 +1,16 @@
+settings:
+  allowed_values:
+    -
+      label: '5.0'
+    -
+      label: '6.0'
+    -
+      label: '6.5'
+    -
+      label: '7.0'
+    -
+      label: '7.5'
+    -
+      label: '8.0'
+    -
+      label: '8.5'

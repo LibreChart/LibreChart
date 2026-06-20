@@ -321,3 +321,146 @@ msgstr "visita"
 
 msgid "visits"
 msgstr "visitas"
+
+# Lab result labels (config strings; review medical Spanish).
+
+msgid "2000 mg/dL or more (++++)"
+msgstr "2000 mg/dL o más (++++)"
+
+msgid "BIL (Bilirubin)"
+msgstr "BIL (Bilirrubina)"
+
+msgid "BLO (Blood)"
+msgstr "BLO (Sangre)"
+
+msgid "Calc LDL"
+msgstr "LDL calculado"
+
+msgid "Cholesterol"
+msgstr "Colesterol"
+
+msgid "Cholesterol (qualitative)"
+msgstr "Colesterol (cualitativo)"
+
+msgid "Completed"
+msgstr "Completado"
+
+msgid "GLU (Glucose)"
+msgstr "GLU (Glucosa)"
+
+msgid "Glucose"
+msgstr "Glucosa"
+
+msgid "Glucose (qualitative)"
+msgstr "Glucosa (cualitativa)"
+
+msgid "Greater than 120 mg/dL"
+msgstr "Más de 120 mg/dL"
+
+msgid "Greater than 400 mg/dL"
+msgstr "Más de 400 mg/dL"
+
+msgid "Greater than 500 mg/dL"
+msgstr "Más de 500 mg/dL"
+
+msgid "HDL (qualitative)"
+msgstr "HDL (cualitativo)"
+
+msgid "HbA1c (qualitative)"
+msgstr "HbA1c (cualitativa)"
+
+msgid "Hemoglobin"
+msgstr "Hemoglobina"
+
+msgid "Hemolyzed trace"
+msgstr "Trazas hemolizadas"
+
+msgid "KET (Ketones)"
+msgstr "KET (Cetonas)"
+
+msgid "LEU (Leukocytes)"
+msgstr "LEU (Leucocitos)"
+
+msgid "Large (+++)"
+msgstr "Grande (+++)"
+
+msgid "Large (150mg/dL)"
+msgstr "Grande (150mg/dL)"
+
+msgid "Large (80mg/dL)"
+msgstr "Grande (80mg/dL)"
+
+msgid "Less than 100 mg/dL"
+msgstr "Menos de 100 mg/dL"
+
+msgid "Less than 20 mg/dL"
+msgstr "Menos de 20 mg/dL"
+
+msgid "Less than 4%"
+msgstr "Menos de 4%"
+
+msgid "Less than 50 mg/dL"
+msgstr "Menos de 50 mg/dL"
+
+msgid "Lipids"
+msgstr "Lípidos"
+
+msgid "Moderate (++)"
+msgstr "Moderado (++)"
+
+msgid "Moderate (40mg/dL)"
+msgstr "Moderado (40mg/dL)"
+
+msgid "More than 13%"
+msgstr "Más de 13%"
+
+msgid "NIT (Nitrite)"
+msgstr "NIT (Nitritos)"
+
+msgid "Negative"
+msgstr "Negativo"
+
+msgid "Non Hemolyzed moderate"
+msgstr "Moderado no hemolizado"
+
+msgid "Non Hemolyzed trace"
+msgstr "Trazas no hemolizadas"
+
+msgid "PRO (Protein)"
+msgstr "PRO (Proteínas)"
+
+msgid "Positive"
+msgstr "Positivo"
+
+msgid "Result Notes"
+msgstr "Notas del resultado"
+
+msgid "SG (Specific Gravity)"
+msgstr "SG (Densidad)"
+
+msgid "Small (+)"
+msgstr "Pequeño (+)"
+
+msgid "Small (15mg/dL)"
+msgstr "Pequeño (15mg/dL)"
+
+msgid "Trace"
+msgstr "Trazas"
+
+msgid "Trace (5mg/dL)"
+msgstr "Trazas (5mg/dL)"
+
+msgid "Triglycerides"
+msgstr "Triglicéridos"
+
+msgid "Triglycerides (qualitative)"
+msgstr "Triglicéridos (cualitativo)"
+
+msgid "URO (Urobilinogen)"
+msgstr "URO (Urobilinógeno)"
+
+msgid "Urinalysis"
+msgstr "Uroanálisis"
+
+msgid "Urine Pregnancy"
+msgstr "Embarazo en orina"

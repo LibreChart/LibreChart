@@ -1,0 +1,39 @@
+uuid: 22924fde-ba60-406b-861c-390777bb44f6
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_glu
+field_name: ua_glu
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+    -
+      value: '100'
+      label: '100 mg/dL'
+    -
+      value: '250'
+      label: '250 mg/dL'
+    -
+      value: '500'
+      label: '500 mg/dL'
+    -
+      value: '1000'
+      label: '1000 mg/dL'
+    -
+      value: '2000'
+      label: '2000 + mg/dL'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

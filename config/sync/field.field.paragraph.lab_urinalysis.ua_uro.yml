@@ -1,0 +1,21 @@
+uuid: 018317fe-4964-44b1-9581-b9473f4d6c16
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.ua_uro
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - options
+id: paragraph.lab_urinalysis.ua_uro
+field_name: ua_uro
+entity_type: paragraph
+bundle: lab_urinalysis
+label: 'URO (Urobilinogen)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

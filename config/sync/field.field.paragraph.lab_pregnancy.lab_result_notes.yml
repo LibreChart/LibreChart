@@ -1,0 +1,22 @@
+uuid: 4680dcc4-ece8-44eb-b232-f16a1cdc8492
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_result_notes
+    - paragraphs.paragraphs_type.lab_pregnancy
+  module:
+    - text
+id: paragraph.lab_pregnancy.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+bundle: lab_pregnancy
+label: 'Result Notes'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

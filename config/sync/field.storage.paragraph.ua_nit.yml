@@ -1,0 +1,27 @@
+uuid: 0949c982-04dc-4339-b6d4-0787e719d940
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_nit
+field_name: ua_nit
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: positive
+      label: Positive
+    -
+      value: negative
+      label: Negative
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

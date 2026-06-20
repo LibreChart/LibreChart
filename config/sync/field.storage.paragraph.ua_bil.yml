@@ -1,0 +1,33 @@
+uuid: 4b502474-0782-4be1-97c4-11c0d3792c33
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_bil
+field_name: ua_bil
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+    -
+      value: small
+      label: 'Small (+)'
+    -
+      value: moderate
+      label: 'Moderate (++)'
+    -
+      value: large
+      label: 'Large (+++)'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,10 @@
+uuid: af75ea8e-31bd-451b-887c-298c33e283ef
+langcode: en
+status: true
+dependencies: {  }
+id: lab_urinalysis
+label: Urinalysis
+icon_uuid: null
+icon_default: null
+description: 'Urinalysis dipstick panel results.'
+behavior_plugins: {  }

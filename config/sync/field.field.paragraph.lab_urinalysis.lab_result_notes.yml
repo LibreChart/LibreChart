@@ -1,0 +1,22 @@
+uuid: f2d4231e-50a2-4746-b04e-577ae79a0a71
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.lab_result_notes
+    - paragraphs.paragraphs_type.lab_urinalysis
+  module:
+    - text
+id: paragraph.lab_urinalysis.lab_result_notes
+field_name: lab_result_notes
+entity_type: paragraph
+bundle: lab_urinalysis
+label: 'Result Notes'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

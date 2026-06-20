@@ -1,0 +1,21 @@
+uuid: 5b19556a-61d8-45ff-be1f-2b399dc733a3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.hdl_qual
+    - paragraphs.paragraphs_type.lab_lipids
+  module:
+    - options
+id: paragraph.lab_lipids.hdl_qual
+field_name: hdl_qual
+entity_type: paragraph
+bundle: lab_lipids
+label: 'HDL (qualitative)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

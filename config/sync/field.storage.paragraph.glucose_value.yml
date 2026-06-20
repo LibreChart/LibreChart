@@ -1,0 +1,20 @@
+uuid: cd9c8e52-7b77-4e08-8af1-a63107bed09a
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.glucose_value
+field_name: glucose_value
+entity_type: paragraph
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

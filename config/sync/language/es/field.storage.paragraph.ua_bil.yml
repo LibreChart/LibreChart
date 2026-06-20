@@ -1,0 +1,10 @@
+settings:
+  allowed_values:
+    -
+      label: Negativo
+    -
+      label: 'Pequeño (+)'
+    -
+      label: 'Moderado (++)'
+    -
+      label: 'Grande (+++)'

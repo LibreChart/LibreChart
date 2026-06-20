@@ -1,0 +1,42 @@
+uuid: 749b5f01-f3e5-41d4-96fd-6eee31f5f9f7
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.ua_blo
+field_name: ua_blo
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: negative
+      label: Negative
+    -
+      value: non_hemolyzed_trace
+      label: 'Non Hemolyzed trace'
+    -
+      value: non_hemolyzed_moderate
+      label: 'Non Hemolyzed moderate'
+    -
+      value: hemolyzed_trace
+      label: 'Hemolyzed trace'
+    -
+      value: small
+      label: 'Small (+)'
+    -
+      value: moderate
+      label: 'Moderate (++)'
+    -
+      value: large
+      label: 'Large (+++)'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

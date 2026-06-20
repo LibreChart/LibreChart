@@ -1,0 +1,10 @@
+uuid: ba3caaa1-09dc-498d-9d58-aebece1e577e
+langcode: en
+status: true
+dependencies: {  }
+id: lab_hemoglobin
+label: Hemoglobin
+icon_uuid: null
+icon_default: null
+description: 'Hemoglobin lab test result.'
+behavior_plugins: {  }
