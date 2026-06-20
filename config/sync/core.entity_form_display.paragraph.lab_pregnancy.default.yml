@@ -8,6 +8,7 @@ dependencies:
     - field.field.paragraph.lab_pregnancy.lab_result_notes
     - paragraphs.paragraphs_type.lab_pregnancy
   module:
+    - conditional_fields
     - options
     - text
 id: paragraph.lab_pregnancy.default
@@ -29,13 +30,49 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        5eb52f5f-f7eb-4681-ba63-60887448daca:
+          uuid: 5eb52f5f-f7eb-4681-ba63-60887448daca
+          entity_type: paragraph
+          bundle: lab_pregnancy
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   pregnancy_result:
     type: options_select
     weight: 1
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        a66f97b1-3ec1-46a7-b20a-4e3f3cf3aba3:
+          uuid: a66f97b1-3ec1-46a7-b20a-4e3f3cf3aba3
+          entity_type: paragraph
+          bundle: lab_pregnancy
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
 hidden:
   created: true
   status: true

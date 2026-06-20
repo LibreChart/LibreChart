@@ -9,6 +9,7 @@ dependencies:
     - field.field.paragraph.lab_hba1c.lab_result_notes
     - paragraphs.paragraphs_type.lab_hba1c
   module:
+    - conditional_fields
     - options
     - text
 id: paragraph.lab_hba1c.default
@@ -21,14 +22,50 @@ content:
     weight: 1
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        bc798beb-370a-416e-8acc-7f21026aba62:
+          uuid: bc798beb-370a-416e-8acc-7f21026aba62
+          entity_type: paragraph
+          bundle: lab_hba1c
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   hba1c_value:
     type: number
     weight: 2
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        2b5fc12b-f3a9-4be6-8c0e-c193a0f074b7:
+          uuid: 2b5fc12b-f3a9-4be6-8c0e-c193a0f074b7
+          entity_type: paragraph
+          bundle: lab_hba1c
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   lab_ordered:
     type: boolean_checkbox
     weight: 0
@@ -43,7 +80,25 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        04e730f0-2377-4664-b0c9-13484f163af3:
+          uuid: 04e730f0-2377-4664-b0c9-13484f163af3
+          entity_type: paragraph
+          bundle: lab_hba1c
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
 hidden:
   created: true
   status: true

@@ -17,6 +17,7 @@ dependencies:
     - field.field.paragraph.lab_urinalysis.lab_result_notes
     - paragraphs.paragraphs_type.lab_urinalysis
   module:
+    - conditional_fields
     - options
     - text
 id: paragraph.lab_urinalysis.default
@@ -38,67 +39,265 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        c6f635f0-292d-4d50-a251-15c7eebae792:
+          uuid: c6f635f0-292d-4d50-a251-15c7eebae792
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_bil:
     type: options_select
     weight: 9
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        7d09b285-af57-4bfe-9d0e-8ff2fa5e99c0:
+          uuid: 7d09b285-af57-4bfe-9d0e-8ff2fa5e99c0
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_blo:
     type: options_select
     weight: 6
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        158235fc-3c72-43bd-a363-d88037dd9cc4:
+          uuid: 158235fc-3c72-43bd-a363-d88037dd9cc4
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_glu:
     type: options_select
     weight: 10
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        bf6fcfaf-e8da-4942-8823-810786330188:
+          uuid: bf6fcfaf-e8da-4942-8823-810786330188
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_ket:
     type: options_select
     weight: 8
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        da6b9b29-6679-4a07-9a3f-28560cf572ec:
+          uuid: da6b9b29-6679-4a07-9a3f-28560cf572ec
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_leu:
     type: options_select
     weight: 1
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        ec3b1cdc-9762-40f6-ba10-f489bf56bb7d:
+          uuid: ec3b1cdc-9762-40f6-ba10-f489bf56bb7d
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_nit:
     type: options_select
     weight: 2
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        762f2aee-0e18-4b14-863d-75c0c380e97f:
+          uuid: 762f2aee-0e18-4b14-863d-75c0c380e97f
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_ph:
     type: options_select
     weight: 5
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        7696406b-e3c0-419e-9947-efed288f8ae7:
+          uuid: 7696406b-e3c0-419e-9947-efed288f8ae7
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_pro:
     type: options_select
     weight: 4
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        898710c2-202c-4a95-8d06-4e24b266416c:
+          uuid: 898710c2-202c-4a95-8d06-4e24b266416c
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_sg:
     type: options_select
     weight: 7
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        71b5b67b-d7fc-4904-8dda-370098aedd11:
+          uuid: 71b5b67b-d7fc-4904-8dda-370098aedd11
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ua_uro:
     type: options_select
     weight: 3
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        1670fc1b-542c-4111-8ecd-eeef58ab0cb3:
+          uuid: 1670fc1b-542c-4111-8ecd-eeef58ab0cb3
+          entity_type: paragraph
+          bundle: lab_urinalysis
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
 hidden:
   created: true
   status: true

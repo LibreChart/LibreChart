@@ -8,6 +8,7 @@ dependencies:
     - field.field.paragraph.lab_hemoglobin.lab_result_notes
     - paragraphs.paragraphs_type.lab_hemoglobin
   module:
+    - conditional_fields
     - text
 id: paragraph.lab_hemoglobin.default
 targetEntityType: paragraph
@@ -20,7 +21,25 @@ content:
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        8511098a-ae62-4ef8-98f4-e6f037181448:
+          uuid: 8511098a-ae62-4ef8-98f4-e6f037181448
+          entity_type: paragraph
+          bundle: lab_hemoglobin
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   lab_ordered:
     type: boolean_checkbox
     weight: 0
@@ -35,7 +54,25 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        f5f8a44d-9c95-4134-b950-1a8fa21325a6:
+          uuid: f5f8a44d-9c95-4134-b950-1a8fa21325a6
+          entity_type: paragraph
+          bundle: lab_hemoglobin
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
 hidden:
   created: true
   status: true

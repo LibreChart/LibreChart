@@ -9,6 +9,7 @@ dependencies:
     - field.field.paragraph.lab_glucose.lab_result_notes
     - paragraphs.paragraphs_type.lab_glucose
   module:
+    - conditional_fields
     - options
     - text
 id: paragraph.lab_glucose.default
@@ -21,14 +22,50 @@ content:
     weight: 1
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        29c38166-bda6-4b5a-b1d3-a9ae8e752897:
+          uuid: 29c38166-bda6-4b5a-b1d3-a9ae8e752897
+          entity_type: paragraph
+          bundle: lab_glucose
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   glucose_value:
     type: number
     weight: 2
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        5bebe376-b20e-4376-9eba-a34854e25c28:
+          uuid: 5bebe376-b20e-4376-9eba-a34854e25c28
+          entity_type: paragraph
+          bundle: lab_glucose
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   lab_ordered:
     type: boolean_checkbox
     weight: 0
@@ -43,7 +80,25 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        a8bd1336-d268-4e5d-8d4d-090ff7d45532:
+          uuid: a8bd1336-d268-4e5d-8d4d-090ff7d45532
+          entity_type: paragraph
+          bundle: lab_glucose
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
 hidden:
   created: true
   status: true

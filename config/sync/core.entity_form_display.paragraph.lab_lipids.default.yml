@@ -14,6 +14,7 @@ dependencies:
     - field.field.paragraph.lab_lipids.lab_result_notes
     - paragraphs.paragraphs_type.lab_lipids
   module:
+    - conditional_fields
     - options
     - text
 id: paragraph.lab_lipids.default
@@ -26,27 +27,99 @@ content:
     weight: 1
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        d9d2d1b7-42eb-40ff-b6ab-125f49c0b5e0:
+          uuid: d9d2d1b7-42eb-40ff-b6ab-125f49c0b5e0
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   chol_value:
     type: number
     weight: 2
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        010826ff-7ef1-46ec-b79d-569863821dec:
+          uuid: 010826ff-7ef1-46ec-b79d-569863821dec
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   hdl_qual:
     type: options_select
     weight: 3
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        768dd46a-7ff5-4176-8323-fd53918557e7:
+          uuid: 768dd46a-7ff5-4176-8323-fd53918557e7
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   hdl_value:
     type: number
     weight: 4
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        a1f61337-8d82-4afd-b5a7-63f8eb4a6c00:
+          uuid: a1f61337-8d82-4afd-b5a7-63f8eb4a6c00
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   lab_ordered:
     type: boolean_checkbox
     weight: 0
@@ -61,27 +134,99 @@ content:
     settings:
       rows: 3
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        16f4123f-56d4-4552-ab67-0d2061e95197:
+          uuid: 16f4123f-56d4-4552-ab67-0d2061e95197
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   ldl_value:
     type: number
     weight: 7
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        64e77b19-e5d3-4fd5-b1b6-b39db08d7392:
+          uuid: 64e77b19-e5d3-4fd5-b1b6-b39db08d7392
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   trig_qual:
     type: options_select
     weight: 5
     region: content
     settings: {  }
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        934cdc2a-cd39-4331-ac1d-4095f35402ba:
+          uuid: 934cdc2a-cd39-4331-ac1d-4095f35402ba
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
   trig_value:
     type: number
     weight: 6
     region: content
     settings:
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        6a5b41fe-0770-4fd7-a862-bc2a27cc4908:
+          uuid: 6a5b41fe-0770-4fd7-a862-bc2a27cc4908
+          entity_type: paragraph
+          bundle: lab_lipids
+          dependee: lab_ordered
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: '1'
+            values:
+              - '1'
+            effect: show
+            effect_options: {  }
+            selector: ''
 hidden:
   created: true
   status: true
