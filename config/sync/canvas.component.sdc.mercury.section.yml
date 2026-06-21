@@ -1,6 +1,6 @@
 uuid: bf06f729-46a9-4400-ab0a-a330916f9e4f
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - field.field.media.image.field_media_image
@@ -17,11 +17,6 @@ dependencies:
     - mercury
 _core:
   default_config_hash: rGRCrJ3jhSWUBhV5M3owzbdD60YAzl2I7WDzMSfAf-A
-label: Section
-id: sdc.mercury.section
-source: sdc
-source_local_id: 'mercury:section'
-provider: mercury
 active_version: a917d5c9be8f2830
 versioned_properties:
   active:
@@ -147,15 +142,15 @@ versioned_properties:
               value: true
           expression: ℹ︎boolean␟value
         section_footer:
+          required: false
+          field_type: boolean
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: boolean_checkbox
           default_value:
             -
               value: true
           expression: ℹ︎boolean␟value
-          field_instance_settings: {  }
-          field_storage_settings: {  }
-          field_type: boolean
-          field_widget: boolean_checkbox
-          required: false
     fallback_metadata:
       slot_definitions:
         header_slot:
@@ -304,3 +299,8 @@ versioned_properties:
           title: Grid
         footer_slot:
           title: Footer
+label: Section
+id: sdc.mercury.section
+provider: mercury
+source: sdc
+source_local_id: 'mercury:section'

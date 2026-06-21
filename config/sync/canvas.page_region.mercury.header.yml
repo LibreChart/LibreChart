@@ -13,8 +13,8 @@ dependencies:
 _core:
   default_config_hash: '-Go975lCXI9cXfvlngFD6mPcAXMnCjJmD9IKhExTqiA'
 id: mercury.header
-theme: mercury
 region: header
+theme: mercury
 component_tree:
   '0:3b448d2f-f191-44cb-8189-2362dbf3fe18':
     uuid: 3b448d2f-f191-44cb-8189-2362dbf3fe18

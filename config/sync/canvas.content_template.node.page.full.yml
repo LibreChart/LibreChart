@@ -33,9 +33,9 @@ component_tree:
     component_id: sdc.mercury.section
     component_version: 5ef4c2af9bd07348
     inputs:
+      width: 75%
       columns: '100'
       mobile_columns: '1'
-      width: 75%
       margin_block_start: '48'
       margin_block_end: '48'
       padding_block_start: '0'

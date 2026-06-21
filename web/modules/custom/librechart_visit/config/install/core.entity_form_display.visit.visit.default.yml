@@ -183,28 +183,11 @@ content:
       conditional_fields: null
   breastfeeding:
     type: options_select
-    weight: 34
+    weight: 36
     region: content
     settings: {  }
     third_party_settings:
-      conditional_fields:
-        1b09834f-a54c-4502-9c4b-86db02b1f6b4:
-          uuid: 1b09834f-a54c-4502-9c4b-86db02b1f6b4
-          entity_type: visit
-          bundle: visit
-          dependee: patient_type
-          settings:
-            state: visible
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 2
-            value: adult
-            values:
-              - adult
-            effect: show
-            effect_options: {  }
-            selector: ''
+      conditional_fields: null
   clinic_site:
     type: options_select
     weight: 4
@@ -241,7 +224,7 @@ content:
       conditional_fields: null
   current_medications:
     type: string_textarea
-    weight: 31
+    weight: 33
     region: content
     settings:
       rows: 4
@@ -487,30 +470,13 @@ content:
       conditional_fields: null
   lmp:
     type: string_textfield
-    weight: 33
+    weight: 35
     region: content
     settings:
       size: 20
       placeholder: ''
     third_party_settings:
-      conditional_fields:
-        3124c87a-180a-42ca-8646-f73466d4d770:
-          uuid: 3124c87a-180a-42ca-8646-f73466d4d770
-          entity_type: visit
-          bundle: visit
-          dependee: patient_type
-          settings:
-            state: visible
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 2
-            value: adult
-            values:
-              - adult
-            effect: show
-            effect_options: {  }
-            selector: ''
+      conditional_fields: null
   medications:
     type: inline_entity_form_complex
     weight: 129
@@ -618,30 +584,13 @@ content:
             selector: ''
   pregnancy_history:
     type: text_textarea
-    weight: 32
+    weight: 34
     region: content
     settings:
       rows: 4
       placeholder: ''
     third_party_settings:
-      conditional_fields:
-        a88b1105-daed-4bda-a857-262efc749925:
-          uuid: a88b1105-daed-4bda-a857-262efc749925
-          entity_type: visit
-          bundle: visit
-          dependee: patient_type
-          settings:
-            state: visible
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 2
-            value: adult
-            values:
-              - adult
-            effect: show
-            effect_options: {  }
-            selector: ''
+      conditional_fields: null
   pt_interventions:
     type: select2_entity_reference
     weight: 111

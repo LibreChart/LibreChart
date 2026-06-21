@@ -1,6 +1,6 @@
 uuid: 350b4f81-9b3f-488e-a2d8-1ab0ca3ee337
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - field.field.media.image.field_media_image
