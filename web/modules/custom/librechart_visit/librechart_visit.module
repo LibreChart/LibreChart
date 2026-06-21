@@ -313,11 +313,82 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
   // text-format selector.
   _librechart_visit_force_plain_textareas($form);
 
+  // Render the Clinician Name field as a dropdown of active clinicians instead
+  // of a free-text input, so the evaluating clinician is picked from the known
+  // staff list rather than typed by hand.
+  _librechart_visit_clinician_dropdown($form);
+
   // Auto-expand only the field group that matches the current station; leave
   // all other station field groups collapsed. Runs in #after_build so it
   // executes after field_group's processors have applied the default open
   // state from form display config.
   $form['#after_build'][] = '_librechart_visit_set_active_fieldset_open';
+}
+
+/**
+ * Converts the clinician_name text field into a dropdown of clinicians.
+ *
+ * The clinician_name base field stores a plain string, but the value should be
+ * chosen from the staff who hold the 'clinician' role rather than typed freely.
+ * This replaces the textfield widget element with a select whose options are the
+ * active clinician accounts, labelled "First Last" (falling back to the account
+ * name). Options are keyed by the same label so the stored value remains a
+ * human-readable string and no schema change is required. Any pre-existing
+ * stored value is preserved as a selectable option even if that account is no
+ * longer an active clinician, so historical records stay editable.
+ *
+ * @param array<string, mixed> $form
+ *   The visit form render array.
+ */
+function _librechart_visit_clinician_dropdown(array &$form): void {
+  if (!isset($form['clinician_name']['widget'][0]['value'])) {
+    return;
+  }
+  $element = &$form['clinician_name']['widget'][0]['value'];
+
+  $options = [];
+  try {
+    $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+    $uids = $user_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('status', 1)
+      ->condition('roles', 'clinician')
+      ->execute();
+    foreach ($user_storage->loadMultiple($uids) as $account) {
+      $name = '';
+      if ($account->hasField('field_first_name') || $account->hasField('field_last_name')) {
+        $first = $account->hasField('field_first_name')
+          ? trim((string) $account->get('field_first_name')->value) : '';
+        $last = $account->hasField('field_last_name')
+          ? trim((string) $account->get('field_last_name')->value) : '';
+        $name = trim($first . ' ' . $last);
+      }
+      if ($name === '') {
+        $name = $account->getDisplayName();
+      }
+      $options[$name] = $name;
+    }
+  }
+  catch (\Exception $e) {
+    // If the user list cannot be built, leave the field as a text input.
+    return;
+  }
+
+  // Preserve any current value that is not in the clinician list (e.g. a
+  // legacy free-text entry or a former clinician) so it is not silently lost.
+  $current = $element['#default_value'] ?? NULL;
+  if (is_string($current) && $current !== '' && !isset($options[$current])) {
+    $options[$current] = $current;
+  }
+
+  natcasesort($options);
+
+  $element['#type'] = 'select';
+  $element['#options'] = $options;
+  $element['#empty_option'] = t('- Select a clinician -');
+  $element['#empty_value'] = '';
+  // Text-field-specific properties no longer apply to a select element.
+  unset($element['#size'], $element['#maxlength'], $element['#placeholder']);
 }
 
 /**
