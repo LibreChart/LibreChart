@@ -336,6 +336,7 @@ class Visit extends ContentEntityBase {
         'lab' => new TranslatableMarkup('Lab Orders & Results'),
         'clinical' => new TranslatableMarkup('Clinical Evaluation'),
         'pt' => new TranslatableMarkup('Physical Therapy'),
+        'optometry' => new TranslatableMarkup('Optometry'),
         'education' => new TranslatableMarkup('Education'),
         'pharmacy' => new TranslatableMarkup('Pharmacy Dispensing'),
         'discharge' => new TranslatableMarkup('Discharge'),
@@ -693,6 +694,18 @@ class Visit extends ContentEntityBase {
       ->setSetting('max_length', 256)
       ->setDisplayOptions('form', ['type' => 'string_textfield', 'weight' => 97])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'string', 'weight' => 97])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Optometry station — an optional, opt-in side station reached via the
+    // station picker. Its single free-text Notes field lives in the
+    // `group_optometry` fieldset, which sits between Physical Therapy and
+    // Education.
+    $fields['optometry_notes'] = BaseFieldDefinition::create('text_long')
+      ->setLabel(new TranslatableMarkup('Notes'))
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', ['type' => 'text_textarea', 'weight' => 60])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'text_default', 'weight' => 60])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 

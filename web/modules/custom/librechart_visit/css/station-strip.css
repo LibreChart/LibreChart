@@ -56,6 +56,10 @@
 .station-strip__step--current[data-station="pt"] { background: #f97316; }
 .station-strip__step--done[data-station="pt"] { background: #ffedd5; color: #7c2d12; }
 
+.station-strip__step[data-station="optometry"] { border-color: #06b6d4; }
+.station-strip__step--current[data-station="optometry"] { background: #06b6d4; }
+.station-strip__step--done[data-station="optometry"] { background: #cffafe; color: #164e63; }
+
 .station-strip__step[data-station="pharmacy"] { border-color: #ec4899; }
 .station-strip__step--current[data-station="pharmacy"] { background: #ec4899; }
 .station-strip__step--done[data-station="pharmacy"] { background: #fce7f3; color: #831843; }
@@ -89,6 +93,7 @@
 .floor-board__column[data-station="lab"]           { border-top-color: #eab308; }
 .floor-board__column[data-station="clinical"]      { border-top-color: #8b5cf6; }
 .floor-board__column[data-station="pt"]            { border-top-color: #f97316; }
+.floor-board__column[data-station="optometry"]     { border-top-color: #06b6d4; }
 .floor-board__column[data-station="pharmacy"]      { border-top-color: #ec4899; }
 .floor-board__column[data-station="education"]      { border-top-color: #16a34a; }
 .floor-board__column[data-station="discharge"]      { border-top-color: #0d9488; }

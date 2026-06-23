@@ -32,6 +32,7 @@ final class StationWorkflow {
     'lab',
     'clinical',
     'pt',
+    'optometry',
     'education',
     'pharmacy',
     'discharge',
@@ -81,6 +82,7 @@ final class StationWorkflow {
       'lab' => (string) $this->t('Lab Orders & Results'),
       'clinical' => (string) $this->t('Clinical Evaluation'),
       'pt' => (string) $this->t('Physical Therapy'),
+      'optometry' => (string) $this->t('Optometry'),
       'pharmacy' => (string) $this->t('Pharmacy Dispensing'),
       'education' => (string) $this->t('Education'),
       'discharge' => (string) $this->t('Discharge'),
@@ -128,6 +130,11 @@ final class StationWorkflow {
       'lab' => 'clinical',
       'clinical' => ((bool) $visit->get('pt_referral')->value) ? 'pt' : 'education',
       'pt' => 'education',
+      // Optometry is an opt-in side station: no rule routes into it (the linear
+      // flow never auto-advances here), so it is reached only via the station
+      // picker. When a visit is manually at optometry, "next" exits to
+      // education — its position in the canonical order.
+      'optometry' => 'education',
       'education' => 'pharmacy',
       'pharmacy' => 'discharge',
       'discharge' => NULL,

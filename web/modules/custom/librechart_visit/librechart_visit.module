@@ -544,6 +544,7 @@ function _librechart_visit_station_field_group_map(): array {
     'lab' => 'group_lab',
     'clinical' => 'group_clinical',
     'pt' => 'group_pt',
+    'optometry' => 'group_optometry',
     'pharmacy' => 'group_pharmacy',
     'education' => 'group_education',
     'discharge' => 'group_discharge',

@@ -417,6 +417,24 @@ function librechart_visit_update_9017(): void {
 }
 
 /**
+ * Adds the Optometry station's `optometry_notes` field.
+ *
+ * Installs storage for the single free-text Notes field that backs the new
+ * optional Optometry station. The station itself comes from code
+ * (StationWorkflow::WORKFLOW_STATIONS and the current_station allowed values);
+ * only the field needs storage installed on already-deployed sites. Fresh
+ * sites pick the field up from Visit::baseFieldDefinitions().
+ */
+function librechart_visit_update_9018(): void {
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['optometry_notes'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface) {
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition('optometry_notes', 'visit', 'librechart_visit', $definition);
+  }
+}
+
+/**
  * Migrates current_station 'teaching' to 'education' in all storage tables.
  */
 function _librechart_visit_migrate_teaching_station(): void {

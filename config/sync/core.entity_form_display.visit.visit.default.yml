@@ -110,6 +110,20 @@ third_party_settings:
         open: false
         description: ''
         required_fields: false
+    group_optometry:
+      children:
+        - optometry_notes
+      label: Optometry
+      region: content
+      parent_name: ''
+      weight: 45
+      format_type: details
+      format_settings:
+        classes: field-group-optometry
+        id: ''
+        open: false
+        description: ''
+        required_fields: false
     group_education:
       children:
         - education_referrals
@@ -650,6 +664,15 @@ content:
             effect: show
             effect_options: {  }
             selector: ''
+  optometry_notes:
+    type: text_textarea
+    weight: 60
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings:
+      conditional_fields: null
   pt_notes:
     type: text_textarea
     weight: 110
