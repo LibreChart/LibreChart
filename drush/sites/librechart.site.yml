@@ -1,0 +1,17 @@
+# Drush site aliases for Librechart.
+#
+# The production EMR is a native Apache deployment on the onsite Ubuntu box
+# `laughh` (192.168.0.66) — NOT DDEV. Reached over SSH as the `aaron` user.
+# Drupal lives at /var/www/html/laughh with the docroot at .../web.
+#
+# Usage (from the project root on a machine that can SSH to laughh):
+#   drush site:alias @librechart.prod        # confirm the alias resolves
+#   drush @librechart.prod status            # confirm drush bootstraps on prod
+#
+# Initial data seed (push LOCAL -> PROD, destructive overwrite of prod):
+#   drush sql:sync @self @librechart.prod -y
+prod:
+  host: 192.168.0.66
+  user: aaron
+  root: /var/www/html/laughh/web
+  uri: 'http://laughh.emr'
