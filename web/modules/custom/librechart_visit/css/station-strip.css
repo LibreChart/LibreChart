@@ -172,8 +172,11 @@
    (dark name colors give a dark ghost; white split-band names give a white
    ghost). width:auto preserves the icon's aspect ratio. */
 .floor-ghost {
+  display: inline-block;
+  /* Ghost viewBox is 384x512 (0.75 ratio); size both axes so the icon stays
+     inline beside the name and never expands to its intrinsic 384px width. */
+  width: 0.7em;
   height: 0.9em;
-  width: auto;
   margin-right: 0.3em;
   vertical-align: -0.08em;
   fill: currentColor;
