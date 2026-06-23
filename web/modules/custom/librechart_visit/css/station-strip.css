@@ -166,6 +166,24 @@
      1px  1px 0 rgba(0, 0, 0, 0.65);
 }
 
+/* Stalled-visit flag: a ghost icon before the name when a patient has waited
+   in a station over two hours. The icon inherits the name's text color via
+   currentColor, so it meets the same contrast as the text on every background
+   (dark name colors give a dark ghost; white split-band names give a white
+   ghost). width:auto preserves the icon's aspect ratio. */
+.floor-ghost {
+  height: 0.9em;
+  width: auto;
+  margin-right: 0.3em;
+  vertical-align: -0.08em;
+  fill: currentColor;
+}
+/* On split (multi-specialty) backgrounds the name uses an outline to stay
+   readable; give the ghost the same so it reads across any color band. */
+.floor-board__body li a.has-specialty--split .floor-ghost {
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.65));
+}
+
 /* Specialty color key beneath the board. */
 .floor-legend {
   margin: 1.5rem 0 0.5rem;
@@ -181,6 +199,9 @@
   letter-spacing: 0.03em;
   color: #52525b;
   margin-bottom: 0.5rem;
+}
+.floor-legend__title--status {
+  margin-top: 0.75rem;
 }
 .floor-legend__list {
   list-style: none;

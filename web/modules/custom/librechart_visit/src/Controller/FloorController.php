@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\librechart_visit\Controller;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\librechart_visit\Service\StationWorkflow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,6 +25,7 @@ final class FloorController extends ControllerBase {
    */
   public function __construct(
     private readonly StationWorkflow $workflow,
+    private readonly TimeInterface $time,
   ) {}
 
   /**
@@ -31,6 +34,7 @@ final class FloorController extends ControllerBase {
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('librechart_visit.station_workflow'),
+      $container->get('datetime.time'),
     );
   }
 
@@ -47,6 +51,25 @@ final class FloorController extends ControllerBase {
    * meta refresh reloads the whole page without any JavaScript dependency.
    */
   private const REFRESH_SECONDS = 30;
+
+  /**
+   * How long (in seconds) a visit may sit at a station before it is flagged.
+   *
+   * Once a patient has been in the same station queue longer than this, the
+   * floor board marks the name with a ghost icon so staff can spot stalled
+   * visits at a glance. Two hours.
+   */
+  private const STALE_AFTER_SECONDS = 7200;
+
+  /**
+   * Inline FontAwesome 5 "ghost" (solid) icon, flagging a stalled visit.
+   *
+   * Inlined as SVG rather than loaded from the FontAwesome webfont so it stays
+   * self-hosted (the EMR runs on an offline LAN). `fill: currentColor` makes it
+   * inherit the name's already contrast-corrected text color on every
+   * background, so it meets the same contrast as the text.
+   */
+  private const GHOST_ICON = '<svg class="floor-ghost" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M186.1.09C81.01 3.24 0 94.92 0 200.05v263.92c0 14.26 17.23 21.39 27.31 11.31l24.92-18.53c6.66-4.95 16-3.99 21.51 2.21l42.95 48.35c6.25 6.25 16.38 6.25 22.63 0l40.72-45.85c6.37-7.17 17.56-7.17 23.92 0l40.72 45.85c6.25 6.25 16.38 6.25 22.63 0l42.95-48.35c5.51-6.2 14.85-7.17 21.51-2.21l24.92 18.53c10.08 10.08 27.31 2.94 27.31-11.31V192C384 84 294.83-3.17 186.1.09zM128 224c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32zm128 0c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"/></svg>';
 
   /**
    * Builds the board render array.
@@ -97,11 +120,14 @@ final class FloorController extends ControllerBase {
     /** @var array<int, \Drupal\Core\Entity\ContentEntityInterface> $patients */
     $patients = $patient_ids ? $patient_storage->loadMultiple(array_keys($patient_ids)) : [];
 
+    // Stamp "now" once so every row is judged stale against the same instant.
+    $now = $this->time->getRequestTime();
+
     $columns = [];
     foreach ($this->workflow->workflowStations() as $station) {
       $items = [];
       foreach ($by_station[$station] as $visit) {
-        $items[] = $this->buildVisitRow($visit, $patients, $station, $specialties);
+        $items[] = $this->buildVisitRow($visit, $patients, $station, $specialties, $now);
       }
       $columns[$station] = [
         '#type' => 'container',
@@ -238,6 +264,30 @@ final class FloorController extends ControllerBase {
         '#items' => $items,
         '#attributes' => ['class' => ['floor-legend__list']],
       ],
+      // A second key explaining the ghost flag, so wall-display viewers know
+      // what the icon before a name means.
+      'status_title' => [
+        '#type' => 'html_tag',
+        '#tag' => 'span',
+        '#attributes' => ['class' => ['floor-legend__title', 'floor-legend__title--status']],
+        '#value' => $this->t('Status'),
+      ],
+      'status_list' => [
+        '#theme' => 'item_list',
+        '#items' => [
+          [
+            '#wrapper_attributes' => ['class' => ['floor-legend__item']],
+            'icon' => ['#markup' => Markup::create(self::GHOST_ICON)],
+            'label' => [
+              '#type' => 'html_tag',
+              '#tag' => 'span',
+              '#attributes' => ['class' => ['floor-legend__label']],
+              '#value' => $this->t('Inactive for more than 2 hours'),
+            ],
+          ],
+        ],
+        '#attributes' => ['class' => ['floor-legend__list']],
+      ],
     ];
   }
 
@@ -252,23 +302,45 @@ final class FloorController extends ControllerBase {
    *   The column's station; coloring only applies to the clinical station.
    * @param array<int, array{name: string, color: string}> $specialties
    *   Specialty terms keyed by id.
+   * @param int $now
+   *   The current request time, used to detect stalled visits.
    *
    * @return array<string, mixed>
    *   Render array for one list item.
    */
-  private function buildVisitRow(ContentEntityInterface $visit, array $patients, string $station, array $specialties): array {
+  private function buildVisitRow(ContentEntityInterface $visit, array $patients, string $station, array $specialties, int $now): array {
     $pid = (int) ($visit->get('patient')->target_id ?? 0);
     $patient = $patients[$pid] ?? NULL;
     $last = $patient ? $patient->get('last_name')->value : $this->t('Unknown');
     $first = $patient ? $patient->get('first_name')->value : '';
+    $name = $this->t('@last, @first', [
+      '@last' => $last,
+      '@first' => $first,
+    ]);
     $link = [
       '#type' => 'link',
-      '#title' => $this->t('@last, @first', [
-        '@last' => $last,
-        '@first' => $first,
-      ]),
+      '#title' => $name,
       '#url' => $patient ? $patient->toUrl('edit-form') : $visit->toUrl('edit-form'),
     ];
+
+    // Flag a visit that has sat in this station queue longer than the stale
+    // threshold with a ghost icon before the name. The icon lives inside the
+    // link so it inherits the name's (contrast-corrected) text color.
+    $entered = (int) ($visit->get('station_entered')->value ?? 0);
+    if ($entered > 0 && ($now - $entered) > self::STALE_AFTER_SECONDS) {
+      $link['#attributes']['class'][] = 'is-stale';
+      $link['#attributes']['title'] = $this->t('Inactive for more than 2 hours');
+      $link['#title'] = [
+        'icon' => ['#markup' => Markup::create(self::GHOST_ICON)],
+        'note' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['visually-hidden']],
+          '#value' => $this->t('Inactive for more than 2 hours:'),
+        ],
+        'name' => ['#markup' => $name],
+      ];
+    }
 
     // In the Clinical Evaluation column, tint the name with the patient's
     // specialty colors. A single specialty fills the background; a patient
