@@ -435,6 +435,69 @@ function librechart_visit_update_9018(): void {
 }
 
 /**
+ * Adds the `station_entered` field and backfills it from revision history.
+ *
+ * The floor board orders each column by station_entered so every station is a
+ * true arrival queue. Existing visits predate the field, so reconstruct each
+ * one's entry time into its current station by walking its revisions and taking
+ * the revision-creation time of the most recent transition into that station.
+ * Values are written directly to the base and current-revision rows to avoid
+ * minting an extra revision (and tripping the optimistic-lock check) per visit.
+ */
+function librechart_visit_update_9019(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['station_entered'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface
+    && !$manager->getFieldStorageDefinition('station_entered', 'visit')) {
+    $manager->installFieldStorageDefinition('station_entered', 'visit', 'librechart_visit', $definition);
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('visit');
+  $database = \Drupal::database();
+  $vids = $storage->getQuery()->accessCheck(FALSE)->execute();
+  foreach ($vids as $vid) {
+    $visit = $storage->load($vid);
+    if (!$visit instanceof ContentEntityInterface) {
+      continue;
+    }
+    // Walk revisions oldest-first; the entry time is the revision-creation time
+    // of the latest revision whose station differs from the one before it.
+    $rev_ids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->allRevisions()
+      ->condition('vid', $vid)
+      ->sort('revision_id', 'ASC')
+      ->execute();
+    $previous = NULL;
+    $entered = NULL;
+    foreach (array_keys($rev_ids) as $rid) {
+      $revision = $storage->loadRevision($rid);
+      $station = (string) $revision->get('current_station')->value;
+      if ($station !== $previous) {
+        $entered = (int) $revision->getRevisionCreationTime();
+        $previous = $station;
+      }
+    }
+    // Fall back to the visit date when no revision carried a usable timestamp.
+    if (!$entered) {
+      $raw = (string) $visit->get('visit_date')->value;
+      $entered = $raw
+        ? (ctype_digit($raw) ? (int) $raw : (int) strtotime(substr($raw, 0, 19)))
+        : (int) $visit->get('changed')->value;
+    }
+    $database->update('visit')
+      ->fields(['station_entered' => $entered])
+      ->condition('vid', $vid)
+      ->execute();
+    $database->update('visit_revision')
+      ->fields(['station_entered' => $entered])
+      ->condition('revision_id', (int) $visit->getRevisionId())
+      ->execute();
+  }
+}
+
+/**
  * Migrates current_station 'teaching' to 'education' in all storage tables.
  */
 function _librechart_visit_migrate_teaching_station(): void {

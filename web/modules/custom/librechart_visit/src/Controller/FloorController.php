@@ -60,11 +60,14 @@ final class FloorController extends ControllerBase {
     // keeps the order admins set on the vocabulary.
     $specialties = $this->loadSpecialties();
 
-    // Single query for all in-progress visits, ordered by visit_date ASC
-    // so the longest-waiting patient appears at the top of each column.
+    // Single query for all in-progress visits, ordered by station_entered ASC
+    // so each column is a true arrival-at-station queue: the patient who has
+    // been waiting at that station longest appears at the top. visit_date is a
+    // stable tiebreaker (and a fallback for any visit without a stamp yet).
     $vids = $visit_storage->getQuery()
       ->accessCheck(TRUE)
       ->condition('status', 'complete', '!=')
+      ->sort('station_entered', 'ASC')
       ->sort('visit_date', 'ASC')
       ->execute();
     $visits = $vids ? $visit_storage->loadMultiple($vids) : [];

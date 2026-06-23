@@ -205,6 +205,17 @@ class Visit extends ContentEntityBase {
       }
     }
 
+    // Stamp when the visit entered its current station so the floor board can
+    // order each column by true arrival-at-station time. Set on creation and
+    // whenever current_station changes (linear advance, picker, or reopen).
+    $station = (string) $this->get('current_station')->value;
+    $entered_station = !$this->isNew()
+      && $this->original instanceof self
+      && (string) $this->original->get('current_station')->value !== $station;
+    if ($this->isNew() || $entered_station) {
+      $this->set('station_entered', \Drupal::time()->getRequestTime());
+    }
+
     // BMI is always derived from height (cm) and weight (kg); it is never
     // entered by hand (the form input is disabled). Recalculate on every save
     // and clear it when either input is missing so a stale value cannot
@@ -354,6 +365,11 @@ class Visit extends ContentEntityBase {
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    $fields['station_entered'] = BaseFieldDefinition::create('timestamp')
+      ->setLabel(new TranslatableMarkup('Station entered'))
+      ->setDescription(new TranslatableMarkup('When the visit entered its current station. Orders each floor-board column by true arrival-at-station time.'))
+      ->setRevisionable(TRUE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(new TranslatableMarkup('Changed'))
