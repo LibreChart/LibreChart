@@ -303,6 +303,12 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
   // value and notes inputs are clearly attributed to a test.
   _librechart_visit_label_lab_result_tests($form, $form_state);
 
+  // Lab result values are editable only by lab technicians, so on an edit form
+  // every other role sees the lab paragraphs with the value inputs stripped.
+  // Clinicians and triage nurses order tests and must read the results, so
+  // render the entered values read-only wherever field access hid the input.
+  _librechart_visit_show_readonly_lab_results($form, $form_state);
+
   // BMI is derived from height and weight: make it read-only and recalculate
   // it live as those values change (the authoritative value is computed in
   // Visit::preSave()).
@@ -443,6 +449,64 @@ function _librechart_visit_label_lab_result_tests(array &$form, FormStateInterfa
       '#weight' => $subform['lab_test']['#weight'] ?? 0,
       '#wrapper_attributes' => ['class' => ['lab-result-test-name']],
     ];
+    unset($subform);
+  }
+}
+
+/**
+ * Renders lab result values read-only for users who cannot edit them.
+ *
+ * Lab result values are entered by lab technicians and are therefore edit-
+ * forbidden for every other role (see librechart_lab_entity_field_access()).
+ * Because an entity edit form only renders fields the current user may edit,
+ * clinicians and triage nurses — who order the tests and must read the results
+ * to evaluate the patient — would otherwise see the lab paragraphs with the
+ * value inputs missing entirely. For each result field hidden by field access,
+ * inject a read-only rendering of the stored value so the results stay visible.
+ *
+ * @param array<string, mixed> $form
+ *   The visit form render array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current form state.
+ */
+function _librechart_visit_show_readonly_lab_results(array &$form, FormStateInterface $form_state): void {
+  if (!isset($form['lab_results']['widget']) || !is_array($form['lab_results']['widget'])) {
+    return;
+  }
+  $visit = _librechart_visit_get_form_entity($form_state);
+  if (!$visit instanceof ContentEntityInterface || !$visit->hasField('lab_results')) {
+    return;
+  }
+  $paragraphs = $visit->get('lab_results')->referencedEntities();
+
+  foreach (Element::children($form['lab_results']['widget']) as $delta) {
+    if (!is_numeric($delta) || !isset($form['lab_results']['widget'][$delta]['subform'])) {
+      continue;
+    }
+    $paragraph = $paragraphs[$delta] ?? NULL;
+    if (!$paragraph instanceof ContentEntityInterface) {
+      continue;
+    }
+    $subform = &$form['lab_results']['widget'][$delta]['subform'];
+    foreach (Element::children($subform) as $field_name) {
+      // Leave editable fields alone; lab_test has its own read-only label
+      // injected by _librechart_visit_label_lab_result_tests().
+      if (($subform[$field_name]['#access'] ?? TRUE) !== FALSE || $field_name === 'lab_test') {
+        continue;
+      }
+      // Only surface real paragraph fields that hold a value.
+      if (!$paragraph->hasField($field_name) || $paragraph->get($field_name)->isEmpty()) {
+        continue;
+      }
+      $items = $paragraph->get($field_name);
+      $subform[$field_name . '_readonly'] = [
+        '#type' => 'item',
+        '#title' => $items->getFieldDefinition()->getLabel(),
+        '#weight' => $subform[$field_name]['#weight'] ?? 0,
+        '#wrapper_attributes' => ['class' => ['lab-result-readonly']],
+        'value' => $items->view(['label' => 'hidden']),
+      ];
+    }
     unset($subform);
   }
 }
