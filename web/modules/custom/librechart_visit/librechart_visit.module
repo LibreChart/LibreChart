@@ -899,12 +899,15 @@ function librechart_visit_entity_field_access(
       ->addCacheContexts($cache);
   }
 
-  // Clinical Evaluation fields — editable only by clinician.
+  // Clinical Evaluation fields — editable only by clinician. Includes the
+  // TED Stockings toggle and the POS referral fields, which render inside the
+  // Clinical Evaluation field group (group_pos is a child of group_clinical).
   $clinical_fields = [
     'clinician_name', 'clinical_notes', 'dx_write_in', 'pt_referral',
     'dx_cardiac', 'dx_derm', 'dx_endo', 'dx_ent', 'dx_eye', 'dx_gi',
     'dx_gyn_ob', 'dx_mental_health', 'dx_muscular_skeletal', 'dx_neuro',
     'dx_resp', 'dx_uro_genital', 'dx_vascular', 'dx_wound_ostomy',
+    'ted_stockings', 'pos', 'pos_details',
   ];
   if (in_array($field_name, $clinical_fields, TRUE)) {
     if (in_array('clinician', $roles, TRUE)) {
@@ -925,12 +928,9 @@ function librechart_visit_entity_field_access(
   }
 
   // Education & Referrals fields — editable only by teaching_coordinator
-  // (the role that owns the renamed Education station). Includes the new
-  // education referrals and POS fields (feature 005).
+  // (the role that owns the renamed Education station).
   $education_fields = [
     'education_referrals',
-    'pos',
-    'pos_details',
   ];
   if (in_array($field_name, $education_fields, TRUE)) {
     if (in_array('teaching_coordinator', $roles, TRUE)) {
