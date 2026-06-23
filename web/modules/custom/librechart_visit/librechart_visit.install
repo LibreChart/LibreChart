@@ -334,6 +334,7 @@ function librechart_visit_update_9013(): void {
 function librechart_visit_install(): void {
   \Drupal\librechart_visit\Entity\Visit::seedSpecialties();
   \Drupal\librechart_visit\Entity\Visit::seedEducation();
+  \Drupal\librechart_visit\Entity\Visit::seedPediatricEvalVocabularies();
 }
 
 /**
@@ -390,6 +391,29 @@ function librechart_visit_update_9016(): void {
     \Drupal::entityDefinitionUpdateManager()
       ->installFieldStorageDefinition('reactions', 'visit', 'librechart_visit', $definition);
   }
+}
+
+/**
+ * Adds the pediatric clinical-eval fields and the TED Stockings toggle.
+ *
+ * Installs storage for the three pediatric-only reference fields
+ * (congenital_abnormality, neuro_peds, nutrition) and the standalone
+ * ted_stockings boolean, then seeds the backing vocabularies and their starter
+ * terms. Fresh sites pick the fields up from Visit::baseFieldDefinitions() and
+ * the seed from librechart_visit_install(); already-deployed sites need this
+ * hook. The three reference fields are revealed on the form only when Patient
+ * Type is "pediatric", via conditional_fields dependencies in the form display.
+ */
+function librechart_visit_update_9017(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definitions = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('visit');
+  foreach (['congenital_abnormality', 'neuro_peds', 'nutrition', 'ted_stockings'] as $name) {
+    $definition = $definitions[$name] ?? NULL;
+    if ($definition instanceof FieldStorageDefinitionInterface) {
+      $manager->installFieldStorageDefinition($name, 'visit', 'librechart_visit', $definition);
+    }
+  }
+  \Drupal\librechart_visit\Entity\Visit::seedPediatricEvalVocabularies();
 }
 
 /**

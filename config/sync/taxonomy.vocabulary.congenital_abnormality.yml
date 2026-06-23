@@ -1,0 +1,9 @@
+uuid: cbab33fd-28cd-4bbf-aa7d-e6318b10576c
+langcode: en
+status: true
+dependencies: {  }
+name: 'Congenital Abnormality'
+vid: congenital_abnormality
+description: null
+weight: 0
+new_revision: false

@@ -77,7 +77,11 @@ third_party_settings:
         - dx_vascular
         - dx_wound_ostomy
         - dx_write_in
+        - congenital_abnormality
+        - neuro_peds
+        - nutrition
         - pt_referral
+        - ted_stockings
         - group_pos
       label: 'Clinical Evaluation'
       region: content
@@ -672,9 +676,89 @@ content:
             effect: show
             effect_options: {  }
             selector: ''
+  congenital_abnormality:
+    type: options_buttons
+    weight: 54
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        1a40a99c-f6f6-47fd-9873-2b14e711c04c:
+          uuid: 1a40a99c-f6f6-47fd-9873-2b14e711c04c
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: pediatric
+            values:
+              - pediatric
+            effect: show
+            effect_options: {  }
+            selector: ''
+  neuro_peds:
+    type: options_buttons
+    weight: 55
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        bf5d7346-050c-4afe-b1a2-34a9810a3c71:
+          uuid: bf5d7346-050c-4afe-b1a2-34a9810a3c71
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: pediatric
+            values:
+              - pediatric
+            effect: show
+            effect_options: {  }
+            selector: ''
+  nutrition:
+    type: options_buttons
+    weight: 56
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        82f9746f-c487-441c-9e4d-93963929d9f4:
+          uuid: 82f9746f-c487-441c-9e4d-93963929d9f4
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: pediatric
+            values:
+              - pediatric
+            effect: show
+            effect_options: {  }
+            selector: ''
+  ted_stockings:
+    type: boolean_checkbox
+    weight: 58
+    region: content
+    settings:
+      display_label: true
+    third_party_settings:
+      conditional_fields: null
   pt_referral:
     type: boolean_checkbox
-    weight: 56
+    weight: 57
     region: content
     settings:
       display_label: true

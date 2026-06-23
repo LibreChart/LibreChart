@@ -121,6 +121,55 @@ class Visit extends ContentEntityBase {
   ];
 
   /**
+   * The pediatric clinical-evaluation vocabularies and their starter terms.
+   *
+   * Each entry maps a vocabulary id to its human label and starter term list.
+   * The vocabularies back the pediatric-only `congenital_abnormality`,
+   * `neuro_peds`, and `nutrition` reference fields. Admins can extend the term
+   * lists through the taxonomy UI after install, so these only bootstrap a
+   * fresh or upgrading site.
+   *
+   * @var array<string, array{label: string, terms: string[]}>
+   */
+  public const PEDIATRIC_EVAL_SEED = [
+    'congenital_abnormality' => [
+      'label' => 'Congenital Abnormality',
+      'terms' => [
+        "Cleft Palate / Lip",
+        "Down's Syndrome",
+        'Extremity Deformity',
+        'Genetic Abnormality',
+        'Scoliosis',
+        'Spina Bifida',
+      ],
+    ],
+    'neuro_peds' => [
+      'label' => 'Neuro (Peds)',
+      'terms' => [
+        'Cerebral Palsy',
+        'Delayed Speech',
+        'Development Delay',
+        'Epilepsy',
+        'Headache',
+        'Learning Disability',
+        'Migraine',
+        'Seizure',
+      ],
+    ],
+    'nutrition' => [
+      'label' => 'Nutrition',
+      'terms' => [
+        'Anemia',
+        'Dehydration',
+        'Failure to Thrive',
+        'Malnutrition',
+        'Obesity',
+        'Well Check',
+      ],
+    ],
+  ];
+
+  /**
    * {@inheritdoc}
    *
    * Implements optimistic locking: if the changed timestamp in the database
@@ -447,6 +496,61 @@ class Visit extends ContentEntityBase {
       ])
       ->setDisplayOptions('form', ['type' => 'options_buttons', 'weight' => 32])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 32])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Pediatric-only clinical evaluation fields. Each references a dedicated
+    // vocabulary and is revealed on the form only when Patient Type is
+    // "pediatric" (conditional_fields dependency in the form display config).
+    $fields['congenital_abnormality'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Congenital Abnormality'))
+      ->setRevisionable(TRUE)
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', [
+        'target_bundles' => ['congenital_abnormality' => 'congenital_abnormality'],
+      ])
+      ->setDisplayOptions('form', ['type' => 'options_buttons', 'weight' => 54])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 54])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['neuro_peds'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Neuro (Peds)'))
+      ->setRevisionable(TRUE)
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', [
+        'target_bundles' => ['neuro_peds' => 'neuro_peds'],
+      ])
+      ->setDisplayOptions('form', ['type' => 'options_buttons', 'weight' => 55])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 55])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['nutrition'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Nutrition'))
+      ->setRevisionable(TRUE)
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('handler', 'default:taxonomy_term')
+      ->setSetting('handler_settings', [
+        'target_bundles' => ['nutrition' => 'nutrition'],
+      ])
+      ->setDisplayOptions('form', ['type' => 'options_buttons', 'weight' => 56])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'entity_reference_label', 'weight' => 56])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Standalone discharge toggle shown after the PT Referral checkbox. It is
+    // informational only and does not control or depend on any other field.
+    $fields['ted_stockings'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('TED Stockings'))
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 58])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 58])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -872,6 +976,41 @@ class Visit extends ContentEntityBase {
         'vid' => 'education',
         'name' => $name,
       ])->save();
+    }
+  }
+
+  /**
+   * Seeds the pediatric clinical-evaluation vocabularies and their terms.
+   *
+   * Creates each vocabulary if it does not yet exist, then seeds the starter
+   * terms. Idempotent: vocabularies and terms are only created when missing, so
+   * re-running (fresh install plus update hook) never duplicates anything and
+   * leaves admin additions untouched.
+   *
+   * @see \Drupal\librechart_visit\Entity\Visit::PEDIATRIC_EVAL_SEED
+   */
+  public static function seedPediatricEvalVocabularies(): void {
+    $vocab_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_vocabulary');
+    $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    foreach (static::PEDIATRIC_EVAL_SEED as $vid => $info) {
+      if ($vocab_storage->load($vid) === NULL) {
+        $vocab_storage->create([
+          'vid' => $vid,
+          'name' => $info['label'],
+        ])->save();
+      }
+      foreach ($info['terms'] as $name) {
+        $existing = $term_storage->getQuery()
+          ->accessCheck(FALSE)
+          ->condition('vid', $vid)
+          ->condition('name', $name)
+          ->range(0, 1)
+          ->execute();
+        if (!empty($existing)) {
+          continue;
+        }
+        $term_storage->create(['vid' => $vid, 'name' => $name])->save();
+      }
     }
   }
 
