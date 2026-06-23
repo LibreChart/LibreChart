@@ -40,6 +40,15 @@ final class FloorController extends ControllerBase {
   private const CLINICAL_STATION = 'clinical';
 
   /**
+   * How often (in seconds) the floor board reloads itself.
+   *
+   * The board is a passive display (typically a wall-mounted screen), so it
+   * must refresh on its own to reflect patients moving between stations. A
+   * meta refresh reloads the whole page without any JavaScript dependency.
+   */
+  private const REFRESH_SECONDS = 30;
+
+  /**
    * Builds the board render array.
    */
   public function board(): array {
@@ -116,11 +125,28 @@ final class FloorController extends ControllerBase {
     }
 
     return [
-      '#attached' => ['library' => ['librechart_visit/station_strip']],
+      '#attached' => [
+        'library' => ['librechart_visit/station_strip'],
+        // Auto-reload the board so it tracks patients moving between stations
+        // without anyone touching the wall display.
+        'html_head' => [
+          [
+            [
+              '#tag' => 'meta',
+              '#attributes' => [
+                'http-equiv' => 'refresh',
+                'content' => (string) self::REFRESH_SECONDS,
+              ],
+            ],
+            'floor_board_refresh',
+          ],
+        ],
+      ],
       '#cache' => [
-        // taxonomy_term_list covers specialty term/color edits so the board's
-        // colors and legend refresh when an admin changes a specialty.
-        'tags' => ['visit_list', 'patient_list', 'taxonomy_term_list'],
+        // The board must always reflect live station positions, so it is never
+        // page-cached: each (auto-)reload rebuilds from the current data and no
+        // stale copy is held by the browser or an intermediary.
+        'max-age' => 0,
         'contexts' => ['user.permissions'],
       ],
       'board' => [
