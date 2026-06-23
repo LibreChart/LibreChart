@@ -9,6 +9,7 @@ dependencies:
     - file
     - honeypot
     - klaro
+    - librechart_visit
     - media
     - navigation
     - node
@@ -26,9 +27,12 @@ permissions:
   - 'access contextual links'
   - 'access navigation'
   - 'bypass honeypot protection'
+  - 'create visit entities'
   - 'delete own files'
+  - 'edit any visit entities'
   - 'skip CAPTCHA'
   - 'use klaro'
   - 'view media'
   - 'view own unpublished content'
   - 'view the administration theme'
+  - 'view visit entities'

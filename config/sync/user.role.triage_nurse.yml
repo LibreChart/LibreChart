@@ -5,12 +5,14 @@ dependencies:
   module:
     - librechart_dictation
     - librechart_patient
+    - librechart_pharmacy
     - librechart_visit
 id: triage_nurse
 label: Triage
 weight: 5
 is_admin: false
 permissions:
+  - 'create visit entities'
   - 'edit any patient entities'
   - 'edit any visit entities'
   - 'use dictation'
