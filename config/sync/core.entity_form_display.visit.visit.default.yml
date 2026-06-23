@@ -241,6 +241,30 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields: null
+  congenital_abnormality:
+    type: options_buttons
+    weight: 54
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        1a40a99c-f6f6-47fd-9873-2b14e711c04c:
+          uuid: 1a40a99c-f6f6-47fd-9873-2b14e711c04c
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: pediatric
+            values:
+              - pediatric
+            effect: show
+            effect_options: {  }
+            selector: ''
   current_medications:
     type: string_textarea
     weight: 33
@@ -514,6 +538,30 @@ content:
       revision: false
       removed_reference: optional
     third_party_settings: {  }
+  neuro_peds:
+    type: options_buttons
+    weight: 55
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        bf5d7346-050c-4afe-b1a2-34a9810a3c71:
+          uuid: bf5d7346-050c-4afe-b1a2-34a9810a3c71
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: pediatric
+            values:
+              - pediatric
+            effect: show
+            effect_options: {  }
+            selector: ''
   non_formulary_medications:
     type: inline_entity_form_complex
     weight: 130
@@ -535,6 +583,39 @@ content:
   notes_to_pharmacist:
     type: string_textarea
     weight: 131
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings:
+      conditional_fields: null
+  nutrition:
+    type: options_buttons
+    weight: 56
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        82f9746f-c487-441c-9e4d-93963929d9f4:
+          uuid: 82f9746f-c487-441c-9e4d-93963929d9f4
+          entity_type: visit
+          bundle: visit
+          dependee: patient_type
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 2
+            value: pediatric
+            values:
+              - pediatric
+            effect: show
+            effect_options: {  }
+            selector: ''
+  optometry_notes:
+    type: text_textarea
+    weight: 60
     region: content
     settings:
       rows: 4
@@ -664,15 +745,6 @@ content:
             effect: show
             effect_options: {  }
             selector: ''
-  optometry_notes:
-    type: text_textarea
-    weight: 60
-    region: content
-    settings:
-      rows: 4
-      placeholder: ''
-    third_party_settings:
-      conditional_fields: null
   pt_notes:
     type: text_textarea
     weight: 110
@@ -699,86 +771,6 @@ content:
             effect: show
             effect_options: {  }
             selector: ''
-  congenital_abnormality:
-    type: options_buttons
-    weight: 54
-    region: content
-    settings: {  }
-    third_party_settings:
-      conditional_fields:
-        1a40a99c-f6f6-47fd-9873-2b14e711c04c:
-          uuid: 1a40a99c-f6f6-47fd-9873-2b14e711c04c
-          entity_type: visit
-          bundle: visit
-          dependee: patient_type
-          settings:
-            state: visible
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 2
-            value: pediatric
-            values:
-              - pediatric
-            effect: show
-            effect_options: {  }
-            selector: ''
-  neuro_peds:
-    type: options_buttons
-    weight: 55
-    region: content
-    settings: {  }
-    third_party_settings:
-      conditional_fields:
-        bf5d7346-050c-4afe-b1a2-34a9810a3c71:
-          uuid: bf5d7346-050c-4afe-b1a2-34a9810a3c71
-          entity_type: visit
-          bundle: visit
-          dependee: patient_type
-          settings:
-            state: visible
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 2
-            value: pediatric
-            values:
-              - pediatric
-            effect: show
-            effect_options: {  }
-            selector: ''
-  nutrition:
-    type: options_buttons
-    weight: 56
-    region: content
-    settings: {  }
-    third_party_settings:
-      conditional_fields:
-        82f9746f-c487-441c-9e4d-93963929d9f4:
-          uuid: 82f9746f-c487-441c-9e4d-93963929d9f4
-          entity_type: visit
-          bundle: visit
-          dependee: patient_type
-          settings:
-            state: visible
-            reset: false
-            condition: value
-            grouping: AND
-            values_set: 2
-            value: pediatric
-            values:
-              - pediatric
-            effect: show
-            effect_options: {  }
-            selector: ''
-  ted_stockings:
-    type: boolean_checkbox
-    weight: 58
-    region: content
-    settings:
-      display_label: true
-    third_party_settings:
-      conditional_fields: null
   pt_referral:
     type: boolean_checkbox
     weight: 57
@@ -825,6 +817,14 @@ content:
     weight: 5
     region: content
     settings: {  }
+    third_party_settings:
+      conditional_fields: null
+  ted_stockings:
+    type: boolean_checkbox
+    weight: 58
+    region: content
+    settings:
+      display_label: true
     third_party_settings:
       conditional_fields: null
   vital_bmi:

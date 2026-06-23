@@ -19,3 +19,4 @@ permissions:
   - 'view patient entities'
   - 'view prescription_item entities'
   - 'view visit entities'
+  - 'view visit entity revisions'
