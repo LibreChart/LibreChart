@@ -189,6 +189,13 @@ targetEntityType: visit
 bundle: visit
 mode: default
 content:
+  incomplete_visit:
+    type: boolean_checkbox
+    weight: 200
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   allergies:
     type: select2_entity_reference
     weight: 30

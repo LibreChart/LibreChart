@@ -856,6 +856,20 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Manual "Incomplete visit" flag for patients who left the clinic early
+    // without completing every station they needed. Staff tag this by hand; it
+    // does not change the station workflow or completion status. Weighted to
+    // the bottom of the form, below every station group.
+    $fields['incomplete_visit'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('Incomplete visit'))
+      ->setDescription(new TranslatableMarkup('Tick if the patient left early without completing all of their stations.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 200])
+      ->setDisplayOptions('view', ['label' => 'inline', 'type' => 'boolean', 'weight' => 200])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     return $fields;
   }
 

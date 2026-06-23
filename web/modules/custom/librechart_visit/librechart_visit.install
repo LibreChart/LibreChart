@@ -498,6 +498,23 @@ function librechart_visit_update_9019(): void {
 }
 
 /**
+ * Install the `incomplete_visit` base field on already-deployed sites.
+ *
+ * A manual flag for visits where the patient left early without completing
+ * every station. Fresh sites pick the field up from baseFieldDefinitions();
+ * existing sites need the field storage installed here.
+ */
+function librechart_visit_update_9020(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['incomplete_visit'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface
+    && !$manager->getFieldStorageDefinition('incomplete_visit', 'visit')) {
+    $manager->installFieldStorageDefinition('incomplete_visit', 'visit', 'librechart_visit', $definition);
+  }
+}
+
+/**
  * Migrates current_station 'teaching' to 'education' in all storage tables.
  */
 function _librechart_visit_migrate_teaching_station(): void {
