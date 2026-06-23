@@ -1,0 +1,10 @@
+age_calc:
+  version: 1.x
+  js:
+    js/age-calc.js: {}
+  css:
+    component:
+      css/patient-form.css: {}
+  dependencies:
+    - core/drupal
+    - core/once

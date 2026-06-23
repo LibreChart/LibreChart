@@ -56,6 +56,40 @@ function librechart_patient_form_alter(array &$form, FormStateInterface $form_st
     $form['revision_log_message']['#access'] = $is_patient_admin;
   }
 
+  // Auto-calculated Age shown beside Date of Birth, read-only (mirrors the
+  // BMI field on the visit). Age is derived from date_of_birth and changes
+  // over time, so it is never stored: it is computed here at render and
+  // recomputed live in the browser by the age_calc behaviour as the DOB
+  // input changes.
+  if (isset($form['date_of_birth'])) {
+    $patient = $form_state->getFormObject()->getEntity();
+    $dob = ($patient instanceof EntityInterface
+      && $patient->hasField('date_of_birth')
+      && !$patient->get('date_of_birth')->isEmpty())
+      ? (string) $patient->get('date_of_birth')->value
+      : '';
+    $form['age_display'] = [
+      '#type' => 'textfield',
+      '#title' => t('Age'),
+      '#disabled' => TRUE,
+      '#default_value' => _librechart_patient_format_age($dob),
+      '#weight' => ($form['date_of_birth']['#weight'] ?? 12) + 0.5,
+      '#attributes' => [
+        'data-librechart-age' => 'value',
+        'class' => ['lc-age-display'],
+      ],
+      // Closes the flex row opened on the Date of Birth field below.
+      '#suffix' => '</div>',
+    ];
+    // Tag the DOB input so the behaviour can recompute age as it changes, and
+    // wrap both fields in a flex row so Age sits beside Date of Birth.
+    if (isset($form['date_of_birth']['widget'][0]['value'])) {
+      $form['date_of_birth']['widget'][0]['value']['#attributes']['data-librechart-age-dob'] = 'true';
+    }
+    $form['date_of_birth']['#prefix'] = '<div class="lc-patient-field-row">';
+    $form['#attached']['library'][] = 'librechart_patient/age_calc';
+  }
+
   // The remaining duplicate-validation and redirect behavior applies only when
   // registering a new patient.
   if ($form_id !== 'patient_add_form') {
@@ -70,6 +104,45 @@ function librechart_patient_form_alter(array &$form, FormStateInterface $form_st
   if (isset($form['actions']['submit']['#submit'])) {
     $form['actions']['submit']['#submit'][] = '_librechart_patient_redirect_to_edit';
   }
+}
+
+/**
+ * Formats a patient's age from a date-of-birth string.
+ *
+ * Returns whole years for patients 18 and over, and years plus months for
+ * patients under 18 (e.g. "3 years 4 months"). Returns an empty string when
+ * the date is missing, unparseable, or in the future. Mirrors the logic in
+ * js/age-calc.js so the server-rendered value matches the live one.
+ *
+ * @param string $dob
+ *   The date of birth as a 'Y-m-d' string, or '' when unset.
+ *
+ * @return string
+ *   The formatted age, or '' when it cannot be computed.
+ */
+function _librechart_patient_format_age(string $dob): string {
+  if ($dob === '') {
+    return '';
+  }
+  try {
+    $birth = new \DateTime(substr($dob, 0, 10));
+  }
+  catch (\Throwable $e) {
+    return '';
+  }
+  $today = new \DateTime('today');
+  if ($birth > $today) {
+    return '';
+  }
+  $diff = $today->diff($birth);
+  $years = (int) $diff->y;
+  if ($years >= 18) {
+    return (string) \Drupal::translation()->formatPlural($years, '1 year', '@count years');
+  }
+  $months = (int) $diff->m;
+  $year_part = \Drupal::translation()->formatPlural($years, '1 year', '@count years');
+  $month_part = \Drupal::translation()->formatPlural($months, '1 month', '@count months');
+  return $year_part . ' ' . $month_part;
 }
 
 /**

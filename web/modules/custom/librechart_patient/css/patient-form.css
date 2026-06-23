@@ -1,0 +1,17 @@
+/* Date of Birth + auto-calculated Age sit side by side on the patient form. */
+.lc-patient-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.lc-patient-field-row > * {
+  margin-top: 0;
+}
+
+/* Age is derived and read-only; size it to its short content and tint it like
+   the other disabled, auto-calculated inputs (e.g. BMI). */
+.lc-age-display {
+  max-width: 12rem;
+  background: #f4f4f5;
+}
