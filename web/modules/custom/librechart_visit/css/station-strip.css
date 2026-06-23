@@ -154,6 +154,18 @@
   filter: brightness(0.95);
 }
 
+/* Patients seeing several clinicians: the background is split into one band
+   per specialty (set inline). The name sits across all bands, so it gets a
+   dark outline to stay readable on any color. */
+.floor-board__body li a.has-specialty--split {
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.65),
+     1px -1px 0 rgba(0, 0, 0, 0.65),
+    -1px  1px 0 rgba(0, 0, 0, 0.65),
+     1px  1px 0 rgba(0, 0, 0, 0.65);
+}
+
 /* Specialty color key beneath the board. */
 .floor-legend {
   margin: 1.5rem 0 0.5rem;

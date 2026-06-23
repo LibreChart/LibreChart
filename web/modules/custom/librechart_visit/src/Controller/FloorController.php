@@ -270,22 +270,82 @@ final class FloorController extends ControllerBase {
       '#url' => $patient ? $patient->toUrl('edit-form') : $visit->toUrl('edit-form'),
     ];
 
-    // In the Clinical Evaluation column, tint the name with the color of the
-    // patient's primary (first) specialty. Multiple specialties take the first.
+    // In the Clinical Evaluation column, tint the name with the patient's
+    // specialty colors. A single specialty fills the background; a patient
+    // seeing several clinicians gets one equal band per specialty, left to
+    // right (e.g. GYN + Wounds shows magenta and orange halves).
     if ($station === self::CLINICAL_STATION) {
-      $primary = (int) ($visit->get('specialties')->target_id ?? 0);
-      $color = $specialties[$primary]['color'] ?? '';
-      if ($color !== '') {
+      $colors = $this->visitSpecialtyColors($visit, $specialties);
+      if (count($colors) === 1) {
         $link['#attributes']['class'][] = 'has-specialty';
         $link['#attributes']['style'] = sprintf(
           'background-color:%s;color:%s',
-          $color,
-          $this->contrastColor($color),
+          $colors[0],
+          $this->contrastColor($colors[0]),
         );
+      }
+      elseif (count($colors) > 1) {
+        $link['#attributes']['class'][] = 'has-specialty';
+        $link['#attributes']['class'][] = 'has-specialty--split';
+        $link['#attributes']['style'] = $this->splitBackgroundStyle($colors);
       }
     }
 
     return $link;
+  }
+
+  /**
+   * Collects a visit's specialty colors, in field order.
+   *
+   * Specialties without a color and repeated specialties are skipped so the
+   * background shows one band per distinct specialty the patient is seeing.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $visit
+   *   The visit.
+   * @param array<int, array{name: string, color: string}> $specialties
+   *   Specialty terms keyed by id.
+   *
+   * @return list<string>
+   *   Ordered list of hex colors (may be empty).
+   */
+  private function visitSpecialtyColors(ContentEntityInterface $visit, array $specialties): array {
+    $colors = [];
+    $seen = [];
+    foreach ($visit->get('specialties') as $item) {
+      $tid = (int) ($item->target_id ?? 0);
+      if ($tid === 0 || isset($seen[$tid])) {
+        continue;
+      }
+      $seen[$tid] = TRUE;
+      $color = $specialties[$tid]['color'] ?? '';
+      if ($color !== '') {
+        $colors[] = $color;
+      }
+    }
+    return $colors;
+  }
+
+  /**
+   * Builds a hard-stop gradient that splits the name background into bands.
+   *
+   * Each color gets an equal vertical band ordered left to right, so two
+   * specialties show halves, three show thirds, and so on.
+   *
+   * @param list<string> $colors
+   *   Two or more hex colors, in display order.
+   *
+   * @return string
+   *   An inline style declaration for the split background.
+   */
+  private function splitBackgroundStyle(array $colors): string {
+    $count = count($colors);
+    $stops = [];
+    foreach (array_values($colors) as $i => $color) {
+      $start = round($i / $count * 100, 4);
+      $end = round(($i + 1) / $count * 100, 4);
+      $stops[] = sprintf('%s %s%% %s%%', $color, $start, $end);
+    }
+    return 'background:linear-gradient(90deg,' . implode(',', $stops) . ')';
   }
 
   /**
