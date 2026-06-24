@@ -184,9 +184,8 @@ final class DailyPatientReportController extends ControllerBase {
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['class' => ['lc-daily-report__summary']],
-      '#value' => $this->t('@count patients seen on @day', [
+      '#value' => $this->t('<strong class="lc-daily-report__summary-count">@count</strong> patients seen', [
         '@count' => $patients,
-        '@day' => $this->formatDayLabel($day),
       ]),
     ];
   }

@@ -71,9 +71,18 @@
 }
 
 .lc-daily-report__summary {
-  font-size: 1.05rem;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #334155;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.5rem;
+}
+
+.lc-daily-report__summary-count {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #1d4ed8;
+  margin-right: 0.35rem;
 }
 
 /* Chart grid. */
