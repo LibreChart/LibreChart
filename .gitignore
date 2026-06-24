@@ -28,3 +28,11 @@ $RECYCLE.BIN/
 # Environment
 .env
 .env.*
+
+# Application-specific
+/backups
+medication_categories.csv
+LAUGHH Medication List and Inventory PARs (1).xlsx
+medication_inventory_import.csv
+medication_inventory_categorized.csv
+scripts/import_medications.php
