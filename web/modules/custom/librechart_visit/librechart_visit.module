@@ -1313,6 +1313,7 @@ function librechart_visit_visit_presave(Visit $visit): void {
     $prescription = \Drupal::entityTypeManager()->getStorage('prescription_item')->create([
       'drug' => $vitamin_tid,
       'drug_category' => 'Vitamins / Nutrients',
+      'quantity_dispensed' => 30,
     ]);
     $prescription->save();
     $visit->get('medications')->appendItem(['target_id' => $prescription->id()]);
