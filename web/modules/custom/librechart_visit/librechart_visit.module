@@ -354,6 +354,12 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
   // executes after field_group's processors have applied the default open
   // state from form display config.
   $form['#after_build'][] = '_librechart_visit_set_active_fieldset_open';
+
+  // Normalize conditional_fields #states value references from single-element
+  // arrays to scalars so the field visibility resolves on the first
+  // client-side evaluation. Runs after conditional_fields' own form
+  // #after_build, which is the processor that attaches the #states.
+  $form['#after_build'][] = '_librechart_visit_normalize_states_values';
 }
 
 /**
@@ -881,6 +887,65 @@ function _librechart_visit_get_form_entity(FormStateInterface $form_state): ?Vis
  */
 function _librechart_visit_user_can_transition(ContentEntityInterface $visit, AccountInterface $user): bool {
   return $visit->access('update', $user);
+}
+
+/**
+ * Collapses single-value conditional_fields #states references to scalars.
+ *
+ * conditional_fields 4.0.0-alpha6 builds its #states "value" reference as an
+ * array (e.g. ['pediatric']). Drupal core 11.3's states.js has a strict Array
+ * comparison that only matches when the live form value is *also* an array,
+ * but a single <select>/radio returns a string. The module ships a lenient
+ * Array override, but it attaches in a later behavior than the one that runs
+ * states.js's initial evaluation, so the first evaluation hides the field and
+ * never re-runs when the dependee cannot fire a change event (e.g. a disabled
+ * patient_type select). Collapsing single-element arrays to scalars makes core
+ * use its plain string comparison, which resolves correctly on first paint.
+ *
+ * @param array<array-key, mixed> $element
+ *   The fully built form, passed by reference and mutated in place.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current form state.
+ *
+ * @return array<array-key, mixed>
+ *   The mutated form.
+ */
+function _librechart_visit_normalize_states_values(array $element, FormStateInterface $form_state): array {
+  _librechart_visit_collapse_states($element);
+  return $element;
+}
+
+/**
+ * Recursively rewrites single-element #states "value" arrays to scalars.
+ *
+ * @param array<array-key, mixed> $element
+ *   The render element, passed by reference and mutated in place.
+ */
+function _librechart_visit_collapse_states(array &$element): void {
+  if (isset($element['#states']) && is_array($element['#states'])) {
+    foreach ($element['#states'] as &$selectors) {
+      if (!is_array($selectors)) {
+        continue;
+      }
+      foreach ($selectors as &$conditions) {
+        if (
+          is_array($conditions)
+          && isset($conditions['value'])
+          && is_array($conditions['value'])
+          && count($conditions['value']) === 1
+        ) {
+          $conditions['value'] = reset($conditions['value']);
+        }
+      }
+    }
+    // Break the references used in the loops above.
+    unset($selectors, $conditions);
+  }
+  foreach (Element::children($element) as $key) {
+    if (is_array($element[$key])) {
+      _librechart_visit_collapse_states($element[$key]);
+    }
+  }
 }
 
 /**
