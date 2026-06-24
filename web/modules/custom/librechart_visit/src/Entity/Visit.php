@@ -115,6 +115,7 @@ class Visit extends ContentEntityBase {
     'Diabetes',
     'Hypertension',
     'Lipid/Cholesterol',
+    'Nutrition',
     'Dental hygiene',
     'Sex',
     'Breast',

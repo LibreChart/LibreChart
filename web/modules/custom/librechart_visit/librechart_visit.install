@@ -563,3 +563,17 @@ function librechart_visit_update_9022(): void {
     $manager->installFieldStorageDefinition('optometry_referral', 'visit', 'librechart_visit', $definition);
   }
 }
+
+/**
+ * Seeds the 'Nutrition' education term on deployed sites.
+ *
+ * Nutrition and dental hygiene are now auto-assigned to every patient at visit
+ * creation. 'Dental hygiene' is already in the education vocabulary, but
+ * 'Nutrition' is new. seedEducation() is idempotent, so existing terms are
+ * left untouched.
+ *
+ * @see \Drupal\librechart_visit\Entity\Visit::EDUCATION_SEED
+ */
+function librechart_visit_update_9023(): void {
+  \Drupal\librechart_visit\Entity\Visit::seedEducation();
+}

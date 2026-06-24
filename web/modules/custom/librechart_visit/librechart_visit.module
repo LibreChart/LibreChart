@@ -1399,7 +1399,9 @@ function librechart_visit_visit_presave(Visit $visit): void {
   }
 
   // Education seminars, keyed by the term names in the `education` vocabulary.
-  $seminars = [];
+  // Nutrition and dental hygiene are assigned to every patient regardless of
+  // age or sex; the remaining seminars are conditional.
+  $seminars = ['Nutrition', 'Dental hygiene'];
   if ($age >= 11 && $age <= 29) {
     $seminars[] = 'Sex';
   }
