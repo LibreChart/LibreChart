@@ -91,8 +91,8 @@ display:
           table: patient
           field: last_name
           relationship: none
-          operator: contains
           plugin_id: string
+          operator: contains
           exposed: true
           expose:
             operator_id: last_name_op
@@ -103,8 +103,8 @@ display:
           table: patient
           field: first_name
           relationship: none
-          operator: contains
           plugin_id: string
+          operator: contains
           exposed: true
           expose:
             operator_id: first_name_op
