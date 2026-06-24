@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -32,9 +33,13 @@ function librechart_patient_gin_ignore_sticky_form_actions(): array {
 /**
  * Implements hook_form_alter().
  *
- * Adds a duplicate patient warning on the patient add form.
+ * Adds a duplicate patient warning on the patient add form, and keeps the
+ * visit form's read-only patient_type in sync with the patient's age.
  */
 function librechart_patient_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  // Keep the visit form's patient_type aligned with the selected patient.
+  _librechart_patient_sync_visit_patient_type($form, $form_state, $form_id);
+
   if (!in_array($form_id, ['patient_add_form', 'patient_edit_form'], TRUE)) {
     return;
   }
@@ -213,6 +218,120 @@ function librechart_patient_visit_presave(EntityInterface $visit): void {
   if ($patient instanceof EntityInterface) {
     $visit->set('patient_type', _librechart_patient_age_type($patient));
   }
+}
+
+/**
+ * Keeps the read-only patient_type widget in lockstep with the patient's age.
+ *
+ * patient_type is authoritatively re-derived on save
+ * (librechart_patient_visit_presave), but the value also drives the pediatric
+ * conditional fields on the form, so it must be correct before the visit is
+ * saved:
+ *
+ * - On the add form the patient has not been saved yet, so without this the
+ *   disabled select would show the 'adult' default even for a pediatric
+ *   patient, hiding the pediatric fields. Selecting a patient rebuilds the
+ *   form (the pediatric fields live in different field groups, so only a full
+ *   rebuild re-evaluates their #states against the new patient_type).
+ * - On the edit form this also corrects the displayed value immediately when a
+ *   patient's date of birth has been amended since the visit was last saved.
+ *
+ * @param array<array-key, mixed> $form
+ *   The visit form, passed by reference and mutated in place.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current form state.
+ * @param string $form_id
+ *   The form id.
+ */
+function _librechart_patient_sync_visit_patient_type(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (!in_array($form_id, ['visit_add_form', 'visit_edit_form'], TRUE)) {
+    return;
+  }
+  if (!isset($form['patient']['widget']) || !isset($form['patient_type']['widget'])) {
+    return;
+  }
+
+  // Re-derive patient_type live when the patient is chosen on-screen (add
+  // form). The patient field is locked on the edit form, so there is nothing
+  // to react to there.
+  $patient_editable = empty($form['patient']['widget']['#disabled'])
+    && ($form['patient']['#access'] ?? TRUE);
+  if ($patient_editable) {
+    $wrapper = 'visit-patient-type-sync';
+    $form['#prefix'] = ($form['#prefix'] ?? '') . '<div id="' . $wrapper . '">';
+    $form['#suffix'] = '</div>' . ($form['#suffix'] ?? '');
+    $form['patient']['widget']['#ajax'] = [
+      'callback' => '_librechart_patient_visit_form_ajax',
+      'wrapper' => $wrapper,
+      'event' => 'change',
+    ];
+  }
+
+  // Push the derived type into the read-only widget so the value, and the
+  // conditional pediatric fields that key off it, reflect the current patient.
+  $patient = _librechart_patient_resolve_form_patient($form_state);
+  if ($patient instanceof EntityInterface) {
+    $type = _librechart_patient_age_type($patient);
+    // Disabled selects take their rendered value from #default_value.
+    $form['patient_type']['widget']['#default_value'] = [$type];
+    $form['patient_type']['widget']['#value'] = [$type];
+  }
+}
+
+/**
+ * AJAX callback for the visit form: returns the whole form to re-render it.
+ *
+ * @param array<array-key, mixed> $form
+ *   The rebuilt form.
+ *
+ * @return array<array-key, mixed>
+ *   The rebuilt form, with patient_type re-derived from the new patient.
+ */
+function _librechart_patient_visit_form_ajax(array $form, FormStateInterface $form_state): array {
+  return $form;
+}
+
+/**
+ * Resolves the patient currently selected on the visit form.
+ *
+ * Reads the live selection from the submitted value first (so AJAX rebuilds
+ * pick up a just-chosen patient) and falls back to the patient referenced on
+ * the entity (initial page build and the edit form, where the field is locked).
+ *
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current form state.
+ *
+ * @return \Drupal\Core\Entity\EntityInterface|null
+ *   The selected patient, or NULL when none is set.
+ */
+function _librechart_patient_resolve_form_patient(FormStateInterface $form_state): ?EntityInterface {
+  $id = NULL;
+  $value = $form_state->getValue('patient');
+  if (is_array($value)) {
+    $first = $value[0] ?? $value;
+    $id = is_array($first) ? ($first['target_id'] ?? NULL) : (is_scalar($first) ? $first : NULL);
+  }
+  elseif (is_scalar($value)) {
+    $id = $value;
+  }
+  // The raw select value is the most reliable source during an AJAX rebuild.
+  if (!$id) {
+    $input = $form_state->getUserInput();
+    $id = is_scalar($input['patient'] ?? NULL) ? $input['patient'] : NULL;
+  }
+  if ($id !== NULL && $id !== '' && ctype_digit((string) $id)) {
+    $patient = \Drupal::entityTypeManager()->getStorage('patient')->load($id);
+    return $patient instanceof EntityInterface ? $patient : NULL;
+  }
+
+  // Fall back to the patient already referenced on the entity.
+  $form_object = $form_state->getFormObject();
+  $entity = $form_object instanceof EntityFormInterface ? $form_object->getEntity() : NULL;
+  if ($entity instanceof FieldableEntityInterface && $entity->hasField('patient')) {
+    $patients = $entity->get('patient')->referencedEntities();
+    return $patients[0] ?? NULL;
+  }
+  return NULL;
 }
 
 /**
