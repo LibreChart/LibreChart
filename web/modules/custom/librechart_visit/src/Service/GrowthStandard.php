@@ -130,15 +130,31 @@ final class GrowthStandard {
 
     $curves = $this->buildCurves($table, $sex_code, $month_min, $month_max, 0.5, $x_to_key);
 
+    // The x is fixed by the patient's age, so the live point only moves along
+    // y as height/weight change. Send the LMS parameters at that age so the
+    // browser can recompute the z-score for live vitals.
+    $months = $age_days / self::DAYS_PER_MONTH;
+    [$l, $m, $s] = $this->lookup($table, $sex_code, $x_to_key($months));
+
     $point = NULL;
     $z = NULL;
     if ($value !== NULL && $value > 0) {
-      $months = $age_days / self::DAYS_PER_MONTH;
       $z = $this->zscore($table, $sex_code, $x_to_key($months), $value);
       $point = ['x' => round($months, 2), 'y' => $value];
     }
 
-    return $this->assemble($indicator, $title, $band, 'Age (months)', $y_label, $month_min, $month_max, $curves, $point, $z);
+    $chart = $this->assemble($indicator, $title, $band, 'Age (months)', $y_label, $month_min, $month_max, $curves, $point, $z);
+    // BMI is derived from height and weight; the other age indicators read a
+    // single vital directly.
+    $y_kind = match ($indicator) {
+      'wfa' => 'weight',
+      'bfa', 'bfa2007' => 'bmi',
+      default => 'height',
+    };
+    $chart['inputs'] = ['x' => 'age', 'y' => $y_kind];
+    $chart['ageMonths'] = round($months, 2);
+    $chart['lms'] = [$l, $m, $s];
+    return $chart;
   }
 
   /**
@@ -176,6 +192,14 @@ final class GrowthStandard {
     $identity = static fn(float $x): float => $x;
     $curves = $this->buildCurves($table, $sex_code, $x_min, $x_max, 0.5, $identity);
 
+    // Both axes move with live vitals (x = height, y = weight), so send the
+    // LMS parameters sampled across the window for client-side interpolation.
+    $lms_by_x = [];
+    for ($x = $x_min; $x <= $x_max + 1e-9; $x += 0.5) {
+      [$l, $m, $s] = $this->lookup($table, $sex_code, $x);
+      $lms_by_x[] = [round($x, 1), $l, $m, $s];
+    }
+
     $point = NULL;
     $z = NULL;
     if ($x_value !== NULL && $x_value > 0 && $y_value !== NULL && $y_value > 0) {
@@ -183,7 +207,10 @@ final class GrowthStandard {
       $point = ['x' => $x_value, 'y' => $y_value];
     }
 
-    return $this->assemble($indicator, $title, $band, $x_label, $y_label, $x_min, $x_max, $curves, $point, $z);
+    $chart = $this->assemble($indicator, $title, $band, $x_label, $y_label, $x_min, $x_max, $curves, $point, $z);
+    $chart['inputs'] = ['x' => 'height', 'y' => 'weight'];
+    $chart['lmsByX'] = $lms_by_x;
+    return $chart;
   }
 
   /**

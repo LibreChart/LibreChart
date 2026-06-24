@@ -4,10 +4,12 @@
  * fieldset.
  *
  * The server (GrowthStandard service) supplies, per indicator appropriate to
- * the child's age and sex, the seven z-score reference curves and the plotted
- * point. This behaviour draws each indicator as an inline SVG inside a tabbed
- * panel — no external charting library, so it works on the offline LAN
- * deployment. The numeric z-score is shown beneath the active chart.
+ * the child's age and sex, the seven z-score reference curves plus the LMS
+ * parameters needed to score a measurement. This behaviour draws each
+ * indicator as an inline SVG inside a tabbed panel — no external charting
+ * library, so it works on the offline LAN deployment — and re-plots the
+ * patient's point and z-score live as the triage height and weight inputs
+ * change.
  */
 ((Drupal, once, drupalSettings) => {
   const SVGNS = 'http://www.w3.org/2000/svg';
@@ -37,6 +39,8 @@
     return node;
   };
 
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
   /**
    * Computes a "nice" rounded tick step for an axis span.
    *
@@ -64,20 +68,134 @@
   };
 
   const fmtZ = (z) => {
-    if (z === null || z === undefined) {
+    if (z === null || z === undefined || Number.isNaN(z)) {
       return '—';
     }
     return (z > 0 ? '+' : z < 0 ? '−' : '') + Math.abs(z).toFixed(2);
   };
 
+  // --- z-score maths, mirroring the GrowthStandard PHP service. ---
+
+  const valueAtZ = (l, m, s, z) =>
+    Math.abs(l) < 1e-9 ? m * Math.exp(s * z) : m * (1 + l * s * z) ** (1 / l);
+
   /**
-   * Draws one indicator chart into an SVG element.
+   * Computes a z-score from LMS parameters, with the WHO tail adjustment.
+   *
+   * @param {Array} lms
+   *   The [L, M, S] parameters at the lookup point.
+   * @param {number} y
+   *   The measured value.
+   *
+   * @return {number}
+   *   The z-score.
+   */
+  const zscore = (lms, y) => {
+    const [l, m, s] = lms;
+    let z =
+      Math.abs(l) < 1e-9 ? Math.log(y / m) / s : ((y / m) ** l - 1) / (l * s);
+    if (z > 3) {
+      const sd3 = valueAtZ(l, m, s, 3);
+      const sd2 = valueAtZ(l, m, s, 2);
+      z = 3 + (y - sd3) / (sd3 - sd2);
+    } else if (z < -3) {
+      const sd3 = valueAtZ(l, m, s, -3);
+      const sd2 = valueAtZ(l, m, s, -2);
+      z = -3 + (y - sd3) / (sd2 - sd3);
+    }
+    return z;
+  };
+
+  /**
+   * Linearly interpolates LMS parameters at x from a sampled [x,L,M,S] table.
+   *
+   * @param {Array} rows
+   *   Rows of [x, L, M, S], ascending by x.
+   * @param {number} x
+   *   The lookup value.
+   *
+   * @return {Array}
+   *   The interpolated [L, M, S].
+   */
+  const interpLms = (rows, x) => {
+    if (x <= rows[0][0]) {
+      return [rows[0][1], rows[0][2], rows[0][3]];
+    }
+    const last = rows[rows.length - 1];
+    if (x >= last[0]) {
+      return [last[1], last[2], last[3]];
+    }
+    let lo = 0;
+    let hi = rows.length - 1;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (rows[mid][0] <= x) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    const t = (x - rows[lo][0]) / (rows[hi][0] - rows[lo][0]);
+    return [1, 2, 3].map((i) => rows[lo][i] + t * (rows[hi][i] - rows[lo][i]));
+  };
+
+  /**
+   * Derives the plotted point and z-score for a chart from live vitals.
+   *
+   * @param {object} chart
+   *   A chart definition from drupalSettings.
+   * @param {number} height
+   *   The current height/length in centimetres (NaN if unset).
+   * @param {number} weight
+   *   The current weight in kilograms (NaN if unset).
+   *
+   * @return {object|null}
+   *   {x, y, z} in data coordinates, or NULL when the inputs are insufficient.
+   */
+  const livePoint = (chart, height, weight) => {
+    const bmi = height > 0 && weight > 0 ? weight / (height / 100) ** 2 : NaN;
+    const x = chart.inputs.x === 'age' ? chart.ageMonths : height;
+    const y =
+      chart.inputs.y === 'weight'
+        ? weight
+        : chart.inputs.y === 'height'
+          ? height
+          : bmi;
+    if (!Number.isFinite(x) || x < 0 || !(y > 0)) {
+      return null;
+    }
+    if (chart.inputs.x === 'height' && !(x > 0)) {
+      return null;
+    }
+    const lms = chart.lms ? chart.lms : interpLms(chart.lmsByX, x);
+    return { x, y, z: zscore(lms, y) };
+  };
+
+  const readoutHtml = (z) => {
+    if (z === null || z === undefined || Number.isNaN(z)) {
+      return `<span class="lc-growth-z-missing">${Drupal.t('Enter height and weight to plot this patient.')}</span>`;
+    }
+    const a = Math.abs(z);
+    const band =
+      a <= 1
+        ? Drupal.t('within ±1 SD')
+        : a <= 2
+          ? Drupal.t('between ±1 and ±2 SD')
+          : a <= 3
+            ? Drupal.t('between ±2 and ±3 SD')
+            : Drupal.t('beyond ±3 SD');
+    return `${Drupal.t('Z-score')}: <strong class="lc-growth-z">${fmtZ(z)}</strong> <span class="lc-growth-z-band">(${band})</span>`;
+  };
+
+  /**
+   * Draws one indicator chart's static layers (frame, grid, axes, curves) and
+   * returns the scales and an empty layer for the live point.
    *
    * @param {object} chart
    *   A chart definition from drupalSettings.
    *
-   * @return {SVGElement}
-   *   The populated SVG node.
+   * @return {object}
+   *   {svg, sx, sy, plot, pointGroup}.
    */
   const drawChart = (chart) => {
     const plotW = VIEW_W - M.left - M.right;
@@ -168,28 +286,77 @@
         }),
       );
       // Edge label at the right end of the curve.
-      const last = pts[pts.length - 1];
-      const ly = Math.max(M.top + 6, Math.min(M.top + plotH - 2, sy(last[1])));
+      const lastPt = pts[pts.length - 1];
+      const ly = clamp(sy(lastPt[1]), M.top + 6, M.top + plotH - 2);
       svg.appendChild(
         el('text', { x: M.left + plotW + 6, y: ly + 3, 'text-anchor': 'start', class: 'lc-growth-zlabel', fill: style.color }, (z > 0 ? '+' : '') + z),
       );
     });
 
-    // Patient point.
-    if (chart.point) {
-      const px = sx(chart.point.x);
-      const py = sy(chart.point.y);
-      // Crosshair to the axes for readability.
-      svg.appendChild(el('line', { x1: M.left, y1: py, x2: px, y2: py, stroke: '#1d4ed8', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6 }));
-      svg.appendChild(el('line', { x1: px, y1: py, x2: px, y2: M.top + plotH, stroke: '#1d4ed8', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6 }));
-      svg.appendChild(el('circle', { cx: px, cy: py, r: 5.5, fill: '#1d4ed8', stroke: '#ffffff', 'stroke-width': 2 }));
-    }
+    // Empty layer the live point is drawn into.
+    const pointGroup = el('g', { class: 'lc-growth-point' });
+    svg.appendChild(pointGroup);
 
-    return svg;
+    return {
+      svg,
+      sx,
+      sy,
+      plot: { left: M.left, top: M.top, right: M.left + plotW, bottom: M.top + plotH },
+      pointGroup,
+    };
   };
 
   /**
-   * Builds the tabbed panel for all charts and appends it to the container.
+   * Draws or clears the patient point for a chart panel.
+   *
+   * @param {object} refs
+   *   The chart's scales and point layer, from drawChart().
+   * @param {object|null} point
+   *   {x, y} in data coordinates, or NULL to clear.
+   */
+  const setPoint = (refs, point) => {
+    refs.pointGroup.textContent = '';
+    if (!point) {
+      return;
+    }
+    // Clamp into the plot box so a measurement beyond ±3 SD stays visible at
+    // the frame edge; the readout still reports the precise z-score.
+    const px = clamp(refs.sx(point.x), refs.plot.left, refs.plot.right);
+    const py = clamp(refs.sy(point.y), refs.plot.top, refs.plot.bottom);
+    refs.pointGroup.appendChild(el('line', { x1: refs.plot.left, y1: py, x2: px, y2: py, stroke: '#1d4ed8', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6 }));
+    refs.pointGroup.appendChild(el('line', { x1: px, y1: py, x2: px, y2: refs.plot.bottom, stroke: '#1d4ed8', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6 }));
+    refs.pointGroup.appendChild(el('circle', { cx: px, cy: py, r: 5.5, fill: '#1d4ed8', stroke: '#ffffff', 'stroke-width': 2 }));
+  };
+
+  /**
+   * Reads the current height and weight from the form's vital inputs.
+   *
+   * @param {HTMLElement} container
+   *   The growth-chart wrapper.
+   *
+   * @return {object}
+   *   {height, weight} as numbers (NaN when blank or absent).
+   */
+  const readVitals = (container) => {
+    const form = container.closest('form');
+    if (!form) {
+      return { height: NaN, weight: NaN };
+    }
+    const find = (attr, name) =>
+      form.querySelector(`[data-librechart-bmi-${attr}]`) ||
+      form.querySelector(`input[name="${name}[0][value]"]`);
+    const h = find('height', 'vital_height');
+    const w = find('weight', 'vital_weight');
+    return {
+      height: h ? parseFloat(h.value) : NaN,
+      weight: w ? parseFloat(w.value) : NaN,
+      heightInput: h,
+      weightInput: w,
+    };
+  };
+
+  /**
+   * Builds the tabbed panel for all charts and wires live re-plotting.
    *
    * @param {HTMLElement} container
    *   The wrapper element (#lc-growth-charts).
@@ -215,6 +382,7 @@
 
     const buttons = [];
     const panelNodes = [];
+    const entries = [];
 
     const activate = (idx) => {
       buttons.forEach((b, i) => {
@@ -245,30 +413,46 @@
       sub.textContent = `${chart.title} · ${chart.band}`;
       panel.appendChild(sub);
 
-      panel.appendChild(drawChart(chart));
+      const refs = drawChart(chart);
+      panel.appendChild(refs.svg);
 
       const readout = document.createElement('div');
       readout.className = 'lc-growth-readout';
-      if (chart.z === null || chart.z === undefined) {
-        readout.innerHTML = `<span class="lc-growth-z-missing">${Drupal.t('Enter height and weight to plot this patient.')}</span>`;
-      } else {
-        const band =
-          Math.abs(chart.z) <= 1
-            ? Drupal.t('within ±1 SD')
-            : Math.abs(chart.z) <= 2
-              ? Drupal.t('between ±1 and ±2 SD')
-              : Math.abs(chart.z) <= 3
-                ? Drupal.t('between ±2 and ±3 SD')
-                : Drupal.t('beyond ±3 SD');
-        readout.innerHTML = `${Drupal.t('Z-score')}: <strong class="lc-growth-z">${fmtZ(chart.z)}</strong> <span class="lc-growth-z-band">(${band})</span>`;
-      }
       panel.appendChild(readout);
 
       panels.appendChild(panel);
       panelNodes.push(panel);
+      entries.push({ chart, refs, readout });
+    });
+
+    // Re-plot every chart from the current vitals. Falls back to the
+    // server-computed point when the inputs are blank or absent.
+    const update = () => {
+      const { height, weight } = readVitals(container);
+      entries.forEach(({ chart, refs, readout }) => {
+        const live = livePoint(chart, height, weight);
+        if (live) {
+          setPoint(refs, live);
+          readout.innerHTML = readoutHtml(live.z);
+        } else if (chart.point) {
+          setPoint(refs, chart.point);
+          readout.innerHTML = readoutHtml(chart.z);
+        } else {
+          setPoint(refs, null);
+          readout.innerHTML = readoutHtml(null);
+        }
+      });
+    };
+
+    const { heightInput, weightInput } = readVitals(container);
+    [heightInput, weightInput].forEach((input) => {
+      if (input) {
+        input.addEventListener('input', update);
+      }
     });
 
     activate(0);
+    update();
   };
 
   Drupal.behaviors.librechartGrowthChart = {
