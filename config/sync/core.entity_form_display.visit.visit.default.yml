@@ -82,6 +82,7 @@ third_party_settings:
         - neuro_peds
         - nutrition
         - pt_referral
+        - optometry_referral
         - ted_stockings
         - group_pos
       label: 'Clinical Evaluation'
@@ -639,6 +640,13 @@ content:
       placeholder: ''
     third_party_settings:
       conditional_fields: null
+  optometry_referral:
+    type: boolean_checkbox
+    weight: 58
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   past_medical_history:
     type: text_textarea
     weight: 29
@@ -838,7 +846,7 @@ content:
       conditional_fields: null
   ted_stockings:
     type: boolean_checkbox
-    weight: 58
+    weight: 59
     region: content
     settings:
       display_label: true

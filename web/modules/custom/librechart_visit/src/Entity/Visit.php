@@ -566,8 +566,8 @@ class Visit extends ContentEntityBase {
     $fields['ted_stockings'] = BaseFieldDefinition::create('boolean')
       ->setLabel(new TranslatableMarkup('TED Stockings'))
       ->setRevisionable(TRUE)
-      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 58])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 58])
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 59])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 59])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -652,6 +652,18 @@ class Visit extends ContentEntityBase {
       ->setDefaultValue(FALSE)
       ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 55])
       ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 55])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Optometry referral flag, sitting between the PT referral and TED Stockings
+    // switches in the Clinical Evaluation group. Clinician-editable like the
+    // other clinical switches.
+    $fields['optometry_referral'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('Optometry Referral'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setDisplayOptions('form', ['type' => 'boolean_checkbox', 'weight' => 58])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'boolean', 'weight' => 58])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 

@@ -989,7 +989,7 @@ function librechart_visit_entity_field_access(
     'dx_cardiac', 'dx_derm', 'dx_endo', 'dx_ent', 'dx_eye', 'dx_gi',
     'dx_gyn_ob', 'dx_mental_health', 'dx_muscular_skeletal', 'dx_neuro',
     'dx_resp', 'dx_uro_genital', 'dx_vascular', 'dx_wound_ostomy',
-    'ted_stockings', 'pos', 'pos_details',
+    'optometry_referral', 'ted_stockings', 'pos', 'pos_details',
   ];
   if (in_array($field_name, $clinical_fields, TRUE)) {
     if (in_array('clinician', $roles, TRUE)) {

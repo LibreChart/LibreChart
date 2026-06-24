@@ -78,6 +78,7 @@ third_party_settings:
         - dx_wound_ostomy
         - dx_write_in
         - pt_referral
+        - optometry_referral
         - group_pos
       label: 'Clinical Evaluation'
       region: content
@@ -689,6 +690,13 @@ content:
       display_label: true
     third_party_settings:
       conditional_fields: null
+  optometry_referral:
+    type: boolean_checkbox
+    weight: 58
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   reactions:
     type: text_textarea
     weight: 31
