@@ -1,6 +1,6 @@
 langcode: en
-interval: 60000
-only_on_form_change: false
+interval: 30000
+only_on_form_change: true
 active_on:
   content_entity_forms: true
   config_entity_forms: false
@@ -9,6 +9,6 @@ notification:
   message: 'Saving draft...'
   delay: 1000
 allowed_content_entity_types:
-  node:
+  visit:
     bundles: {  }
 allowed_new: true

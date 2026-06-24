@@ -38,9 +38,9 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
     'list_builder' => 'Drupal\Core\Entity\EntityListBuilder',
     'views_data' => 'Drupal\views\EntityViewsData',
     'form' => [
-      'default' => 'Drupal\Core\Entity\ContentEntityForm',
-      'add' => 'Drupal\Core\Entity\ContentEntityForm',
-      'edit' => 'Drupal\Core\Entity\ContentEntityForm',
+      'default' => 'Drupal\librechart_visit\Form\VisitForm',
+      'add' => 'Drupal\librechart_visit\Form\VisitForm',
+      'edit' => 'Drupal\librechart_visit\Form\VisitForm',
       'delete' => 'Drupal\Core\Entity\ContentEntityDeleteForm',
       'revision-revert' => 'Drupal\Core\Entity\Form\RevisionRevertForm',
       'revision-delete' => 'Drupal\Core\Entity\Form\RevisionDeleteForm',
@@ -191,7 +191,11 @@ class Visit extends ContentEntityBase {
     $this->setRevisionUserId((int) \Drupal::currentUser()->id());
     $this->setRevisionCreationTime(\Drupal::time()->getRequestTime());
 
-    // Only check on updates, not on initial create.
+    // Backstop optimistic-lock check on updates (not on initial create).
+    // Interactive saves go through VisitForm::reconcileConcurrentChanges(),
+    // which merges concurrent edits per field and aligns `changed` with
+    // storage, so this check passes for them. It still guards stale saves that
+    // bypass the form merge (e.g. programmatic saves carrying a stale entity).
     if (!$this->isNew() && $this->original instanceof self) {
       $db_changed = $this->original->get('changed')->value;
       $form_changed = $this->get('changed')->value;
