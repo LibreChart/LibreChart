@@ -185,12 +185,34 @@ function librechart_patient_patient_insert(EntityInterface $patient): void {
   $visit = $visit_storage->create([
     'patient' => $patient->id(),
     'current_station' => 'registration',
-    // Default the visit to pediatric for patients under 18 so children get
-    // their pediatric clinical fields without anyone toggling Patient Type by
-    // hand. Staff can still override it on the visit.
-    'patient_type' => _librechart_patient_age_type($patient),
   ]);
+  // patient_type is derived from the patient's age on save; see
+  // librechart_patient_visit_presave().
   $visit->save();
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for the visit entity.
+ *
+ * Keeps patient_type in lockstep with the patient's age on every save: under 18
+ * is pediatric, otherwise adult. The field is auto-managed and read-only on the
+ * form, so deriving it here means a corrected date of birth is reflected
+ * automatically and the value can never drift from the patient's age.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $visit
+ *   The visit being saved.
+ */
+function librechart_patient_visit_presave(EntityInterface $visit): void {
+  if (!$visit instanceof FieldableEntityInterface
+    || !$visit->hasField('patient_type')
+    || !$visit->hasField('patient')) {
+    return;
+  }
+  $patients = $visit->get('patient')->referencedEntities();
+  $patient = $patients[0] ?? NULL;
+  if ($patient instanceof EntityInterface) {
+    $visit->set('patient_type', _librechart_patient_age_type($patient));
+  }
 }
 
 /**

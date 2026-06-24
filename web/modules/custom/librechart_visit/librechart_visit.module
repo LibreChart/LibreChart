@@ -331,6 +331,14 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
   // Visit::preSave()).
   _librechart_visit_setup_bmi_field($form);
 
+  // Patient Type is auto-derived from the patient's age and re-derived on every
+  // save (librechart_patient_visit_presave), so show it read-only — it must not
+  // drift from the date of birth. The disabled select still exposes its value
+  // to the conditional pediatric fields.
+  if (isset($form['patient_type']['widget'])) {
+    $form['patient_type']['widget']['#disabled'] = TRUE;
+  }
+
   // Chief complaint and past medical history are free-text clinical notes, not
   // rich content: render them as plain textareas with no WYSIWYG editor or
   // text-format selector.
