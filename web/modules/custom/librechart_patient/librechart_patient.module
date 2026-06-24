@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\librechart_patient\Service\PatientDuplicateChecker;
 
@@ -184,8 +185,43 @@ function librechart_patient_patient_insert(EntityInterface $patient): void {
   $visit = $visit_storage->create([
     'patient' => $patient->id(),
     'current_station' => 'registration',
+    // Default the visit to pediatric for patients under 18 so children get
+    // their pediatric clinical fields without anyone toggling Patient Type by
+    // hand. Staff can still override it on the visit.
+    'patient_type' => _librechart_patient_age_type($patient),
   ]);
   $visit->save();
+}
+
+/**
+ * Derives a visit's patient_type ('pediatric'/'adult') from the patient's DOB.
+ *
+ * Patients under 18 are pediatric. Falls back to 'adult' (the field default)
+ * when the date of birth is missing, unparseable, or in the future.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $patient
+ *   The patient entity.
+ *
+ * @return string
+ *   Either 'pediatric' or 'adult'.
+ */
+function _librechart_patient_age_type(EntityInterface $patient): string {
+  if (!$patient instanceof FieldableEntityInterface
+    || !$patient->hasField('date_of_birth')
+    || $patient->get('date_of_birth')->isEmpty()) {
+    return 'adult';
+  }
+  try {
+    $birth = new \DateTime(substr((string) $patient->get('date_of_birth')->value, 0, 10));
+  }
+  catch (\Throwable $e) {
+    return 'adult';
+  }
+  $today = new \DateTime('today');
+  if ($birth > $today) {
+    return 'adult';
+  }
+  return $today->diff($birth)->y < 18 ? 'pediatric' : 'adult';
 }
 
 /**

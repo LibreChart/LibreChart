@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Install/update hooks for the Librechart Patient module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Flag existing under-18 patients' visits as pediatric.
+ *
+ * New visits now derive patient_type from the patient's age, but visits
+ * created before this fix defaulted every patient to "Adult". Set patient_type
+ * to "pediatric" for any visit whose patient is under 18 and still flagged
+ * adult, so existing children get their pediatric clinical fields. Visits
+ * already marked pediatric, and patients 18 or over, are left untouched.
+ */
+function librechart_patient_update_8001(): string {
+  $cutoff = (new \DateTime('today'))->modify('-18 years')->format('Y-m-d');
+  $patient_storage = \Drupal::entityTypeManager()->getStorage('patient');
+  $under_18 = $patient_storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('date_of_birth', $cutoff, '>')
+    ->execute();
+  if (!$under_18) {
+    return (string) new TranslatableMarkup('No under-18 patients found; nothing to update.');
+  }
+
+  $visit_storage = \Drupal::entityTypeManager()->getStorage('visit');
+  $vids = $visit_storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('patient', $under_18, 'IN')
+    ->condition('patient_type', 'adult')
+    ->execute();
+
+  $updated = 0;
+  foreach ($visit_storage->loadMultiple($vids) as $visit) {
+    if (!$visit instanceof ContentEntityInterface) {
+      continue;
+    }
+    $visit->set('patient_type', 'pediatric');
+    $visit->save();
+    $updated++;
+  }
+
+  return (string) new TranslatableMarkup(
+    'Set @count visit(s) to pediatric based on patient age.',
+    ['@count' => $updated],
+  );
+}
