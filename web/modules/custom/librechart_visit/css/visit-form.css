@@ -150,3 +150,15 @@
 .ief-entity-table tr.medication-row--fulfilled > td {
   background-color: #dcfce7;
 }
+
+/* =========================================================================
+   Education referrals — completed rows.
+   Education referral paragraphs carry a `complete` checkbox (edit mode is
+   open, so it renders inline). librechart-education-complete.js toggles the
+   `education-row--complete` class on the paragraph's table row as the box is
+   checked, painting it the same light green as fulfilled medications.
+   ========================================================================= */
+.field-multiple-table tr.education-row--complete,
+.field-multiple-table tr.education-row--complete > td {
+  background-color: #dcfce7;
+}

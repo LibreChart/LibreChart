@@ -169,6 +169,7 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
   // applies whether the form renders in the LAUGHH frontend theme or the
   // Gin admin theme (entity edit forms default to the admin theme).
   $form['#attached']['library'][] = 'librechart_visit/visit_form';
+  $form['#attached']['library'][] = 'librechart_visit/education_complete';
 
   // Render the five lead vitals (temperature, pulse, respiration, systolic,
   // diastolic) on one line; height/weight/BMI flow below. The fields are
@@ -214,7 +215,15 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
         ? _librechart_patient_format_age($dob)
         : '';
       if ($age !== '') {
-        $form['#attached']['drupalSettings']['librechartVisit']['patientAge'] = $age;
+        // Prefix the age with the patient's sex (M/F) so the pill reads, e.g.,
+        // "F 5 years 3 months". The sex field stores 'male'/'female'.
+        $sex = $patient->hasField('sex') ? (string) $patient->get('sex')->value : '';
+        $prefix = match ($sex) {
+          'male' => 'M ',
+          'female' => 'F ',
+          default => '',
+        };
+        $form['#attached']['drupalSettings']['librechartVisit']['patientAge'] = $prefix . $age;
       }
     }
   }
