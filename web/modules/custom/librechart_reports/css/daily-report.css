@@ -98,6 +98,17 @@
   color: #0f172a;
 }
 
+.lc-chart-card__canvas-wrap {
+  position: relative;
+  height: 300px;
+}
+
+/* Ranked lists carry up to 10 bars; give them more vertical room. */
+.lc-chart-card--medications .lc-chart-card__canvas-wrap,
+.lc-chart-card--diagnoses .lc-chart-card__canvas-wrap {
+  height: 360px;
+}
+
 .lc-chart-card__canvas {
   width: 100%;
 }

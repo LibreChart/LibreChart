@@ -66,8 +66,12 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: noLegend,
-          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+          scales: {
+            x: { ticks: { autoSkip: false, maxRotation: 90, minRotation: 0 } },
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
         }
       });
     },
@@ -78,7 +82,7 @@
           labels: set.labels,
           datasets: [{ data: set.values, backgroundColor: colours(set.values.length) }]
         },
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
       });
     },
     municipality: function (ctx, set) {
@@ -108,8 +112,13 @@
       options: {
         indexAxis: 'y',
         responsive: true,
+        maintainAspectRatio: false,
         plugins: noLegend,
-        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+        scales: {
+          x: { beginAtZero: true, ticks: { precision: 0 } },
+          // Force every category label; Chart.js otherwise thins them to fit.
+          y: { ticks: { autoSkip: false } }
+        }
       }
     });
   }

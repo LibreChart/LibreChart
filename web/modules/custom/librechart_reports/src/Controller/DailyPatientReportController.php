@@ -221,15 +221,20 @@ final class DailyPatientReportController extends ControllerBase {
           '#attributes' => ['class' => ['lc-chart-card__title']],
           '#value' => $title,
         ],
-        'canvas' => [
+        'canvas_wrap' => [
           '#type' => 'html_tag',
-          '#tag' => 'canvas',
-          '#attributes' => [
-            'class' => ['lc-chart-card__canvas'],
-            'data-lc-chart' => $key,
+          '#tag' => 'div',
+          '#attributes' => ['class' => ['lc-chart-card__canvas-wrap']],
+          'canvas' => [
+            '#type' => 'html_tag',
+            '#tag' => 'canvas',
+            '#attributes' => [
+              'class' => ['lc-chart-card__canvas'],
+              'data-lc-chart' => $key,
+            ],
+            // A canvas needs explicit closing for Drupal's html_tag.
+            '#value' => '',
           ],
-          // A canvas needs explicit closing for Drupal's html_tag.
-          '#value' => '',
         ],
       ];
     }
