@@ -219,6 +219,11 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
     }
   }
 
+  // Inline WHO / MINSALUD growth charts above the Clinical Evaluation
+  // fieldset, plotting the pediatric patient against the standard z-score
+  // curves for their age and sex.
+  _librechart_visit_attach_growth_charts($form, $sticky_visit);
+
   // Hide the raw current_station dropdown — the station strip + transition
   // controls (US1–US6) are the UX surface. Admins can still edit the field
   // directly via the entity field management UI.
@@ -540,6 +545,87 @@ function _librechart_visit_show_readonly_lab_results(array &$form, FormStateInte
     }
     unset($subform);
   }
+}
+
+/**
+ * Renders the WHO / MINSALUD growth charts above the Clinical Evaluation group.
+ *
+ * For a pediatric patient with a known date of birth and sex, the
+ * GrowthStandard service builds the z-score reference curves and the plotted
+ * point for each indicator appropriate to the child's age (weight-for-age,
+ * length/height-for-age, weight-for-length/height, BMI-for-age). The charts
+ * are passed to the client as drupalSettings and drawn by the growth_chart
+ * behaviour as a tabbed panel. The container is given a weight just below the
+ * Clinical Evaluation field group (weight 30) so it renders directly above it.
+ *
+ * @param array<string, mixed> $form
+ *   The visit form render array.
+ * @param mixed $visit
+ *   The visit entity backing the form, if any.
+ */
+function _librechart_visit_attach_growth_charts(array &$form, $visit): void {
+  if (!$visit instanceof ContentEntityInterface) {
+    return;
+  }
+  // Growth standards are pediatric; skip adult encounters.
+  if ($visit->hasField('patient_type') && (string) $visit->get('patient_type')->value !== 'pediatric') {
+    return;
+  }
+  $patient = $visit->hasField('patient') ? $visit->get('patient')->entity : NULL;
+  if (!$patient instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $dob = $patient->hasField('date_of_birth') ? (string) $patient->get('date_of_birth')->value : '';
+  $sex = $patient->hasField('sex') ? (string) $patient->get('sex')->value : '';
+  if ($dob === '' || $sex === '') {
+    return;
+  }
+
+  // Age in completed days at the encounter date (falling back to today).
+  try {
+    $birth = new \DateTime(substr($dob, 0, 10));
+    $reference = new \DateTime('today');
+    if ($visit->hasField('visit_date') && ($vd = (string) $visit->get('visit_date')->value) !== '') {
+      $reference = new \DateTime(substr($vd, 0, 10));
+    }
+  }
+  catch (\Throwable $e) {
+    return;
+  }
+  if ($birth > $reference) {
+    return;
+  }
+  $age_days = (int) $birth->diff($reference)->days;
+
+  $height = $visit->hasField('vital_height') ? $visit->get('vital_height')->value : NULL;
+  $weight = $visit->hasField('vital_weight') ? $visit->get('vital_weight')->value : NULL;
+  $bmi = $visit->hasField('vital_bmi') ? $visit->get('vital_bmi')->value : NULL;
+
+  $charts = \Drupal::service('librechart_visit.growth_standard')->applicableCharts(
+    $age_days,
+    $sex,
+    $height === NULL || $height === '' ? NULL : (float) $height,
+    $weight === NULL || $weight === '' ? NULL : (float) $weight,
+    $bmi === NULL || $bmi === '' ? NULL : (float) $bmi,
+  );
+  if ($charts === []) {
+    return;
+  }
+
+  $form['growth_chart'] = [
+    '#type' => 'container',
+    '#weight' => 29,
+    '#attributes' => [
+      'id' => 'lc-growth-charts',
+      'class' => ['lc-growth-charts'],
+    ],
+    'placeholder' => [
+      '#markup' => '<noscript>' . t('Growth charts require JavaScript.') . '</noscript>',
+    ],
+  ];
+  $form['#attached']['library'][] = 'librechart_visit/growth_chart';
+  $form['#attached']['drupalSettings']['librechartVisit']['growthCharts'] = $charts;
 }
 
 /**

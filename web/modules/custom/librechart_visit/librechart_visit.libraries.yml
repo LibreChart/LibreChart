@@ -47,3 +47,15 @@ bmi_calc:
   dependencies:
     - core/drupal
     - core/once
+
+growth_chart:
+  version: 1.x
+  js:
+    js/growth-chart.js: {}
+  css:
+    component:
+      css/growth-chart.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings

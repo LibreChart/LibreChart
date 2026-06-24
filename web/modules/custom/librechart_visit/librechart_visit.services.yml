@@ -1,3 +1,7 @@
 services:
   librechart_visit.station_workflow:
     class: Drupal\librechart_visit\Service\StationWorkflow
+
+  librechart_visit.growth_standard:
+    class: Drupal\librechart_visit\Service\GrowthStandard
+    arguments: ['@extension.list.module']
