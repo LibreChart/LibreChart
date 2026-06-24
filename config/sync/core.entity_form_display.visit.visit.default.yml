@@ -62,6 +62,7 @@ third_party_settings:
       children:
         - clinician_name
         - clinical_notes
+        - internal_referral_reason
         - dx_cardiac
         - dx_derm
         - dx_endo
@@ -189,13 +190,6 @@ targetEntityType: visit
 bundle: visit
 mode: default
 content:
-  incomplete_visit:
-    type: boolean_checkbox
-    weight: 200
-    region: content
-    settings:
-      display_label: true
-    third_party_settings: {  }
   allergies:
     type: select2_entity_reference
     weight: 30
@@ -490,6 +484,22 @@ content:
         collapse_edit_all: collapse_edit_all
         duplicate: duplicate
     third_party_settings: {  }
+  incomplete_visit:
+    type: boolean_checkbox
+    weight: 200
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  internal_referral_reason:
+    type: text_textarea
+    weight: 52
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings:
+      conditional_fields: null
   lab_results:
     type: paragraphs
     weight: 40

@@ -618,6 +618,17 @@ class Visit extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Free-text reason for an internal referral to another clinic service.
+    // Sits directly below Clinical Notes in the Clinical Evaluation group;
+    // clinician-editable like the other clinical fields.
+    $fields['internal_referral_reason'] = BaseFieldDefinition::create('text_long')
+      ->setLabel(new TranslatableMarkup('Reason for internal referral'))
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', ['type' => 'text_textarea', 'weight' => 52])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'text_default', 'weight' => 52])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['clinician_name'] = BaseFieldDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Clinician Name'))
       ->setRevisionable(TRUE)
@@ -630,8 +641,8 @@ class Visit extends ContentEntityBase {
     $fields['dx_write_in'] = BaseFieldDefinition::create('text_long')
       ->setLabel(new TranslatableMarkup('Diagnosis (Write-in)'))
       ->setRevisionable(TRUE)
-      ->setDisplayOptions('form', ['type' => 'text_textarea', 'weight' => 52])
-      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'text_default', 'weight' => 52])
+      ->setDisplayOptions('form', ['type' => 'text_textarea', 'weight' => 53])
+      ->setDisplayOptions('view', ['label' => 'above', 'type' => 'text_default', 'weight' => 53])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 

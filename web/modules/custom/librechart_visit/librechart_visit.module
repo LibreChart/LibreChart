@@ -202,6 +202,23 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
     $form['allergies']['widget']['#attributes']['class'][] = 'js-allergy-source';
   }
 
+  // Sticky patient-age badge pinned to the bottom-left of the form, mirroring
+  // the allergy bar. The age is derived from the referenced patient's date of
+  // birth and rendered server-side so it shows at every station.
+  $form['#attached']['library'][] = 'librechart_visit/age_sticky';
+  if ($sticky_visit instanceof ContentEntityInterface && $sticky_visit->hasField('patient')) {
+    $patient = $sticky_visit->get('patient')->entity;
+    if ($patient instanceof ContentEntityInterface && $patient->hasField('date_of_birth')) {
+      $dob = (string) $patient->get('date_of_birth')->value;
+      $age = function_exists('_librechart_patient_format_age')
+        ? _librechart_patient_format_age($dob)
+        : '';
+      if ($age !== '') {
+        $form['#attached']['drupalSettings']['librechartVisit']['patientAge'] = $age;
+      }
+    }
+  }
+
   // Hide the raw current_station dropdown — the station strip + transition
   // controls (US1–US6) are the UX surface. Admins can still edit the field
   // directly via the entity field management UI.
@@ -556,7 +573,7 @@ function _librechart_visit_setup_bmi_field(array &$form): void {
  *   The visit form render array.
  */
 function _librechart_visit_force_plain_textareas(array &$form): void {
-  foreach (['complaint', 'past_medical_history', 'clinical_notes', 'dx_write_in'] as $field) {
+  foreach (['complaint', 'past_medical_history', 'clinical_notes', 'internal_referral_reason', 'dx_write_in'] as $field) {
     if (($form[$field]['widget'][0]['#type'] ?? NULL) === 'text_format') {
       $form[$field]['widget'][0]['#allowed_formats'] = ['plain_text'];
       $form[$field]['widget'][0]['#format'] = 'plain_text';
@@ -967,7 +984,8 @@ function librechart_visit_entity_field_access(
   // TED Stockings toggle and the POS referral fields, which render inside the
   // Clinical Evaluation field group (group_pos is a child of group_clinical).
   $clinical_fields = [
-    'clinician_name', 'clinical_notes', 'dx_write_in', 'pt_referral',
+    'clinician_name', 'clinical_notes', 'internal_referral_reason',
+    'dx_write_in', 'pt_referral',
     'dx_cardiac', 'dx_derm', 'dx_endo', 'dx_ent', 'dx_eye', 'dx_gi',
     'dx_gyn_ob', 'dx_mental_health', 'dx_muscular_skeletal', 'dx_neuro',
     'dx_resp', 'dx_uro_genital', 'dx_vascular', 'dx_wound_ostomy',
@@ -1244,4 +1262,146 @@ function _librechart_visit_redirect_to_patient_chart_after_add(array &$form, For
   if ($visit instanceof ContentEntityInterface) {
     _librechart_visit_redirect_to_chart($form_state, $visit);
   }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for the visit entity.
+ *
+ * Seeds standing orders on every new visit, computed from the patient's age and
+ * sex (kept in code rather than ECA so age maths, taxonomy lookups, and the
+ * paragraph/back-reference wiring stay reliable and testable):
+ *   - Pharmacy: a multivitamin for every patient — the adult formulation at age
+ *     12+, the children's chewable below 12.
+ *   - Education: a Sex seminar for ages 11–29, and a Breast seminar for female
+ *     patients aged 14–50.
+ *
+ * Catalog terms are resolved by name so the same code works across environments
+ * with differing term ids. The references are attached here, before the visit's
+ * own save, so no second save is needed; the pharmacy module links each new
+ * prescription back to the visit after insert
+ * (_librechart_pharmacy_link_visit_medications()). Guarded to new visits, so a
+ * visit never receives duplicate orders on later edits.
+ */
+function librechart_visit_visit_presave(Visit $visit): void {
+  if (!$visit->isNew()) {
+    return;
+  }
+  $patient = $visit->get('patient')->entity;
+  if (!$patient instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $dob = $patient->hasField('date_of_birth')
+    ? (string) $patient->get('date_of_birth')->value
+    : '';
+  $age = _librechart_visit_age_years($dob);
+  if ($age === NULL) {
+    \Drupal::logger('librechart_visit')->warning(
+      'Auto-orders skipped for patient @id: date of birth missing or invalid.',
+      ['@id' => $patient->id()],
+    );
+    return;
+  }
+  $sex = $patient->hasField('sex') ? (string) $patient->get('sex')->value : '';
+
+  // Vitamins: every patient receives a multivitamin, age-appropriate.
+  $vitamin_name = $age >= 12
+    ? 'Multi-Vitamin (adult)'
+    : 'Multi-Vitamin Chewable (Childrens)';
+  $vitamin_tid = _librechart_visit_find_term_id('vitamins_nutrients_lv', $vitamin_name);
+  if ($vitamin_tid !== NULL) {
+    $prescription = \Drupal::entityTypeManager()->getStorage('prescription_item')->create([
+      'drug' => $vitamin_tid,
+      'drug_category' => 'Vitamins / Nutrients',
+    ]);
+    $prescription->save();
+    $visit->get('medications')->appendItem(['target_id' => $prescription->id()]);
+  }
+  else {
+    \Drupal::logger('librechart_visit')->warning(
+      'Auto-order skipped: vitamin term "@name" not found in vitamins_nutrients_lv.',
+      ['@name' => $vitamin_name],
+    );
+  }
+
+  // Education seminars, keyed by the term names in the `education` vocabulary.
+  $seminars = [];
+  if ($age >= 11 && $age <= 29) {
+    $seminars[] = 'Sex';
+  }
+  if ($sex === 'female' && $age >= 14 && $age <= 50) {
+    $seminars[] = 'Breast';
+  }
+  foreach ($seminars as $seminar_name) {
+    $tid = _librechart_visit_find_term_id('education', $seminar_name);
+    if ($tid === NULL) {
+      \Drupal::logger('librechart_visit')->warning(
+        'Auto-assign skipped: education term "@name" not found.',
+        ['@name' => $seminar_name],
+      );
+      continue;
+    }
+    $paragraph = \Drupal::entityTypeManager()->getStorage('paragraph')->create([
+      'type' => 'education_referral',
+      'education_class' => $tid,
+      'complete' => FALSE,
+    ]);
+    // Save the paragraph up front so it has an id/revision to reference: this
+    // hook runs after the field's own preSave, which is where embedded
+    // paragraphs would otherwise be saved. The paragraphs widget re-stamps the
+    // parent reference on the first edit of the visit.
+    $paragraph->save();
+    $visit->get('education_referrals')->appendItem([
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ]);
+  }
+}
+
+/**
+ * Returns a patient's whole-year age from a date-of-birth string.
+ *
+ * @param string $dob
+ *   The date of birth (Y-m-d, optionally with a time component).
+ *
+ * @return int|null
+ *   The completed years of age, or NULL when the date is missing, unparseable,
+ *   or in the future.
+ */
+function _librechart_visit_age_years(string $dob): ?int {
+  if ($dob === '') {
+    return NULL;
+  }
+  try {
+    $birth = new \DateTime(substr($dob, 0, 10));
+  }
+  catch (\Throwable $e) {
+    return NULL;
+  }
+  $today = new \DateTime('today');
+  if ($birth > $today) {
+    return NULL;
+  }
+  return (int) $today->diff($birth)->y;
+}
+
+/**
+ * Looks up a taxonomy term id by vocabulary and exact name.
+ *
+ * @param string $vid
+ *   The vocabulary machine name.
+ * @param string $name
+ *   The exact term name to match.
+ *
+ * @return int|null
+ *   The term id, or NULL when no matching term exists.
+ */
+function _librechart_visit_find_term_id(string $vid, string $name): ?int {
+  $ids = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('vid', $vid)
+    ->condition('name', $name)
+    ->range(0, 1)
+    ->execute();
+  return $ids ? (int) reset($ids) : NULL;
 }

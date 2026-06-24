@@ -28,6 +28,18 @@ allergy_sticky:
     - core/once
     - core/drupalSettings
 
+age_sticky:
+  version: 1.x
+  js:
+    js/visit-age-sticky.js: {}
+  css:
+    component:
+      css/visit-age-sticky.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+
 bmi_calc:
   version: 1.x
   js:

@@ -61,6 +61,7 @@ third_party_settings:
       children:
         - clinician_name
         - clinical_notes
+        - internal_referral_reason
         - dx_cardiac
         - dx_derm
         - dx_endo
@@ -201,6 +202,15 @@ content:
     region: content
     settings:
       rows: 6
+      placeholder: ''
+    third_party_settings:
+      conditional_fields: null
+  internal_referral_reason:
+    type: text_textarea
+    weight: 52
+    region: content
+    settings:
+      rows: 4
       placeholder: ''
     third_party_settings:
       conditional_fields: null

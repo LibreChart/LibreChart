@@ -528,3 +528,20 @@ function _librechart_visit_migrate_teaching_station(): void {
     }
   }
 }
+
+/**
+ * Install the `internal_referral_reason` base field on deployed sites.
+ *
+ * A free-text reason for an internal referral, shown under Clinical Notes.
+ * Fresh sites pick the field up from baseFieldDefinitions(); existing sites
+ * need the field storage installed here.
+ */
+function librechart_visit_update_9021(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['internal_referral_reason'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface
+    && !$manager->getFieldStorageDefinition('internal_referral_reason', 'visit')) {
+    $manager->installFieldStorageDefinition('internal_referral_reason', 'visit', 'librechart_visit', $definition);
+  }
+}

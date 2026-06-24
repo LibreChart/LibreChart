@@ -1,0 +1,44 @@
+/**
+ * @file
+ * Sticky patient-age badge pinned to the bottom-left of the visit form.
+ *
+ * Sits above the allergy bar (z-index 501) so both remain readable. Styled in a
+ * neutral slate to distinguish it from the red allergy warning.
+ */
+
+.lc-age-sticky {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 501;
+  padding: 0.5rem 0.75rem;
+}
+
+.lc-age-sticky--visible {
+  display: block;
+}
+
+.lc-age-sticky::before {
+  content: "Age:";
+  display: inline-block;
+  margin-right: 0.4rem;
+  color: #cfd8e3;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+
+.lc-age-value {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  background-color: #2f4b66;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  vertical-align: middle;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
