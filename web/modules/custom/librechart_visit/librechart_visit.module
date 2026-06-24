@@ -1232,7 +1232,7 @@ function librechart_visit_visit_advance_submit(array &$form, FormStateInterface 
   // Merge concurrent edits before the station change is written, so advancing
   // a stale tab cannot clobber another station's work.
   if ($form_object instanceof \Drupal\librechart_visit\Form\VisitForm) {
-    $form_object->reconcileAndWarn($form_state);
+    $form_object->protectConcurrentEdits();
   }
 
   $visit = _librechart_visit_get_form_entity($form_state);
@@ -1301,7 +1301,7 @@ function librechart_visit_visit_picker_submit(array &$form, FormStateInterface $
   // Merge concurrent edits before the station change is written, so advancing
   // a stale tab cannot clobber another station's work.
   if ($form_object instanceof \Drupal\librechart_visit\Form\VisitForm) {
-    $form_object->reconcileAndWarn($form_state);
+    $form_object->protectConcurrentEdits();
   }
 
   $visit = _librechart_visit_get_form_entity($form_state);
@@ -1396,7 +1396,7 @@ function librechart_visit_visit_reopen_submit(array &$form, FormStateInterface $
   // stale field values over another station's work.
   $form_object = $form_state->getFormObject();
   if ($form_object instanceof \Drupal\librechart_visit\Form\VisitForm) {
-    $form_object->reconcileAndWarn($form_state);
+    $form_object->protectConcurrentEdits();
   }
 
   $target_label = $workflow->label($target);

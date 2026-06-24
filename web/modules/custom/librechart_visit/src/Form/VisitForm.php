@@ -12,40 +12,38 @@ use Drupal\Core\Form\FormStateInterface;
  * Edit form for Visit entities with non-destructive concurrency handling.
  *
  * The Visit is a single "fat" entity holding every station's fields, so each
- * save rewrites the whole row. When two staff edit the same visit at once (or a
- * stale browser tab is saved after the patient has moved on), a plain save can
- * silently overwrite another station's work.
+ * save rewrites the whole row. When two staff edit the same visit at once — or
+ * a stale browser tab is saved after the patient has moved on — a plain save
+ * can silently overwrite another station's work, because the form carries the
+ * field values as they were when it was opened.
  *
- * To prevent that without locking anyone out, this form performs a per-field
- * three-way merge on save:
- *   - baseline  = the field value when this editor opened the form,
- *   - submitted = the value this editor is saving,
- *   - storage   = the current value in the database.
- * If the editor did not change a field (submitted == baseline), the value
- * currently in storage is adopted, preserving a concurrent edit by someone
- * else. Only when all three differ is there a true same-field collision; the
- * editor's value is kept and a warning names the field.
+ * Field-edit access is already partitioned by role in
+ * librechart_visit_entity_field_access(): a triage nurse may edit triage
+ * fields, a clinician the clinical fields, and so on. This form leans on that
+ * partition. On save, every field the current user is *not* permitted to edit
+ * is reset to the value currently in storage, so the stale copy this form is
+ * carrying can never overwrite a concurrent edit made by the owning station.
+ * Fields the user may edit are saved as submitted.
  *
- * The baseline is captured once, when the form is first built, and carried in
- * the form state (this form is cached because of its paragraph/inline-entity
- * widgets, so form-state storage survives the GET/POST cycle). The station
- * transition submit handlers in librechart_visit.module call
- * reconcileConcurrentChanges() too, so every save path is covered.
+ * This is deliberately a value-free reconciliation: it never diffs field
+ * values (which is unreliable for paragraphs, formatted text, and multi-value
+ * fields, whose stored representation changes between load and save even when
+ * untouched), so it raises no spurious "another user changed this" warnings.
+ * Administrators bypass field-access restrictions and so are unaffected — their
+ * saves behave exactly as before.
+ *
+ * The station transition submit handlers in librechart_visit.module call
+ * protectConcurrentEdits() too, so every form save path is covered.
  */
 class VisitForm extends ContentEntityForm {
 
   /**
-   * Form-state key under which the loaded field baseline is stored.
-   */
-  protected const BASELINE_KEY = 'librechart_visit_baseline';
-
-  /**
-   * Fields the merge must not touch.
+   * Fields the reconciliation must not touch.
    *
    * These are entity keys, revision metadata, the optimistic-locking timestamp,
    * workflow state set explicitly by the transition handlers, computed values,
-   * and the immutable patient reference. Everything else is editable clinical
-   * data and is reconciled.
+   * and the immutable patient reference. Everything else is role-owned clinical
+   * data governed by librechart_visit_entity_field_access().
    *
    * @var string[]
    */
@@ -72,129 +70,49 @@ class VisitForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state): array {
-    $form = parent::form($form, $form_state);
-    // Snapshot the loaded values once, on the initial build. On any later
-    // rebuild (validation error, AJAX, autosave restore) the baseline is
-    // already present and must not be overwritten with edited values.
-    if ($form_state->get(self::BASELINE_KEY) === NULL) {
-      $form_state->set(self::BASELINE_KEY, $this->captureBaseline());
-    }
-    return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function save(array $form, FormStateInterface $form_state): int {
-    $this->reconcileAndWarn($form_state);
+    $this->protectConcurrentEdits();
     return parent::save($form, $form_state);
   }
 
   /**
-   * Reconciles concurrent edits and surfaces any collisions to the editor.
+   * Resets fields the current user may not edit back to their stored values.
    *
    * Shared entry point for the default Save (above) and the station transition
-   * submit handlers in librechart_visit.module, so every form save path merges
-   * before persisting.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state holding the captured baseline.
+   * submit handlers in librechart_visit.module, so every form save path is
+   * reconciled before the entity is persisted. Mutates the form entity in
+   * place.
    */
-  public function reconcileAndWarn(FormStateInterface $form_state): void {
-    $this->warnConcurrentConflicts($this->reconcileConcurrentChanges($form_state));
-  }
-
-  /**
-   * Captures the loaded values of every merge-managed field.
-   *
-   * @return array<string, array>
-   *   Field name keyed to its raw value array as loaded from storage.
-   */
-  protected function captureBaseline(): array {
+  public function protectConcurrentEdits(): void {
     $entity = $this->entity;
-    $baseline = [];
-    foreach ($entity->getFields() as $name => $items) {
-      if (in_array($name, self::UNMANAGED_FIELDS, TRUE)) {
-        continue;
-      }
-      $baseline[$name] = $items->getValue();
-    }
-    return $baseline;
-  }
-
-  /**
-   * Reconciles this editor's changes against concurrent edits in storage.
-   *
-   * Mutates the form entity in place: fields this editor left untouched adopt
-   * the current storage value, so a concurrent edit by another station is not
-   * lost. The optimistic-locking timestamp is aligned with storage so the
-   * Visit::preSave() backstop passes for this reconciled save.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state holding the captured baseline.
-   *
-   * @return string[]
-   *   Human-readable labels of fields with a true same-field collision.
-   */
-  public function reconcileConcurrentChanges(FormStateInterface $form_state): array {
-    $entity = $this->entity;
-    $baseline = $form_state->get(self::BASELINE_KEY);
-    if ($entity->isNew() || !is_array($baseline)) {
-      return [];
+    if ($entity->isNew()) {
+      return;
     }
 
     $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
     $current = $storage->loadUnchanged($entity->id());
     if (!$current instanceof ContentEntityInterface) {
-      return [];
+      return;
     }
 
-    $conflicts = [];
-    foreach ($baseline as $name => $baseline_value) {
-      if (!$entity->hasField($name) || !$current->hasField($name)) {
+    $account = $this->currentUser();
+    foreach ($entity->getFields() as $name => $items) {
+      if (in_array($name, self::UNMANAGED_FIELDS, TRUE) || !$current->hasField($name)) {
         continue;
       }
-      $submitted_value = $entity->get($name)->getValue();
-      $storage_value = $current->get($name)->getValue();
-      $user_changed = $submitted_value != $baseline_value;
-      $other_changed = $storage_value != $baseline_value;
-
-      if (!$user_changed) {
-        // This editor did not touch the field; keep whatever is now in storage
-        // so a concurrent edit by someone else survives this save.
-        if ($other_changed) {
-          $entity->set($name, $storage_value);
-        }
-      }
-      elseif ($other_changed && $storage_value != $submitted_value) {
-        // Both editors changed the same field to different values: keep this
-        // editor's value but surface the collision.
-        $conflicts[] = (string) $entity->get($name)->getFieldDefinition()->getLabel();
+      // A field this user cannot edit at their station must not be written from
+      // this form's (possibly stale) copy. Adopt the current stored value so a
+      // concurrent edit by the owning station is preserved.
+      if (!$items->access('edit', $account)) {
+        $entity->set($name, $current->get($name)->getValue());
       }
     }
 
-    // Adopt storage's changed timestamp so the preSave optimistic-lock backstop
-    // sees a match; the changed field then bumps itself to now on save.
+    // Align the optimistic-lock timestamp with storage so Visit::preSave()'s
+    // backstop passes for this reconciled save; the changed field then bumps
+    // itself to now on save.
     if ($current->hasField('changed')) {
       $entity->set('changed', $current->get('changed')->value);
-    }
-
-    return $conflicts;
-  }
-
-  /**
-   * Emits a warning message for each field with a same-field collision.
-   *
-   * @param string[] $conflicts
-   *   Field labels that collided.
-   */
-  protected function warnConcurrentConflicts(array $conflicts): void {
-    foreach ($conflicts as $label) {
-      $this->messenger()->addWarning($this->t(
-        'Another user changed %field at the same time. Your value was kept — please confirm it is correct.',
-        ['%field' => $label],
-      ));
     }
   }
 
