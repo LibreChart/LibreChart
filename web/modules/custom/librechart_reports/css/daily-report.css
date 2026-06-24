@@ -1,0 +1,117 @@
+/**
+ * @file
+ * Styles for the Reports section: overview cards and the Daily patient report.
+ */
+
+/* Reports overview landing. */
+.lc-reports-overview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lc-report-card {
+  display: block;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  min-width: 18rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.lc-report-card:hover {
+  border-color: #1d4ed8;
+}
+
+.lc-report-card__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  color: #1d4ed8;
+}
+
+.lc-report-card__desc {
+  margin: 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+/* Daily report: mission-day tabs. */
+.lc-daily-report__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.lc-tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  color: #475569;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: -2px;
+}
+
+.lc-tab:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.lc-tab.is-active {
+  background: #fff;
+  border-color: #e2e8f0;
+  border-bottom: 2px solid #fff;
+  color: #1d4ed8;
+}
+
+.lc-daily-report__summary {
+  font-size: 1.05rem;
+  color: #334155;
+  margin: 0 0 1.25rem;
+}
+
+/* Chart grid. */
+.lc-daily-report__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.25rem;
+}
+
+.lc-chart-card {
+  padding: 1rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  min-width: 0;
+}
+
+.lc-chart-card__title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.lc-chart-card__canvas {
+  width: 100%;
+}
+
+.lc-chart-card__empty {
+  color: #94a3b8;
+  font-style: italic;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+/* Give the ranked lists more vertical room for many bars. */
+.lc-chart-card--municipality,
+.lc-chart-card--medications,
+.lc-chart-card--diagnoses {
+  grid-column: span 1;
+}

@@ -1,0 +1,15 @@
+librechart_reports.overview:
+  path: '/reports'
+  defaults:
+    _controller: '\Drupal\librechart_reports\Controller\ReportsOverviewController::overview'
+    _title: 'Reports'
+  requirements:
+    _permission: 'view visit entities'
+
+librechart_reports.daily:
+  path: '/reports/daily'
+  defaults:
+    _controller: '\Drupal\librechart_reports\Controller\DailyPatientReportController::report'
+    _title: 'Daily patient report'
+  requirements:
+    _permission: 'view visit entities'

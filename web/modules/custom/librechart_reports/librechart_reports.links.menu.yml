@@ -1,0 +1,13 @@
+librechart_reports.overview:
+  title: 'Reports'
+  description: 'Patient data reports and visualizations.'
+  route_name: librechart_reports.overview
+  menu_name: main
+  weight: 25
+
+librechart_reports.daily:
+  title: 'Daily patient report'
+  description: 'Demographics, prescribing, and diagnoses for a single mission day.'
+  parent: librechart_reports.overview
+  route_name: librechart_reports.daily
+  weight: 0
