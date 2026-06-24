@@ -202,6 +202,7 @@ final class DailyPatientReportController extends ControllerBase {
       'age' => $this->t('Patients by age group'),
       'sex' => $this->t('Patients by sex'),
       'municipality' => $this->t('Patients by municipality'),
+      'specialty' => $this->t('Patients by specialty'),
       'medications' => $this->t('Top prescribed medications'),
       'diagnoses' => $this->t('Most frequent diagnoses'),
     ];
@@ -250,6 +251,7 @@ final class DailyPatientReportController extends ControllerBase {
       'age' => $this->ageGroups($day),
       'sex' => $this->sexBreakdown($day),
       'municipality' => $this->municipalityBreakdown($day),
+      'specialty' => $this->specialtyBreakdown($day),
       'medications' => $this->topMedications($day),
       'diagnoses' => $this->topDiagnoses($day),
     ];
@@ -321,6 +323,26 @@ final class DailyPatientReportController extends ControllerBase {
       $rows[] = ['name' => $row->name, 'cnt' => (int) $row->cnt];
     }
     return $this->rollupTail($rows, 14);
+  }
+
+  /**
+   * Visits grouped by assigned specialty.
+   *
+   * The specialties field is multi-value, so a visit assigned to several
+   * specialties is counted once under each.
+   */
+  private function specialtyBreakdown(string $day): array {
+    $result = $this->database->query(
+      'SELECT t.name AS name, COUNT(*) AS cnt
+       FROM {visit} v
+       INNER JOIN {visit__specialties} s ON s.entity_id = v.vid AND s.deleted = 0
+       INNER JOIN {taxonomy_term_field_data} t ON t.tid = s.specialties_target_id
+       WHERE DATE(v.visit_date) = :day
+       GROUP BY t.name
+       ORDER BY cnt DESC, name ASC',
+      [':day' => $day]
+    );
+    return $this->labelValueRows($result);
   }
 
   /**

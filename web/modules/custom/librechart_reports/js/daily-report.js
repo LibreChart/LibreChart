@@ -84,6 +84,9 @@
     municipality: function (ctx, set) {
       return horizontalBar(ctx, set);
     },
+    specialty: function (ctx, set) {
+      return horizontalBar(ctx, set);
+    },
     medications: function (ctx, set) {
       return horizontalBar(ctx, set);
     },
