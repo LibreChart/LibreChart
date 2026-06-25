@@ -13,8 +13,10 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 /**
  * Defines the InventoryReceipt content entity.
  *
- * Records a stock addition event for a drug at a clinic site. When saved,
- * a postsave hook increments the corresponding DrugInventory.quantity_on_hand.
+ * Records a stock addition event for a drug at a clinic site. Save hooks keep
+ * DrugInventory.quantity_on_hand in step with the receipt: creating one adds
+ * the received quantity, editing it adjusts by the difference, and deleting it
+ * reverses the addition.
  */
 #[ContentEntityType(
   id: 'inventory_receipt',

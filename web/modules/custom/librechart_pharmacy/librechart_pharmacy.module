@@ -218,16 +218,29 @@ function librechart_pharmacy_entity_update(EntityInterface $entity): void {
 /**
  * Implements hook_entity_predelete().
  *
- * Restores stock for a filled prescription item that is being removed
- * (feature 005, FR-011 edge case).
+ * Reverses the stock side effect of an entity that is being removed:
+ * - prescription_item: restores stock for a filled item (feature 005, FR-011).
+ * - inventory_receipt: subtracts the units the receipt previously added, so a
+ *   receipt entered in error can be voided by deleting it.
  */
 function librechart_pharmacy_entity_predelete(EntityInterface $entity): void {
-  if (!$entity instanceof ContentEntityInterface || $entity->getEntityTypeId() !== 'prescription_item') {
+  if (!$entity instanceof ContentEntityInterface) {
     return;
   }
-  $effective = _librechart_pharmacy_effective_quantity($entity);
-  if ($effective > 0) {
-    _librechart_pharmacy_adjust_inventory((int) $entity->get('drug')->target_id, $effective);
+  switch ($entity->getEntityTypeId()) {
+    case 'prescription_item':
+      $effective = _librechart_pharmacy_effective_quantity($entity);
+      if ($effective > 0) {
+        _librechart_pharmacy_adjust_inventory((int) $entity->get('drug')->target_id, $effective);
+      }
+      break;
+
+    case 'inventory_receipt':
+      $received = max(0, (int) $entity->get('quantity_received')->value);
+      if ($received > 0) {
+        _librechart_pharmacy_adjust_inventory((int) $entity->get('drug')->target_id, -$received);
+      }
+      break;
   }
 }
 
@@ -253,10 +266,7 @@ function _librechart_pharmacy_dispatch_save(EntityInterface $entity, ?ContentEnt
       break;
 
     case 'inventory_receipt':
-      // Receipts are create-only; increment once, on insert.
-      if ($original === NULL) {
-        librechart_pharmacy_handle_inventory_receipt($entity);
-      }
+      _librechart_pharmacy_apply_receipt_delta($entity, $original);
       break;
   }
 }
@@ -356,29 +366,69 @@ function _librechart_pharmacy_adjust_inventory(int $drug_id, int $change): void 
 }
 
 /**
- * Increments DrugInventory when an inventory receipt is saved.
+ * Applies the inventory delta for a saved inventory receipt.
+ *
+ * Delta-based so the effect always matches the receipt's current quantity and
+ * drug: creating a receipt adds stock, editing the quantity adjusts by the
+ * difference, and re-pointing the receipt at a different drug moves the stock
+ * between them. Mirrors the prescription-item delta so receipts are editable
+ * (and reversible on delete) rather than create-only — previously an edit was
+ * silently ignored, leaving the report out of step with the receipt.
  *
  * @param \Drupal\Core\Entity\ContentEntityInterface $receipt
- *   The InventoryReceipt entity being saved.
+ *   The InventoryReceipt entity just saved.
+ * @param \Drupal\Core\Entity\ContentEntityInterface|null $original
+ *   The pre-save state on update, or NULL on insert.
  */
-function librechart_pharmacy_handle_inventory_receipt(ContentEntityInterface $receipt): void {
-  $quantity = (int) $receipt->get('quantity_received')->value;
-  if ($quantity <= 0) {
+function _librechart_pharmacy_apply_receipt_delta(ContentEntityInterface $receipt, ?ContentEntityInterface $original): void {
+  $new_drug = (int) $receipt->get('drug')->target_id;
+  $new_qty = max(0, (int) $receipt->get('quantity_received')->value);
+  $old_drug = $original !== NULL ? (int) $original->get('drug')->target_id : $new_drug;
+  $old_qty = $original !== NULL ? max(0, (int) $original->get('quantity_received')->value) : 0;
+
+  if ($old_drug !== $new_drug) {
+    // Drug changed: take back what was added to the old drug, add to the new.
+    if ($old_qty > 0) {
+      _librechart_pharmacy_adjust_inventory($old_drug, -$old_qty);
+    }
+    if ($new_qty > 0) {
+      _librechart_pharmacy_receive_stock($new_drug, $new_qty, $receipt);
+    }
     return;
   }
 
-  $drug_id = (int) $receipt->get('drug')->target_id;
+  $delta = $new_qty - $old_qty;
+  if ($delta > 0) {
+    _librechart_pharmacy_receive_stock($new_drug, $delta, $receipt);
+  }
+  elseif ($delta < 0) {
+    _librechart_pharmacy_adjust_inventory($new_drug, $delta);
+  }
+}
 
-  // The clinic runs a single stock pool per drug (feature 005): the inventory
-  // report, the stock validator, and the prescription decrement all act on the
-  // primary (lowest-id) record via DrugInventory::primaryForDrug(). Increment
-  // that same record so a receipt is reflected everywhere, whichever clinic
-  // site it happens to be filed under — keying receipts by (drug, clinic_site)
-  // instead stranded stock in records the rest of the system never reads.
+/**
+ * Adds received stock to a drug's primary inventory record.
+ *
+ * Unlike _librechart_pharmacy_adjust_inventory(), this opens an inventory
+ * record (seeded from the receipt's clinic site) when the drug is not stocked
+ * yet, because a receipt is the event that first brings a drug into stock. The
+ * clinic runs a single stock pool per drug (feature 005), so the primary
+ * (lowest-id) record is updated — the same record the report, the stock
+ * validator, and the prescription decrement all read.
+ *
+ * @param int $drug_id
+ *   The drug taxonomy term id.
+ * @param int $amount
+ *   Units to add; must be positive.
+ * @param \Drupal\Core\Entity\ContentEntityInterface $receipt
+ *   The receipt supplying the clinic site for a newly opened record.
+ */
+function _librechart_pharmacy_receive_stock(int $drug_id, int $amount, ContentEntityInterface $receipt): void {
+  if ($amount <= 0 || $drug_id <= 0) {
+    return;
+  }
   $inventory = DrugInventory::primaryForDrug($drug_id);
   if ($inventory === NULL) {
-    // Drug not stocked yet: open its inventory record, seeded from the
-    // receipt's clinic site.
     /** @var \Drupal\librechart_pharmacy\Entity\DrugInventory $inventory */
     $inventory = \Drupal::entityTypeManager()->getStorage('drug_inventory')->create([
       'drug' => $drug_id,
@@ -386,9 +436,8 @@ function librechart_pharmacy_handle_inventory_receipt(ContentEntityInterface $re
       'quantity_on_hand' => 0,
     ]);
   }
-
   $current = (int) $inventory->get('quantity_on_hand')->value;
-  $inventory->set('quantity_on_hand', $current + $quantity);
+  $inventory->set('quantity_on_hand', $current + $amount);
   $inventory->save();
 }
 
