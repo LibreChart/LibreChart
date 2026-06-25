@@ -1,0 +1,10 @@
+name: Librechart User Dashboard
+type: module
+description: 'Per-user "My Dashboard" showing the patients each user has worked on.'
+package: Librechart
+core_version_requirement: ^11
+dependencies:
+  - drupal:dashboard
+  - drupal:layout_builder
+  - librechart_visit:librechart_visit
+  - librechart_patient:librechart_patient

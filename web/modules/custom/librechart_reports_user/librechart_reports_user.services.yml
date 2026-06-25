@@ -1,0 +1,7 @@
+services:
+  librechart_reports_user.activity:
+    class: Drupal\librechart_reports_user\UserActivityReport
+    arguments: ['@database', '@datetime.time']
+  librechart_reports_user.user_context:
+    class: Drupal\librechart_reports_user\DashboardUserContext
+    arguments: ['@current_user', '@current_route_match']

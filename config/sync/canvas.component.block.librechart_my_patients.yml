@@ -1,0 +1,22 @@
+uuid: 3c40bad9-3358-445b-8e74-370ef45cacd5
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_reports_user
+active_version: 7bc6497e61ad2ad7
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: librechart_my_patients
+        label: 'My patients'
+        label_display: '0'
+        provider: librechart_reports_user
+    fallback_metadata:
+      slot_definitions: null
+label: 'My patients'
+id: block.librechart_my_patients
+provider: librechart_reports_user
+source: block
+source_local_id: librechart_my_patients

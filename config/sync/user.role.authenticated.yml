@@ -2,13 +2,17 @@ uuid: 83014758-d0c5-4cd1-9df4-098ac5485ea4
 langcode: en
 status: true
 dependencies:
+  config:
+    - dashboard.dashboard.my_dashboard
   module:
     - captcha
     - coffee
     - contextual
+    - dashboard
     - file
     - honeypot
     - klaro
+    - librechart_reports_user
     - librechart_visit
     - media
     - navigation
@@ -33,6 +37,8 @@ permissions:
   - 'skip CAPTCHA'
   - 'use klaro'
   - 'view media'
+  - 'view my_dashboard dashboard'
+  - 'view own dashboard'
   - 'view own unpublished content'
   - 'view the administration theme'
   - 'view visit entities'

@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - layout_builder
+    - librechart_reports_user
+id: my_dashboard
+label: 'My Dashboard'
+description: 'Patients you have worked on, with quick links to revisit their records.'
+layout:
+  -
+    layout_id: layout_onecol
+    layout_settings:
+      label: ''
+      context_mapping: {  }
+    components:
+      a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c:
+        uuid: a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c
+        region: content
+        configuration:
+          id: librechart_my_patients
+          label: 'My patients'
+          label_display: visible
+          provider: librechart_reports_user
+          context_mapping: {  }
+        weight: 0
+        additional: {  }
+    third_party_settings: {  }
+weight: 0

@@ -1,0 +1,52 @@
+/**
+ * @file
+ * Styles for the My Dashboard widgets.
+ */
+
+.lc-my-patients__count {
+  font-size: 1.1rem;
+  color: #334155;
+  margin: 0 0 0.75rem;
+}
+
+.lc-my-patients__count strong {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1d4ed8;
+  margin-right: 0.25rem;
+}
+
+table.lc-my-patients {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.lc-my-patients th {
+  text-align: left;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+}
+
+table.lc-my-patients td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #eef2f7;
+  color: #0f172a;
+}
+
+table.lc-my-patients tr:hover td {
+  background: #f8fafc;
+}
+
+table.lc-my-patients a {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+table.lc-my-patients a:hover {
+  text-decoration: underline;
+}

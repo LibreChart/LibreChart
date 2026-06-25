@@ -1,0 +1,9 @@
+uuid: 9164e792-8ee9-4e67-8ea5-e183aece6b44
+langcode: en
+status: true
+dependencies: {  }
+name: Librechart
+configEntityTypeId: component
+weight: 0
+items:
+  - block.librechart_my_patients

@@ -68,6 +68,7 @@ module:
   librechart_patient: 0
   librechart_pharmacy: 0
   librechart_reports: 0
+  librechart_reports_user: 0
   librechart_visit: 0
   link: 0
   linkit: 0

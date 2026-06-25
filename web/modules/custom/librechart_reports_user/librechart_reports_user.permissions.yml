@@ -1,0 +1,8 @@
+view own dashboard:
+  title: 'View own patient dashboard'
+  description: 'View a personal dashboard of the patients you have worked on.'
+
+view any user dashboard:
+  title: 'View any user patient dashboard'
+  description: 'View the patient dashboard of any user, for oversight and audit.'
+  restrict access: true
