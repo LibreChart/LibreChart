@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations for the Librechart User Dashboard module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ * The dashboard module derives one local-task tab per dashboard on the
+ * /admin/dashboard pages. With a single dashboard reached from the Reports
+ * section, those tabs are redundant, so remove them.
+ *
+ * @param array<string, mixed> $data
+ *   The local tasks render data.
+ * @param string $route_name
+ *   The current route name.
+ * @param \Drupal\Core\Cache\RefinableCacheableDependencyInterface $cacheability
+ *   The cacheability metadata.
+ */
+function librechart_reports_user_menu_local_tasks_alter(array &$data, string $route_name, RefinableCacheableDependencyInterface $cacheability): void {
+  if (empty($data['tabs'][0])) {
+    return;
+  }
+  foreach (array_keys($data['tabs'][0]) as $key) {
+    if ($key === 'dashboard' || str_starts_with($key, 'dashboard.dashboards:')) {
+      unset($data['tabs'][0][$key]);
+    }
+  }
+}

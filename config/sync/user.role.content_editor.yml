@@ -3,7 +3,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - dashboard.dashboard.welcome
     - filter.format.content_format
     - media.type.document
     - media.type.image
@@ -15,7 +14,6 @@ dependencies:
   module:
     - canvas
     - content_moderation
-    - dashboard
     - filter
     - media
     - media_library_bulk_upload
@@ -77,4 +75,3 @@ permissions:
   - 'view own unpublished content'
   - 'view own unpublished media'
   - 'view scheduled content'
-  - 'view welcome dashboard'
