@@ -122,7 +122,7 @@ final class MyTimelineBlock extends BlockBase implements ContainerFactoryPluginI
         'patient' => [
           '#type' => 'link',
           '#title' => $name,
-          '#url' => Url::fromRoute('entity.visit.canonical', ['visit' => $edit['vid']]),
+          '#url' => Url::fromRoute('entity.patient.edit_form', ['patient' => $edit['pid']]),
           '#attributes' => ['class' => ['lc-timeline__patient']],
         ],
         'meta' => [

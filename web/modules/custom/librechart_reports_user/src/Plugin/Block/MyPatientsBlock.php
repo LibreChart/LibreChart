@@ -102,7 +102,7 @@ final class MyPatientsBlock extends BlockBase implements ContainerFactoryPluginI
           'data' => [
             '#type' => 'link',
             '#title' => $patient['name'] !== '' ? $patient['name'] : $this->t('(no name)'),
-            '#url' => Url::fromRoute('entity.patient.canonical', ['patient' => $patient['pid']]),
+            '#url' => Url::fromRoute('entity.patient.edit_form', ['patient' => $patient['pid']]),
           ],
         ],
         'age' => $patient['age'] ?? $this->t('—'),

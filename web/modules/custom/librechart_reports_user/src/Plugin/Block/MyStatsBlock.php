@@ -81,7 +81,7 @@ final class MyStatsBlock extends BlockBase implements ContainerFactoryPluginInte
     $cards = [
       [
         'value' => $stats['patients'],
-        'label' => $this->t('Patients worked on'),
+        'label' => $this->t('Patient records interacted with'),
         'sub' => $this->t('Distinct patients you have touched'),
       ],
       [
