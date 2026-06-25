@@ -464,3 +464,16 @@ msgstr "Uroanálisis"
 
 msgid "Urine Pregnancy"
 msgstr "Embarazo en orina"
+
+# Floor board inactivity flags (icon legend + per-name tooltip/screen-reader).
+msgid "Inactive for over 1 hour"
+msgstr "Inactivo por más de 1 hora"
+
+msgid "Inactive for over 1 hour:"
+msgstr "Inactivo por más de 1 hora:"
+
+msgid "Inactive for more than 2 hours"
+msgstr "Inactivo por más de 2 horas"
+
+msgid "Inactive for more than 2 hours:"
+msgstr "Inactivo por más de 2 horas:"

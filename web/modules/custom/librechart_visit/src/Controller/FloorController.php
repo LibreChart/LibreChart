@@ -62,6 +62,15 @@ final class FloorController extends ControllerBase {
   private const STALE_AFTER_SECONDS = 7200;
 
   /**
+   * How long (in seconds) before a visit is flagged as inactive.
+   *
+   * Once a patient has been in the same station queue longer than this (but not
+   * yet past STALE_AFTER_SECONDS), the floor board marks the name with a
+   * grimace icon as an early warning. One hour.
+   */
+  private const INACTIVE_AFTER_SECONDS = 3600;
+
+  /**
    * Inline FontAwesome 5 "ghost" (solid) icon, flagging a stalled visit.
    *
    * Inlined as SVG rather than loaded from the FontAwesome webfont so it stays
@@ -70,6 +79,15 @@ final class FloorController extends ControllerBase {
    * background, so it meets the same contrast as the text.
    */
   private const GHOST_ICON = '<svg class="floor-ghost" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M186.1.09C81.01 3.24 0 94.92 0 200.05v263.92c0 14.26 17.23 21.39 27.31 11.31l24.92-18.53c6.66-4.95 16-3.99 21.51 2.21l42.95 48.35c6.25 6.25 16.38 6.25 22.63 0l40.72-45.85c6.37-7.17 17.56-7.17 23.92 0l40.72 45.85c6.25 6.25 16.38 6.25 22.63 0l42.95-48.35c5.51-6.2 14.85-7.17 21.51-2.21l24.92 18.53c10.08 10.08 27.31 2.94 27.31-11.31V192C384 84 294.83-3.17 186.1.09zM128 224c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32zm128 0c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"/></svg>';
+
+  /**
+   * Inline FontAwesome 6 "face-grimace" (regular) icon, flagging an early stall.
+   *
+   * Shown when a visit has been inactive for over an hour but under two hours;
+   * at the two-hour mark it is replaced by the ghost icon (never both at once).
+   * Inlined for the same self-hosted, contrast-inheriting reasons as the ghost.
+   */
+  private const GRIMACE_ICON = '<svg class="floor-grimace" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48a208 208 0 1 0 0 416 208 208 0 1 0 0-416zM512 256a256 256 0 1 1 -512 0 256 256 0 1 1 512 0zM152 352c0 11.9 8.6 21.8 20 23.7l0-47.3c-11.4 1.9-20 11.8-20 23.7zm84 24l0-48-24 0 0 48 24 0zm64 0l0-48-24 0 0 48 24 0zm40-.3c11.4-1.9 20-11.8 20-23.7s-8.6-21.8-20-23.7l0 47.3zM176 288l160 0c35.3 0 64 28.7 64 64s-28.7 64-64 64l-160 0c-35.3 0-64-28.7-64-64s28.7-64 64-64zm0-112a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm128 32a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/></svg>';
 
   /**
    * Builds the board render array.
@@ -277,6 +295,16 @@ final class FloorController extends ControllerBase {
         '#items' => [
           [
             '#wrapper_attributes' => ['class' => ['floor-legend__item']],
+            'icon' => ['#markup' => Markup::create(self::GRIMACE_ICON)],
+            'label' => [
+              '#type' => 'html_tag',
+              '#tag' => 'span',
+              '#attributes' => ['class' => ['floor-legend__label']],
+              '#value' => $this->t('Inactive for over 1 hour'),
+            ],
+          ],
+          [
+            '#wrapper_attributes' => ['class' => ['floor-legend__item']],
             'icon' => ['#markup' => Markup::create(self::GHOST_ICON)],
             'label' => [
               '#type' => 'html_tag',
@@ -323,11 +351,14 @@ final class FloorController extends ControllerBase {
       '#url' => $patient ? $patient->toUrl('edit-form') : $visit->toUrl('edit-form'),
     ];
 
-    // Flag a visit that has sat in this station queue longer than the stale
-    // threshold with a ghost icon before the name. The icon lives inside the
-    // link so it inherits the name's (contrast-corrected) text color.
+    // Flag a visit that has sat in this station queue too long with an icon
+    // before the name. Past two hours it gets the ghost; between one and two
+    // hours the grimace (an early warning). The two are mutually exclusive —
+    // never both at once. The icon lives inside the link so it inherits the
+    // name's (contrast-corrected) text color.
     $entered = (int) ($visit->get('station_entered')->value ?? 0);
-    if ($entered > 0 && ($now - $entered) > self::STALE_AFTER_SECONDS) {
+    $elapsed = $entered > 0 ? $now - $entered : 0;
+    if ($entered > 0 && $elapsed > self::STALE_AFTER_SECONDS) {
       $link['#attributes']['class'][] = 'is-stale';
       $link['#attributes']['title'] = $this->t('Inactive for more than 2 hours');
       $link['#title'] = [
@@ -337,6 +368,20 @@ final class FloorController extends ControllerBase {
           '#tag' => 'span',
           '#attributes' => ['class' => ['visually-hidden']],
           '#value' => $this->t('Inactive for more than 2 hours:'),
+        ],
+        'name' => ['#markup' => $name],
+      ];
+    }
+    elseif ($entered > 0 && $elapsed > self::INACTIVE_AFTER_SECONDS) {
+      $link['#attributes']['class'][] = 'is-inactive';
+      $link['#attributes']['title'] = $this->t('Inactive for over 1 hour');
+      $link['#title'] = [
+        'icon' => ['#markup' => Markup::create(self::GRIMACE_ICON)],
+        'note' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['visually-hidden']],
+          '#value' => $this->t('Inactive for over 1 hour:'),
         ],
         'name' => ['#markup' => $name],
       ];

@@ -187,6 +187,22 @@
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.65));
 }
 
+/* Early-warning flag: a grimace icon before the name when a patient has waited
+   in a station over one hour (but under two; at two hours it becomes the
+   ghost). Same currentColor / sizing approach as the ghost. */
+.floor-grimace {
+  display: inline-block;
+  /* Grimace viewBox is square (512x512); match the ghost's inline footprint. */
+  width: 0.8em;
+  height: 0.9em;
+  margin-right: 0.3em;
+  vertical-align: -0.08em;
+  fill: currentColor;
+}
+.floor-board__body li a.has-specialty--split .floor-grimace {
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.65));
+}
+
 /* Specialty color key beneath the board. */
 .floor-legend {
   margin: 1.5rem 0 0.5rem;
