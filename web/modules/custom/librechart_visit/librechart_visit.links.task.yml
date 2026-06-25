@@ -1,5 +1,18 @@
-entity.visit.version_history:
-  route_name: entity.visit.version_history
+# Local task tabs for the Visit entity.
+#
+# Registering View and Edit as tabs (with the canonical base route) makes the
+# whole tab bar render on the visit edit form, not just the canonical page.
+# Without these, clinicians reaching a visit via the edit form see no tabs and
+# cannot get to the revision history. The Revisions tab itself is provided
+# automatically by core (entity.version_history derivative).
+entity.visit.canonical:
+  route_name: entity.visit.canonical
   base_route: entity.visit.canonical
-  title: 'Revisions'
-  weight: 20
+  title: 'View'
+  weight: 0
+
+entity.visit.edit_form:
+  route_name: entity.visit.edit_form
+  base_route: entity.visit.canonical
+  title: 'Edit'
+  weight: 10
