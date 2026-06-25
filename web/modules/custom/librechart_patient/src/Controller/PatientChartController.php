@@ -51,8 +51,15 @@ class PatientChartController extends ControllerBase {
         ]),
         '#open' => TRUE,
         '#attributes' => ['class' => ['patient-chart__latest-visit']],
-        'form' => $this->entityFormBuilder()->getForm($latest, 'edit'),
       ];
+      $revisions_link = $this->revisionHistoryLink($latest);
+      if ($revisions_link !== NULL) {
+        $revisions_link['#weight'] = -5;
+        $revisions_link['#prefix'] = '<div class="patient-chart__revisions">';
+        $revisions_link['#suffix'] = '</div>';
+        $build['latest_visit']['revisions'] = $revisions_link;
+      }
+      $build['latest_visit']['form'] = $this->entityFormBuilder()->getForm($latest, 'edit');
     }
     else {
       $build['no_visit'] = [
@@ -78,17 +85,26 @@ class PatientChartController extends ControllerBase {
       foreach ($prior as $visit) {
         /** @var \Drupal\taxonomy\TermInterface|null $site */
         $site = $visit->get('clinic_site')->entity;
-        $items[] = [
-          '#type' => 'link',
-          '#title' => $this->t('@date — @site (@status)', [
-            '@date' => $this->formatVisitDate($visit),
-            '@site' => $site?->label() ?? $this->t('Unknown site'),
-            '@status' => $visit->get('status')->value === 'complete'
-              ? $this->t('Complete')
-              : $this->t('In Progress'),
-          ]),
-          '#url' => $visit->toUrl('edit-form'),
+        $row = [
+          'edit' => [
+            '#type' => 'link',
+            '#title' => $this->t('@date — @site (@status)', [
+              '@date' => $this->formatVisitDate($visit),
+              '@site' => $site?->label() ?? $this->t('Unknown site'),
+              '@status' => $visit->get('status')->value === 'complete'
+                ? $this->t('Complete')
+                : $this->t('In Progress'),
+            ]),
+            '#url' => $visit->toUrl('edit-form'),
+          ],
         ];
+        $revisions_link = $this->revisionHistoryLink($visit);
+        if ($revisions_link !== NULL) {
+          $revisions_link['#title'] = $this->t('revisions');
+          $row['separator'] = ['#markup' => ' — '];
+          $row['revisions'] = $revisions_link;
+        }
+        $items[] = $row;
       }
       $build['prior_visits'] = [
         '#type' => 'details',
@@ -111,13 +127,14 @@ class PatientChartController extends ControllerBase {
   }
 
   /**
-   * Creates a new Visit attached to the patient at the Triage station and
-   * redirects to the patient chart. The patient↔visit relationship is fixed
-   * at creation time; the user opens the patient page and clicks "Add visit"
-   * which lands here. No intermediate form: the Visit is saved with default
-   * values (patient_type=adult, status=in_progress, visit_date=now, station=
-   * triage). The triage nurse then fills clinic_site and triage data via the
-   * Visit form embedded in the patient chart.
+   * Creates a new Visit at the Triage station and redirects to the chart.
+   *
+   * The patient↔visit relationship is fixed at creation time; the user opens
+   * the patient page and clicks "Add visit" which lands here. No intermediate
+   * form: the Visit is saved with default values (patient_type=adult,
+   * status=in_progress, visit_date=now, station=triage). The triage nurse then
+   * fills clinic_site and triage data via the Visit form embedded in the
+   * patient chart.
    *
    * @param \Drupal\librechart_patient\Entity\PatientInterface $patient
    *   The patient the new visit belongs to (resolved by the route's entity
@@ -156,6 +173,32 @@ class PatientChartController extends ControllerBase {
       '@first' => $patient->getFirstName(),
       '@last' => $patient->getLastName(),
     ]);
+  }
+
+  /**
+   * Builds a link to a visit's revision history page.
+   *
+   * Returns NULL when the current user cannot view revisions, so the link is
+   * hidden rather than rendered as a dead end (the route would 403). The target
+   * is the core revision UI, where authorised users can view and revert past
+   * revisions.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $visit
+   *   The visit to link to.
+   *
+   * @return array|null
+   *   A link render array, or NULL when the user lacks revision access.
+   */
+  private function revisionHistoryLink($visit): ?array {
+    if (!$visit->access('view all revisions')) {
+      return NULL;
+    }
+    return [
+      '#type' => 'link',
+      '#title' => $this->t('View revision history'),
+      '#url' => $visit->toUrl('version-history'),
+      '#attributes' => ['class' => ['patient-chart__revisions-link']],
+    ];
   }
 
   /**
