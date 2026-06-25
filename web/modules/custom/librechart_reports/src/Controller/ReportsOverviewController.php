@@ -30,6 +30,11 @@ final class ReportsOverviewController extends ControllerBase {
         'description' => $this->t('Demographics, top prescribed medications, and most frequent diagnoses for a single mission day.'),
         'url' => Url::fromRoute('librechart_reports.daily'),
       ],
+      [
+        'title' => $this->t('Traffic report'),
+        'description' => $this->t('Average time spent in each station, arrivals versus completions by hour, and how many patients were on site at once.'),
+        'url' => Url::fromRoute('librechart_reports.traffic'),
+      ],
     ];
 
     $items = [];

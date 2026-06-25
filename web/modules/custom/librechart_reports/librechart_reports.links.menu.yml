@@ -11,3 +11,10 @@ librechart_reports.daily:
   parent: librechart_reports.overview
   route_name: librechart_reports.daily
   weight: 0
+
+librechart_reports.traffic:
+  title: 'Traffic report'
+  description: 'Station dwell times, arrivals, and patient load for a single mission day.'
+  parent: librechart_reports.overview
+  route_name: librechart_reports.traffic
+  weight: 1

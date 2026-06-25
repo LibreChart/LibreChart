@@ -21,3 +21,17 @@ daily_report:
     - core/once
     - core/drupalSettings
     - librechart_reports/chartjs
+
+traffic_report:
+  version: 1.x
+  css:
+    # Reuses the shared Reports card, tab, and grid styling.
+    component:
+      css/daily-report.css: {}
+  js:
+    js/traffic-report.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - librechart_reports/chartjs

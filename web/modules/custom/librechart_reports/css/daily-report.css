@@ -85,6 +85,32 @@
   margin-right: 0.35rem;
 }
 
+/* Traffic report: headline stats row. */
+.lc-traffic-report__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin: 0 0 1.75rem;
+}
+
+.lc-traffic-report__stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-traffic-report__stat-value {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #1d4ed8;
+}
+
+.lc-traffic-report__stat-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+}
+
 /* Chart grid. */
 .lc-daily-report__grid {
   display: grid;
