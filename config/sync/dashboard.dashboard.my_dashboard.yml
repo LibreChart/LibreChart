@@ -14,8 +14,19 @@ layout:
     layout_settings:
       label: ''
       context_mapping: {  }
-      column_widths: 67-33
+      column_widths: 50-50
     components:
+      b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d:
+        uuid: b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d
+        region: first
+        configuration:
+          id: librechart_my_stats
+          label: 'My activity summary'
+          label_display: '0'
+          provider: librechart_reports_user
+          context_mapping: {  }
+        weight: 0
+        additional: {  }
       c3d4e5f6-a7b8-49c0-1d2e-3f4a5b6c7d8e:
         uuid: c3d4e5f6-a7b8-49c0-1d2e-3f4a5b6c7d8e
         region: first
@@ -25,29 +36,7 @@ layout:
           label_display: '0'
           provider: librechart_reports_user
           context_mapping: {  }
-        weight: 0
-        additional: {  }
-      a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c:
-        uuid: a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c
-        region: first
-        configuration:
-          id: librechart_my_patients
-          label: 'My patients'
-          label_display: visible
-          provider: librechart_reports_user
-          context_mapping: {  }
         weight: 1
-        additional: {  }
-      b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d:
-        uuid: b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d
-        region: second
-        configuration:
-          id: librechart_my_stats
-          label: 'My activity summary'
-          label_display: '0'
-          provider: librechart_reports_user
-          context_mapping: {  }
-        weight: 0
         additional: {  }
       d4e5f6a7-b8c9-40d1-2e3f-4a5b6c7d8e9f:
         uuid: d4e5f6a7-b8c9-40d1-2e3f-4a5b6c7d8e9f
@@ -55,6 +44,17 @@ layout:
         configuration:
           id: librechart_my_timeline
           label: 'My recent edits'
+          label_display: visible
+          provider: librechart_reports_user
+          context_mapping: {  }
+        weight: 0
+        additional: {  }
+      a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c:
+        uuid: a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c
+        region: second
+        configuration:
+          id: librechart_my_patients
+          label: 'My patients'
           label_display: visible
           provider: librechart_reports_user
           context_mapping: {  }
