@@ -68,8 +68,9 @@ class VisitRevisionHtmlRouteProvider extends RevisionHtmlRouteProvider {
         '_entity_form' => $entity_type_id . '.revision_edit',
         '_title' => 'Edit revision',
       ])
-      // Editing a revision is an update to the visit, so gate on update access.
-      ->setRequirement('_entity_access', $entity_type_id . '.update')
+      // Restoring a past revision overwrites the current record, so restrict it
+      // to administrators (matching the revert/delete revision operations).
+      ->setRequirement('_permission', (string) $entity_type->getAdminPermission())
       ->setOption('_admin_route', TRUE)
       ->setOption('parameters', [
         $entity_type_id => [
