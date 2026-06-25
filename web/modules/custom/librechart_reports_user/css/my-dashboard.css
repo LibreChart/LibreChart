@@ -48,6 +48,47 @@
   text-align: center;
 }
 
+/* Recent edits timeline. */
+ul.lc-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.lc-timeline .lc-timeline__item {
+  margin: 0 0 0.85rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid #bfdbfe;
+}
+
+.lc-timeline__time {
+  display: block;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.lc-timeline__patient {
+  display: inline-block;
+  font-weight: 600;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.lc-timeline__patient:hover {
+  text-decoration: underline;
+}
+
+.lc-timeline__meta {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.lc-timeline__empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
 /* Summary stat cards. */
 .lc-my-stats {
   display: grid;

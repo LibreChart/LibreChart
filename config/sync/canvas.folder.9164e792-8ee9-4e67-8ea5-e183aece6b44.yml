@@ -9,3 +9,4 @@ items:
   - block.librechart_my_charts
   - block.librechart_my_patients
   - block.librechart_my_stats
+  - block.librechart_my_timeline

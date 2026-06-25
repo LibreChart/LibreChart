@@ -19,14 +19,14 @@ use Drupal\librechart_reports_user\UserActivityReport;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Lists the patients the dashboard's target user has worked on.
+ * Shows the target user's most recent edits as a timeline.
  */
 #[Block(
-  id: 'librechart_my_patients',
-  admin_label: new TranslatableMarkup('My patients'),
+  id: 'librechart_my_timeline',
+  admin_label: new TranslatableMarkup('My recent edits'),
   category: new TranslatableMarkup('Librechart'),
 )]
-final class MyPatientsBlock extends BlockBase implements ContainerFactoryPluginInterface {
+final class MyTimelineBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   use StationFormatTrait;
 
@@ -84,48 +84,50 @@ final class MyPatientsBlock extends BlockBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function build(): array {
-    $uid = $this->userContext->getTargetUserId();
-    $patients = $this->report->patientsEditedBy($uid);
+    $edits = $this->report->recentEdits($this->userContext->getTargetUserId());
 
-    $header = [
-      'name' => $this->t('Patient'),
-      'age' => $this->t('Age'),
-      'sex' => $this->t('Sex'),
-      'visits' => $this->t('Visits'),
-      'status' => $this->t('Latest visit'),
-      'edited' => $this->t('Last edited'),
-    ];
-
-    $rows = [];
-    foreach ($patients as $patient) {
-      $rows[] = [
-        'name' => [
-          'data' => [
-            '#type' => 'link',
-            '#title' => $patient['name'] !== '' ? $patient['name'] : $this->t('(no name)'),
-            '#url' => Url::fromRoute('entity.patient.canonical', ['patient' => $patient['pid']]),
-          ],
+    if ($edits === []) {
+      return [
+        '#markup' => '<p class="lc-timeline__empty">' . $this->t('No recent edits.') . '</p>',
+        '#attached' => ['library' => ['librechart_reports_user/my_dashboard']],
+        '#cache' => [
+          'contexts' => ['user', 'route'],
+          'tags' => ['visit_list'],
+          'max-age' => 0,
         ],
-        'age' => $patient['age'] ?? $this->t('—'),
-        'sex' => $patient['sex'] ? ucfirst($patient['sex']) : $this->t('—'),
-        'visits' => $patient['visits_touched'],
-        'status' => $this->formatVisitStatus($patient['status'], $patient['current_station']),
-        'edited' => $this->dateFormatter->format($patient['last_edited'], 'custom', 'M j, Y'),
+      ];
+    }
+
+    $items = [];
+    foreach ($edits as $edit) {
+      $name = $edit['name'] !== '' ? $edit['name'] : (string) $this->t('(no name)');
+      $items[] = [
+        '#type' => 'inline_template',
+        '#template' => '<span class="lc-timeline__time">{{ time }}</span>{{ link }}<span class="lc-timeline__meta">{{ meta }}</span>',
+        '#context' => [
+          'time' => $this->dateFormatter->format($edit['ts'], 'custom', 'M j, g:i a'),
+          'link' => [
+            '#type' => 'link',
+            '#title' => $name,
+            '#url' => Url::fromRoute('entity.visit.canonical', ['visit' => $edit['vid']]),
+            '#attributes' => ['class' => ['lc-timeline__patient']],
+          ],
+          'meta' => $this->formatVisitStatus($edit['status'], $edit['current_station']),
+        ],
+        '#wrapper_attributes' => ['class' => ['lc-timeline__item']],
       ];
     }
 
     return [
-      'table' => [
-        '#type' => 'table',
-        '#header' => $header,
-        '#rows' => $rows,
-        '#empty' => $this->t('You have not worked on any patient records yet.'),
-        '#attributes' => ['class' => ['lc-my-patients']],
+      'list' => [
+        '#theme' => 'item_list',
+        '#items' => $items,
+        '#attributes' => ['class' => ['lc-timeline']],
       ],
       '#attached' => ['library' => ['librechart_reports_user/my_dashboard']],
       '#cache' => [
         'contexts' => ['user', 'route'],
-        'tags' => ['visit_list', 'patient_list'],
+        'tags' => ['visit_list'],
         'max-age' => 0,
       ],
     ];

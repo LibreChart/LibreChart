@@ -46,6 +46,11 @@ final class UserActivityReport {
   private const TOP_LIMIT = 10;
 
   /**
+   * Maximum entries shown in the recent edits timeline.
+   */
+  private const RECENT_LIMIT = 15;
+
+  /**
    * Constructs the report service.
    *
    * @param \Drupal\Core\Database\Connection $database
@@ -208,6 +213,65 @@ final class UserActivityReport {
       'age' => $this->ageGroupsForUser($uid),
       'sex' => $this->sexForUser($uid),
     ];
+  }
+
+  /**
+   * Returns the user's most recently edited visits, newest first.
+   *
+   * One entry per visit (the latest edit of each), so repeated saves of the
+   * same visit collapse into a single, most-recent timeline item.
+   *
+   * @param int $uid
+   *   The user id to report on.
+   *
+   * @return array<int, array{
+   *   vid: int,
+   *   pid: int,
+   *   name: string,
+   *   ts: int,
+   *   current_station: string|null,
+   *   status: string|null,
+   *   }>
+   *   Recent edit entries.
+   */
+  public function recentEdits(int $uid): array {
+    if ($uid <= 0) {
+      return [];
+    }
+
+    $result = $this->database->query(
+      'SELECT agg.vid AS vid,
+              agg.pid AS pid,
+              agg.ts AS ts,
+              p.first_name AS first_name,
+              p.last_name AS last_name,
+              v.current_station AS current_station,
+              v.status AS status
+       FROM (
+         SELECT vid, patient AS pid, MAX(revision_timestamp) AS ts
+         FROM {visit_revision}
+         WHERE revision_uid = :uid AND patient IS NOT NULL
+         GROUP BY vid, patient
+       ) agg
+       INNER JOIN {patient} p ON p.pid = agg.pid
+       INNER JOIN {visit} v ON v.vid = agg.vid
+       ORDER BY agg.ts DESC
+       LIMIT ' . self::RECENT_LIMIT,
+      [':uid' => $uid]
+    );
+
+    $edits = [];
+    foreach ($result as $row) {
+      $edits[] = [
+        'vid' => (int) $row->vid,
+        'pid' => (int) $row->pid,
+        'name' => trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')),
+        'ts' => (int) $row->ts,
+        'current_station' => $row->current_station,
+        'status' => $row->status,
+      ];
+    }
+    return $edits;
   }
 
   /**

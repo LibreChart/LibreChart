@@ -1,0 +1,22 @@
+uuid: d0eb883b-5463-42db-97c9-295cc5107123
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_reports_user
+active_version: 41dcede218b12d35
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: librechart_my_timeline
+        label: 'My recent edits'
+        label_display: '0'
+        provider: librechart_reports_user
+    fallback_metadata:
+      slot_definitions: null
+label: 'My recent edits'
+id: block.librechart_my_timeline
+provider: librechart_reports_user
+source: block
+source_local_id: librechart_my_timeline
