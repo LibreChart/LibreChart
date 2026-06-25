@@ -51,15 +51,10 @@ class PatientChartController extends ControllerBase {
         ]),
         '#open' => TRUE,
         '#attributes' => ['class' => ['patient-chart__latest-visit']],
+        // The "View revision history" link for this visit is injected into the
+        // form's Revision information panel by librechart_visit_form_alter().
+        'form' => $this->entityFormBuilder()->getForm($latest, 'edit'),
       ];
-      $revisions_link = $this->revisionHistoryLink($latest);
-      if ($revisions_link !== NULL) {
-        $revisions_link['#weight'] = -5;
-        $revisions_link['#prefix'] = '<div class="patient-chart__revisions">';
-        $revisions_link['#suffix'] = '</div>';
-        $build['latest_visit']['revisions'] = $revisions_link;
-      }
-      $build['latest_visit']['form'] = $this->entityFormBuilder()->getForm($latest, 'edit');
     }
     else {
       $build['no_visit'] = [

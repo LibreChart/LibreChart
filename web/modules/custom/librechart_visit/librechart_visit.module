@@ -245,8 +245,27 @@ function librechart_visit_form_alter(array &$form, FormStateInterface $form_stat
   // Hide them from everyone except administrators, matching the admin-only
   // revision UI (the Revisions tab is already gated by permission).
   $is_visit_admin = \Drupal::currentUser()->hasPermission('administer visit entities');
+  // Whether the current user may view this visit's revision history. Used to
+  // surface a link to the rollback UI from within the embedded visit form,
+  // since visits are normally only reached via the patient chart.
+  $visit_entity = _librechart_visit_get_form_entity($form_state);
+  $can_view_revisions = $visit_entity instanceof ContentEntityInterface
+    && !$visit_entity->isNew()
+    && $visit_entity->access('view all revisions');
   if (isset($form['revision_information'])) {
-    $form['revision_information']['#access'] = $is_visit_admin;
+    // Reveal the Revision information panel to revision viewers as well as
+    // admins, so the history link below is reachable; the editable log message
+    // stays admin-only (handled separately).
+    $form['revision_information']['#access'] = $is_visit_admin || $can_view_revisions;
+    if ($can_view_revisions) {
+      $form['revision_information']['revision_history_link'] = [
+        '#type' => 'link',
+        '#title' => t('View revision history'),
+        '#url' => $visit_entity->toUrl('version-history'),
+        '#attributes' => ['class' => ['button', 'button--small']],
+        '#weight' => 100,
+      ];
+    }
   }
   // Revisions are created automatically on every save (Visit::preSave), so the
   // manual "Create new revision" checkbox is a no-op — hide it from everyone.
