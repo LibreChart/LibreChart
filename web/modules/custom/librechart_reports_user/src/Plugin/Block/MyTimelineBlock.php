@@ -98,32 +98,9 @@ final class MyTimelineBlock extends BlockBase implements ContainerFactoryPluginI
       ];
     }
 
-    $items = [];
-    foreach ($edits as $edit) {
-      $name = $edit['name'] !== '' ? $edit['name'] : (string) $this->t('(no name)');
-      $items[] = [
-        '#type' => 'inline_template',
-        '#template' => '<span class="lc-timeline__time">{{ time }}</span>{{ link }}<span class="lc-timeline__meta">{{ meta }}</span>',
-        '#context' => [
-          'time' => $this->dateFormatter->format($edit['ts'], 'custom', 'M j, g:i a'),
-          'link' => [
-            '#type' => 'link',
-            '#title' => $name,
-            '#url' => Url::fromRoute('entity.visit.canonical', ['visit' => $edit['vid']]),
-            '#attributes' => ['class' => ['lc-timeline__patient']],
-          ],
-          'meta' => $this->formatVisitStatus($edit['status'], $edit['current_station']),
-        ],
-        '#wrapper_attributes' => ['class' => ['lc-timeline__item']],
-      ];
-    }
-
-    return [
-      'list' => [
-        '#theme' => 'item_list',
-        '#items' => $items,
-        '#attributes' => ['class' => ['lc-timeline']],
-      ],
+    $build = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['lc-timeline']],
       '#attached' => ['library' => ['librechart_reports_user/my_dashboard']],
       '#cache' => [
         'contexts' => ['user', 'route'],
@@ -131,6 +108,32 @@ final class MyTimelineBlock extends BlockBase implements ContainerFactoryPluginI
         'max-age' => 0,
       ],
     ];
+    foreach ($edits as $i => $edit) {
+      $name = $edit['name'] !== '' ? $edit['name'] : (string) $this->t('(no name)');
+      $build[$i] = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['lc-timeline__item']],
+        'time' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['lc-timeline__time']],
+          '#value' => $this->dateFormatter->format($edit['ts'], 'custom', 'M j, g:i a'),
+        ],
+        'patient' => [
+          '#type' => 'link',
+          '#title' => $name,
+          '#url' => Url::fromRoute('entity.visit.canonical', ['visit' => $edit['vid']]),
+          '#attributes' => ['class' => ['lc-timeline__patient']],
+        ],
+        'meta' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['lc-timeline__meta']],
+          '#value' => $this->formatVisitStatus($edit['status'], $edit['current_station']),
+        ],
+      ];
+    }
+    return $build;
   }
 
   /**

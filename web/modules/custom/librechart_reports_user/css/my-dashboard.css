@@ -49,13 +49,7 @@
 }
 
 /* Recent edits timeline. */
-ul.lc-timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-ul.lc-timeline .lc-timeline__item {
+.lc-timeline__item {
   margin: 0 0 0.85rem;
   padding-left: 0.85rem;
   border-left: 3px solid #bfdbfe;

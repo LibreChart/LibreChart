@@ -91,7 +91,6 @@ final class MyPatientsBlock extends BlockBase implements ContainerFactoryPluginI
       'name' => $this->t('Patient'),
       'age' => $this->t('Age'),
       'sex' => $this->t('Sex'),
-      'visits' => $this->t('Visits'),
       'status' => $this->t('Latest visit'),
       'edited' => $this->t('Last edited'),
     ];
@@ -108,7 +107,6 @@ final class MyPatientsBlock extends BlockBase implements ContainerFactoryPluginI
         ],
         'age' => $patient['age'] ?? $this->t('—'),
         'sex' => $patient['sex'] ? ucfirst($patient['sex']) : $this->t('—'),
-        'visits' => $patient['visits_touched'],
         'status' => $this->formatVisitStatus($patient['status'], $patient['current_station']),
         'edited' => $this->dateFormatter->format($patient['last_edited'], 'custom', 'M j, Y'),
       ];
