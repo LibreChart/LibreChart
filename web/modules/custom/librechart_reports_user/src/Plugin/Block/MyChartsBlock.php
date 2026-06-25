@@ -8,7 +8,6 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -17,14 +16,14 @@ use Drupal\librechart_reports_user\UserActivityReport;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Shows headline counts for the dashboard's target user.
+ * Renders Chart.js visualisations of the target user's activity.
  */
 #[Block(
-  id: 'librechart_my_stats',
-  admin_label: new TranslatableMarkup('My activity summary'),
+  id: 'librechart_my_charts',
+  admin_label: new TranslatableMarkup('My activity charts'),
   category: new TranslatableMarkup('Librechart'),
 )]
-final class MyStatsBlock extends BlockBase implements ContainerFactoryPluginInterface {
+final class MyChartsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
    * Constructs the block.
@@ -76,56 +75,70 @@ final class MyStatsBlock extends BlockBase implements ContainerFactoryPluginInte
    * {@inheritdoc}
    */
   public function build(): array {
-    $stats = $this->report->summaryStats($this->userContext->getTargetUserId());
+    $data = $this->report->chartData($this->userContext->getTargetUserId());
 
     $cards = [
-      [
-        'value' => $stats['patients'],
-        'label' => $this->t('Patients worked on'),
-        'sub' => $this->t('Distinct patients you have touched'),
-      ],
-      [
-        'value' => $stats['today_patients'],
-        'label' => $this->t('Seen this mission day'),
-        'sub' => $this->missionDayLabel($stats['mission_day']),
-      ],
+      'activity' => $this->t('My activity over time'),
+      'specialty' => $this->t('My visits by specialty'),
+      'diagnoses' => $this->t('My most frequent diagnoses'),
+      'age' => $this->t('My patients by age group'),
+      'sex' => $this->t('My patients by sex'),
     ];
 
-    $build = [
+    // Nothing to chart for a user who has not touched any visits yet.
+    $has_data = FALSE;
+    foreach ($cards as $key => $title) {
+      if (!empty($data[$key]['labels'])) {
+        $has_data = TRUE;
+        break;
+      }
+    }
+    if (!$has_data) {
+      return [];
+    }
+
+    $grid = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['lc-my-stats']],
-      '#attached' => ['library' => ['librechart_reports_user/my_dashboard']],
+      '#attributes' => ['class' => ['lc-my-charts']],
+      '#attached' => [
+        'library' => ['librechart_reports_user/my_charts'],
+        'drupalSettings' => [
+          'librechartReportsUser' => ['charts' => $data],
+        ],
+      ],
       '#cache' => [
         'contexts' => ['user', 'route'],
         'tags' => ['visit_list'],
         'max-age' => 0,
       ],
     ];
-    foreach ($cards as $i => $card) {
-      $build[$i] = [
+    foreach ($cards as $key => $title) {
+      $grid[$key] = [
         '#type' => 'container',
-        '#attributes' => ['class' => ['lc-stat-card']],
-        'value' => [
+        '#attributes' => ['class' => ['lc-chart-card', 'lc-chart-card--' . $key]],
+        'title' => [
           '#type' => 'html_tag',
-          '#tag' => 'span',
-          '#attributes' => ['class' => ['lc-stat-card__value']],
-          '#value' => $card['value'],
+          '#tag' => 'h3',
+          '#attributes' => ['class' => ['lc-chart-card__title']],
+          '#value' => $title,
         ],
-        'label' => [
+        'canvas_wrap' => [
           '#type' => 'html_tag',
-          '#tag' => 'span',
-          '#attributes' => ['class' => ['lc-stat-card__label']],
-          '#value' => $card['label'],
-        ],
-        'sub' => [
-          '#type' => 'html_tag',
-          '#tag' => 'span',
-          '#attributes' => ['class' => ['lc-stat-card__sub']],
-          '#value' => $card['sub'],
+          '#tag' => 'div',
+          '#attributes' => ['class' => ['lc-chart-card__canvas-wrap']],
+          'canvas' => [
+            '#type' => 'html_tag',
+            '#tag' => 'canvas',
+            '#attributes' => [
+              'class' => ['lc-chart-card__canvas'],
+              'data-lc-user-chart' => $key,
+            ],
+            '#value' => '',
+          ],
         ],
       ];
     }
-    return $build;
+    return $grid;
   }
 
   /**
@@ -136,25 +149,6 @@ final class MyStatsBlock extends BlockBase implements ContainerFactoryPluginInte
       $account->hasPermission('view own dashboard')
       || $account->hasPermission('view any user dashboard')
     )->cachePerPermissions();
-  }
-
-  /**
-   * Formats the mission-day sub-label for the "seen today" card.
-   *
-   * @param string|null $day
-   *   The mission day (YYYY-MM-DD), or NULL when no visits exist.
-   *
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
-   *   The sub-label.
-   */
-  private function missionDayLabel(?string $day): TranslatableMarkup {
-    if ($day === NULL) {
-      return $this->t('No visits recorded yet');
-    }
-    $date = DrupalDateTime::createFromFormat('Y-m-d', $day);
-    return $this->t('Mission day: @date', [
-      '@date' => $date ? $date->format('M j, Y') : $day,
-    ]);
   }
 
 }

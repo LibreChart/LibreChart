@@ -21,6 +21,11 @@ final class ReportsOverviewController extends ControllerBase {
   public function overview(): array {
     $reports = [
       [
+        'title' => $this->t('My Dashboard'),
+        'description' => $this->t('Patients you have worked on, with quick links to revisit their records.'),
+        'url' => Url::fromRoute('entity.dashboard.canonical', ['dashboard' => 'my_dashboard']),
+      ],
+      [
         'title' => $this->t('Daily patient report'),
         'description' => $this->t('Demographics, top prescribed medications, and most frequent diagnoses for a single mission day.'),
         'url' => Url::fromRoute('librechart_reports.daily'),

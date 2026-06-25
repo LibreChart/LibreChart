@@ -131,17 +131,6 @@ final class MyPatientsBlock extends BlockBase implements ContainerFactoryPluginI
     }
 
     return [
-      'count' => [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#attributes' => ['class' => ['lc-my-patients__count']],
-        '#value' => $this->formatPlural(
-          count($patients),
-          '<strong>1</strong> patient worked on',
-          '<strong>@count</strong> patients worked on',
-        ),
-        '#access' => $patients !== [],
-      ],
       'table' => [
         '#type' => 'table',
         '#header' => $header,

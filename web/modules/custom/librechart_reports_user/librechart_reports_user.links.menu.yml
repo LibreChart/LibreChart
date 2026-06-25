@@ -1,0 +1,8 @@
+librechart_reports_user.my_dashboard:
+  title: 'My Dashboard'
+  description: 'Patients you have worked on, with quick links to revisit their records.'
+  parent: librechart_reports.overview
+  route_name: entity.dashboard.canonical
+  route_parameters:
+    dashboard: my_dashboard
+  weight: -10

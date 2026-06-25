@@ -1,0 +1,22 @@
+uuid: 58253f92-82b0-40f0-bda5-489102a3dce7
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_reports_user
+active_version: be813e961e20182e
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: librechart_my_charts
+        label: 'My activity charts'
+        label_display: '0'
+        provider: librechart_reports_user
+    fallback_metadata:
+      slot_definitions: null
+label: 'My activity charts'
+id: block.librechart_my_charts
+provider: librechart_reports_user
+source: block
+source_local_id: librechart_my_charts

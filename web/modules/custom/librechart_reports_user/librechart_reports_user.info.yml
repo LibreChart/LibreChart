@@ -8,3 +8,4 @@ dependencies:
   - drupal:layout_builder
   - librechart_visit:librechart_visit
   - librechart_patient:librechart_patient
+  - librechart_reports:librechart_reports

@@ -18,6 +18,34 @@ use Drupal\Core\Database\Connection;
 final class UserActivityReport {
 
   /**
+   * Diagnosis field tables to aggregate, keyed by field machine name.
+   *
+   * Each multi-value diagnosis base field has its own data table named
+   * visit__{field}, with the term id stored in {field}_target_id.
+   */
+  private const DX_FIELDS = [
+    'dx_cardiac',
+    'dx_derm',
+    'dx_endo',
+    'dx_ent',
+    'dx_eye',
+    'dx_gi',
+    'dx_gyn_ob',
+    'dx_mental_health',
+    'dx_muscular_skeletal',
+    'dx_neuro',
+    'dx_resp',
+    'dx_uro_genital',
+    'dx_vascular',
+    'dx_wound_ostomy',
+  ];
+
+  /**
+   * Maximum rows shown in the "top diagnoses" chart.
+   */
+  private const TOP_LIMIT = 10;
+
+  /**
    * Constructs the report service.
    *
    * @param \Drupal\Core\Database\Connection $database
@@ -110,17 +138,15 @@ final class UserActivityReport {
    *
    * @return array{
    *   patients: int,
-   *   visits: int,
    *   today_patients: int,
    *   mission_day: string|null,
    *   }
-   *   Distinct patients worked on, distinct visits touched, distinct patients
-   *   touched on the current mission day, and that mission day (YYYY-MM-DD).
+   *   Distinct patients worked on, distinct patients touched on the current
+   *   mission day, and that mission day (YYYY-MM-DD).
    */
   public function summaryStats(int $uid): array {
     $empty = [
       'patients' => 0,
-      'visits' => 0,
       'today_patients' => 0,
       'mission_day' => NULL,
     ];
@@ -129,7 +155,7 @@ final class UserActivityReport {
     }
 
     $totals = $this->database->query(
-      'SELECT COUNT(DISTINCT patient) AS patients, COUNT(DISTINCT vid) AS visits
+      'SELECT COUNT(DISTINCT patient) AS patients
        FROM {visit_revision}
        WHERE revision_uid = :uid AND patient IS NOT NULL',
       [':uid' => $uid]
@@ -154,10 +180,175 @@ final class UserActivityReport {
 
     return [
       'patients' => (int) ($totals->patients ?? 0),
-      'visits' => (int) ($totals->visits ?? 0),
       'today_patients' => $today_patients,
       'mission_day' => $mission_day ?: NULL,
     ];
+  }
+
+  /**
+   * Aggregates chart datasets describing a user's activity.
+   *
+   * All datasets are scoped to the visits the user has touched (any visit for
+   * which they authored a revision) or the distinct patients on those visits.
+   *
+   * @param int $uid
+   *   The user id to report on.
+   *
+   * @return array<string, array{labels: array<int, string>, values: array<int, int>}>
+   *   Chart-ready data keyed by chart id, each with "labels" and "values".
+   */
+  public function chartData(int $uid): array {
+    if ($uid <= 0) {
+      return [];
+    }
+    return [
+      'activity' => $this->activityOverTime($uid),
+      'specialty' => $this->specialtyForUser($uid),
+      'diagnoses' => $this->diagnosesForUser($uid),
+      'age' => $this->ageGroupsForUser($uid),
+      'sex' => $this->sexForUser($uid),
+    ];
+  }
+
+  /**
+   * Visits the user touched, grouped by mission day.
+   */
+  private function activityOverTime(int $uid): array {
+    $result = $this->database->query(
+      'SELECT DATE(v.visit_date) AS day, COUNT(DISTINCT v.vid) AS cnt
+       FROM {visit} v
+       WHERE v.vid IN (
+         SELECT DISTINCT vid FROM {visit_revision} WHERE revision_uid = :uid
+       )
+       GROUP BY day
+       ORDER BY day ASC',
+      [':uid' => $uid]
+    );
+    $labels = [];
+    $values = [];
+    foreach ($result as $row) {
+      $labels[] = $row->day ? date('M j', strtotime($row->day)) : (string) $row->day;
+      $values[] = (int) $row->cnt;
+    }
+    return ['labels' => $labels, 'values' => $values];
+  }
+
+  /**
+   * Visits the user touched, grouped by assigned specialty.
+   */
+  private function specialtyForUser(int $uid): array {
+    $result = $this->database->query(
+      'SELECT t.name AS name, COUNT(DISTINCT v.vid) AS cnt
+       FROM {visit} v
+       INNER JOIN {visit__specialties} s ON s.entity_id = v.vid AND s.deleted = 0
+       INNER JOIN {taxonomy_term_field_data} t ON t.tid = s.specialties_target_id
+       WHERE v.vid IN (
+         SELECT DISTINCT vid FROM {visit_revision} WHERE revision_uid = :uid
+       )
+       GROUP BY t.name
+       ORDER BY cnt DESC, name ASC',
+      [':uid' => $uid]
+    );
+    return $this->labelValueRows($result);
+  }
+
+  /**
+   * Most frequent diagnoses across the visits the user touched.
+   */
+  private function diagnosesForUser(int $uid): array {
+    $unions = [];
+    foreach (self::DX_FIELDS as $field) {
+      $unions[] = sprintf(
+        'SELECT entity_id, %s AS tid FROM {visit__%s} WHERE deleted = 0',
+        $field . '_target_id',
+        $field
+      );
+    }
+    $dx = implode(' UNION ALL ', $unions);
+
+    $result = $this->database->query(
+      'SELECT t.name AS name, COUNT(*) AS cnt
+       FROM (' . $dx . ') dx
+       INNER JOIN {taxonomy_term_field_data} t ON t.tid = dx.tid
+       WHERE dx.entity_id IN (
+         SELECT DISTINCT vid FROM {visit_revision} WHERE revision_uid = :uid
+       )
+       GROUP BY t.name
+       ORDER BY cnt DESC, name ASC
+       LIMIT ' . self::TOP_LIMIT,
+      [':uid' => $uid]
+    );
+    return $this->labelValueRows($result);
+  }
+
+  /**
+   * Distinct patients the user touched, grouped into 5-year age bands.
+   */
+  private function ageGroupsForUser(int $uid): array {
+    $result = $this->database->query(
+      'SELECT FLOOR(TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) / 5) * 5 AS band,
+              COUNT(*) AS cnt
+       FROM {patient} p
+       WHERE p.date_of_birth IS NOT NULL
+         AND p.pid IN (
+           SELECT DISTINCT patient FROM {visit_revision}
+           WHERE revision_uid = :uid AND patient IS NOT NULL
+         )
+       GROUP BY band
+       ORDER BY band ASC',
+      [':uid' => $uid]
+    );
+    $labels = [];
+    $values = [];
+    foreach ($result as $row) {
+      $band = (int) $row->band;
+      $labels[] = $band . '–' . ($band + 4);
+      $values[] = (int) $row->cnt;
+    }
+    return ['labels' => $labels, 'values' => $values];
+  }
+
+  /**
+   * Distinct patients the user touched, grouped by sex.
+   */
+  private function sexForUser(int $uid): array {
+    $result = $this->database->query(
+      'SELECT p.sex AS name, COUNT(*) AS cnt
+       FROM {patient} p
+       WHERE p.pid IN (
+         SELECT DISTINCT patient FROM {visit_revision}
+         WHERE revision_uid = :uid AND patient IS NOT NULL
+       )
+       GROUP BY p.sex
+       ORDER BY p.sex ASC',
+      [':uid' => $uid]
+    );
+    $labels = [];
+    $values = [];
+    foreach ($result as $row) {
+      $labels[] = $row->name ? ucfirst($row->name) : 'Unknown';
+      $values[] = (int) $row->cnt;
+    }
+    return ['labels' => $labels, 'values' => $values];
+  }
+
+  /**
+   * Converts a name/cnt result set into labels/values arrays.
+   *
+   * @param \Traversable<int, object> $result
+   *   A query result yielding rows with "name" and "cnt" properties.
+   *
+   * @return array{labels: array<int, string>, values: array<int, int>}
+   *   The labels and values arrays.
+   */
+  private function labelValueRows(\Traversable $result): array {
+    $labels = [];
+    $values = [];
+    foreach ($result as $row) {
+      $labels[] = (string) $row->name;
+      $values[] = (int) $row->cnt;
+    }
+    return ['labels' => $labels, 'values' => $values];
   }
 
   /**

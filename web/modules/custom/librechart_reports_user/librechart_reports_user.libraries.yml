@@ -3,3 +3,16 @@ my_dashboard:
   css:
     component:
       css/my-dashboard.css: {}
+
+my_charts:
+  version: 1.x
+  css:
+    component:
+      css/my-dashboard.css: {}
+  js:
+    js/my-charts.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - librechart_reports/chartjs
