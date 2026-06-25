@@ -4,10 +4,7 @@ status: true
 dependencies:
   module:
     - layout_builder
-    - layout_discovery
     - librechart_reports_user
-_core:
-  default_config_hash: ftRGyENExXR6o3BEJ9v0gZ00mVkwb4w2QNw5xAsPTvw
 id: my_dashboard
 label: 'My Dashboard'
 description: 'Patients you have worked on, with quick links to revisit their records.'
@@ -18,6 +15,17 @@ layout:
       label: ''
       context_mapping: {  }
     components:
+      b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d:
+        uuid: b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d
+        region: content
+        configuration:
+          id: librechart_my_stats
+          label: 'My activity summary'
+          label_display: '0'
+          provider: librechart_reports_user
+          context_mapping: {  }
+        weight: -1
+        additional: {  }
       a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c:
         uuid: a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c
         region: content

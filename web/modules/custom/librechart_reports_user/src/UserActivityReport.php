@@ -103,6 +103,64 @@ final class UserActivityReport {
   }
 
   /**
+   * Returns headline counts of a user's activity.
+   *
+   * @param int $uid
+   *   The user id to report on.
+   *
+   * @return array{
+   *   patients: int,
+   *   visits: int,
+   *   today_patients: int,
+   *   mission_day: string|null,
+   *   }
+   *   Distinct patients worked on, distinct visits touched, distinct patients
+   *   touched on the current mission day, and that mission day (YYYY-MM-DD).
+   */
+  public function summaryStats(int $uid): array {
+    $empty = [
+      'patients' => 0,
+      'visits' => 0,
+      'today_patients' => 0,
+      'mission_day' => NULL,
+    ];
+    if ($uid <= 0) {
+      return $empty;
+    }
+
+    $totals = $this->database->query(
+      'SELECT COUNT(DISTINCT patient) AS patients, COUNT(DISTINCT vid) AS visits
+       FROM {visit_revision}
+       WHERE revision_uid = :uid AND patient IS NOT NULL',
+      [':uid' => $uid]
+    )->fetchObject();
+
+    // The current mission day is the most recent date any visit is recorded
+    // for, mirroring the Daily patient report's notion of a mission day.
+    $mission_day = $this->database->query(
+      'SELECT MAX(DATE(visit_date)) FROM {visit}'
+    )->fetchField();
+
+    $today_patients = 0;
+    if ($mission_day) {
+      $today_patients = (int) $this->database->query(
+        'SELECT COUNT(DISTINCT vr.patient)
+         FROM {visit_revision} vr
+         INNER JOIN {visit} v ON v.vid = vr.vid
+         WHERE vr.revision_uid = :uid AND DATE(v.visit_date) = :day',
+        [':uid' => $uid, ':day' => $mission_day]
+      )->fetchField();
+    }
+
+    return [
+      'patients' => (int) ($totals->patients ?? 0),
+      'visits' => (int) ($totals->visits ?? 0),
+      'today_patients' => $today_patients,
+      'mission_day' => $mission_day ?: NULL,
+    ];
+  }
+
+  /**
    * Computes whole-year age from a date-of-birth string.
    *
    * @param string|null $dob

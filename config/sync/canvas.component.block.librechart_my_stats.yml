@@ -1,0 +1,22 @@
+uuid: 75e22a4e-7a73-41cf-b550-8a8b15a5a4ff
+langcode: en
+status: true
+dependencies:
+  module:
+    - librechart_reports_user
+active_version: 41822dcae3212813
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: librechart_my_stats
+        label: 'My activity summary'
+        label_display: '0'
+        provider: librechart_reports_user
+    fallback_metadata:
+      slot_definitions: null
+label: 'My activity summary'
+id: block.librechart_my_stats
+provider: librechart_reports_user
+source: block
+source_local_id: librechart_my_stats

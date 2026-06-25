@@ -3,6 +3,44 @@
  * Styles for the My Dashboard widgets.
  */
 
+/* Summary stat cards. */
+.lc-my-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.lc-stat-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.lc-stat-card__value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #1d4ed8;
+}
+
+.lc-stat-card__label {
+  margin-top: 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.lc-stat-card__sub {
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
 .lc-my-patients__count {
   font-size: 1.1rem;
   color: #334155;

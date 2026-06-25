@@ -7,3 +7,4 @@ configEntityTypeId: component
 weight: 0
 items:
   - block.librechart_my_patients
+  - block.librechart_my_stats
