@@ -96,6 +96,21 @@ class Patient extends ContentEntityBase implements PatientInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * Builds the entity label as "Last, First" so the page title, Gin toolbar,
+   * and entity references all display patients in surname-first order.
+   */
+  public function label(): string {
+    $last = trim($this->getLastName());
+    $first = trim($this->getFirstName());
+    if ($last !== '' && $first !== '') {
+      return $last . ', ' . $first;
+    }
+    return trim($last . ' ' . $first);
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function getCedula(): string {
     return (string) $this->get('cedula')->value;

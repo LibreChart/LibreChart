@@ -152,7 +152,7 @@ class PatientChartController extends ControllerBase {
    * Page title callback.
    */
   public function title(PatientInterface $patient): string {
-    return (string) $this->t('@first @last', [
+    return (string) $this->t('@last, @first', [
       '@first' => $patient->getFirstName(),
       '@last' => $patient->getLastName(),
     ]);
