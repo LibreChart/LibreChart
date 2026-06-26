@@ -5,3 +5,18 @@ librechart_visit.floor:
     _title: 'Floor'
   requirements:
     _permission: 'view visit entities'
+
+librechart_visit.toggle_station_flag:
+  path: '/visit/{visit}/flag/{station}'
+  defaults:
+    _controller: '\Drupal\librechart_visit\Controller\StationFlagController::toggle'
+  methods: [POST]
+  requirements:
+    # Any user who can edit the visit may flag a station — flagging is open to
+    # all stations, unlike transitions which are gated by station ownership.
+    _entity_access: 'visit.update'
+    _csrf_request_header_token: 'TRUE'
+  options:
+    parameters:
+      visit:
+        type: entity:visit

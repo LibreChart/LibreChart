@@ -577,3 +577,21 @@ function librechart_visit_update_9022(): void {
 function librechart_visit_update_9023(): void {
   \Drupal\librechart_visit\Entity\Visit::seedEducation();
 }
+
+/**
+ * Install the `flagged_stations` base field on deployed sites.
+ *
+ * A multi-value list of station machine names flagged from the station strip
+ * to mark an unresolved issue or a required return. Fresh sites pick the field
+ * up from baseFieldDefinitions(); existing sites need the storage installed
+ * here.
+ */
+function librechart_visit_update_9024(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = \Drupal::service('entity_field.manager')
+    ->getBaseFieldDefinitions('visit')['flagged_stations'] ?? NULL;
+  if ($definition instanceof FieldStorageDefinitionInterface
+    && !$manager->getFieldStorageDefinition('flagged_stations', 'visit')) {
+    $manager->installFieldStorageDefinition('flagged_stations', 'visit', 'librechart_visit', $definition);
+  }
+}

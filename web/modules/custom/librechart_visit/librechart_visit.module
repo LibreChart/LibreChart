@@ -806,6 +806,17 @@ function _librechart_visit_attach_station_strip(array &$form, FormStateInterface
   // Sentinel `complete` or unknown values render the strip with all done.
   $current_index_int = is_int($current_index) ? $current_index : -1;
 
+  // Stations carrying an unresolved-issue / must-return flag (FR: red flag).
+  $flagged = [];
+  foreach ($visit->get('flagged_stations')->getValue() as $delta) {
+    $flagged[] = (string) ($delta['value'] ?? '');
+  }
+
+  // The strip is interactive (clickable to toggle a flag) only once the visit
+  // has been saved and therefore has an id to POST against. On the add form it
+  // renders as a plain progress indicator.
+  $interactive = !$visit->isNew();
+
   $strip = [
     '#type' => 'container',
     '#attributes' => [
@@ -814,6 +825,16 @@ function _librechart_visit_attach_station_strip(array &$form, FormStateInterface
     ],
     '#weight' => -100,
   ];
+  if ($interactive) {
+    $strip['#attributes']['class'][] = 'station-strip--interactive';
+    $strip['#attributes']['data-visit-id'] = $visit->id();
+    $form['#attached']['library'][] = 'librechart_visit/station_flag';
+  }
+
+  // Inline FontAwesome 6 "flag" (solid, f024) icon, self-hosted as SVG markup
+  // for the offline LAN deployment (no icon-font/CDN dependency). Hidden by
+  // default and revealed by CSS when its step carries the --flagged class.
+  $flag_icon = '<svg class="station-strip__flag" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32L0 64 0 368 0 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128 64.3-16.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.4 141.4 6.4l8.1-3.2c12.2-4.9 20.2-16.7 20.2-29.7l0-247.7c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.5-17.8-76.5-22.4-115.2-13l-58.4 14.6L64 32z"/></svg>';
 
   foreach ($stations as $i => $station) {
     $classes = ['station-strip__step'];
@@ -825,12 +846,26 @@ function _librechart_visit_attach_station_strip(array &$form, FormStateInterface
       // complete case), so the current station is highlighted.
       $classes[] = 'station-strip__step--current';
     }
+    $is_flagged = in_array($station, $flagged, TRUE);
+    if ($is_flagged) {
+      $classes[] = 'station-strip__step--flagged';
+    }
+    $attributes = [
+      'class' => $classes,
+      'data-station' => $station,
+    ];
+    if ($interactive) {
+      // Whole step is the toggle target; expose it to keyboard and AT as a
+      // pressable control reflecting the current flag state.
+      $attributes['role'] = 'button';
+      $attributes['tabindex'] = '0';
+      $attributes['aria-pressed'] = $is_flagged ? 'true' : 'false';
+      $attributes['title'] = (string) t('Click to flag or unflag an issue at this station');
+    }
     $strip[$station] = [
       '#type' => 'container',
-      '#attributes' => [
-        'class' => $classes,
-        'data-station' => $station,
-      ],
+      '#attributes' => $attributes,
+      'flag' => ['#markup' => Markup::create($flag_icon)],
       'label' => ['#markup' => $workflow->label($station)],
     ];
   }

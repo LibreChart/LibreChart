@@ -35,6 +35,43 @@
   font-weight: 700;
 }
 
+/* Interactive strip: each step is clickable to toggle its issue flag. */
+.station-strip--interactive .station-strip__step {
+  cursor: pointer;
+}
+.station-strip--interactive .station-strip__step:hover {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+.station-strip--interactive .station-strip__step:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+/* Red issue flag, pinned to the upper-left corner of its step. Hidden until the
+   step carries the --flagged class. Full opacity is forced so the marker stays
+   prominent even on dimmed (done) steps, which set opacity on the whole step. */
+.station-strip__flag {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 0.8em;
+  height: 0.8em;
+  fill: #dc2626;
+  display: none;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+}
+.station-strip__step--flagged {
+  opacity: 1;
+}
+.station-strip__step--flagged .station-strip__flag {
+  display: block;
+}
+/* Give flagged steps a little left padding so the label clears the flag. */
+.station-strip__step--flagged {
+  padding-left: 1.1rem;
+}
+
 /* Per-station color cues (mirrors patient-flow.md mermaid styles). */
 .station-strip__step[data-station="registration"] { border-color: #3b82f6; }
 .station-strip__step--current[data-station="registration"] { background: #3b82f6; }

@@ -108,6 +108,13 @@ class VisitForm extends ContentEntityForm {
       }
     }
 
+    // Station issue-flags are toggled out-of-band from the station strip, never
+    // through this form. Always adopt the stored set so a form built before a
+    // flag was toggled does not silently revert it on save.
+    if ($current->hasField('flagged_stations')) {
+      $entity->set('flagged_stations', $current->get('flagged_stations')->getValue());
+    }
+
     // Align the optimistic-lock timestamp with storage so Visit::preSave()'s
     // backstop passes for this reconciled save; the changed field then bumps
     // itself to now on save.

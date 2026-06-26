@@ -4,6 +4,15 @@ station_strip:
     component:
       css/station-strip.css: {}
 
+station_flag:
+  version: 1.x
+  js:
+    js/station-flag.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+
 admin_overrides:
   version: 1.x
   css:

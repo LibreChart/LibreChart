@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionLogEntityTrait;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
@@ -377,6 +378,13 @@ class Visit extends ContentEntityBase {
       ->setLabel(new TranslatableMarkup('Station entered'))
       ->setDescription(new TranslatableMarkup('When the visit entered its current station. Orders each floor-board column by true arrival-at-station time.'))
       ->setRevisionable(TRUE);
+
+    $fields['flagged_stations'] = BaseFieldDefinition::create('string')
+      ->setLabel(new TranslatableMarkup('Flagged stations'))
+      ->setDescription(new TranslatableMarkup('Machine names of stations flagged for an unresolved issue or a required return. Toggled from the station strip; never edited through the visit form.'))
+      ->setRevisionable(TRUE)
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setSetting('max_length', 32);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(new TranslatableMarkup('Changed'))
