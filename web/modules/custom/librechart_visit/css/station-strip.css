@@ -251,6 +251,9 @@
   margin-right: 0.35em;
   vertical-align: -0.05em;
   fill: #dc2626;
+  /* The flag sits inside the (sometimes specialty-colored) name pill; a white
+     halo keeps the fixed red readable on dark or red-ish backgrounds. */
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.95));
 }
 
 /* Specialty color key beneath the board. */

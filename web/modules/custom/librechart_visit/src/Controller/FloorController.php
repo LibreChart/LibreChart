@@ -420,22 +420,26 @@ final class FloorController extends ControllerBase {
       }
     }
 
-    // Prepend a red flag before the name when any station on this visit carries
-    // an issue flag (toggled from the station strip). It sits outside the name
-    // link so it stays red on the row's own background, ahead of any stale
-    // ghost/grimace icon (those live inside the link). Disappears on its own
-    // once every station flag has been cleared.
+    // Prepend a red flag inside the name link when any station on this visit
+    // carries an issue flag (toggled from the station strip). Putting it in the
+    // link's title — rather than alongside the link — keeps it within the
+    // specialty-colored pill, and leads any stale ghost/grimace icon. Disappears
+    // on its own once every station flag has been cleared.
     if (!$visit->get('flagged_stations')->isEmpty()) {
-      return [
-        'note' => [
+      // Fold the existing title (a plain name, or the stale-icon array) into an
+      // array so the flag can lead it.
+      $title = is_array($link['#title'])
+        ? $link['#title']
+        : ['name' => ['#markup' => $link['#title']]];
+      $link['#title'] = [
+        'flag_note' => [
           '#type' => 'html_tag',
           '#tag' => 'span',
           '#attributes' => ['class' => ['visually-hidden']],
           '#value' => $this->t('Has a flagged station issue'),
         ],
         'flag' => ['#markup' => Markup::create(self::FLAG_ICON)],
-        'link' => $link,
-      ];
+      ] + $title;
     }
 
     return $link;
