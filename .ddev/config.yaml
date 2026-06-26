@@ -14,6 +14,12 @@ composer_version: "2"
 web_environment: []
 corepack_enable: true
 
+# Raise PHP-FPM worker cap (default 8) so the failover can serve the whole
+# clinic without requests queuing. Re-applied on every start + graceful reload.
+hooks:
+  post-start:
+    - exec: "sed -i 's/^pm.max_children = .*/pm.max_children = 24/;s/^pm.start_servers = .*/pm.start_servers = 8/;s/^pm.min_spare_servers = .*/pm.min_spare_servers = 6/;s/^pm.max_spare_servers = .*/pm.max_spare_servers = 16/' /etc/php/8.3/fpm/pool.d/www.conf && pkill -USR2 -f 'php-fpm: master' || true"
+
 # Key features of DDEV's config.yaml:
 
 # name: <projectname> # Name of the project, automatically provides
