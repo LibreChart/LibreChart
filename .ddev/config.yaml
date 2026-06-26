@@ -5,7 +5,7 @@ php_version: "8.3"
 webserver_type: nginx-fpm
 xdebug_enabled: false
 additional_hostnames: []
-additional_fqdns: []
+additional_fqdns: ["laughh2.emr"]
 database:
     type: mariadb
     version: "10.11"
