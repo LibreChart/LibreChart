@@ -240,6 +240,19 @@
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.65));
 }
 
+/* Station-issue flag: a red flag after the name when the patient's visit has
+   any flagged station. Fixed red (not currentColor) so it reads as an alert on
+   any row background; cleared automatically once all station flags are removed.
+   The flag viewBox is 448x512 (0.875 ratio). */
+.floor-flag {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.8em;
+  margin-left: 0.35em;
+  vertical-align: -0.05em;
+  fill: #dc2626;
+}
+
 /* Specialty color key beneath the board. */
 .floor-legend {
   margin: 1.5rem 0 0.5rem;

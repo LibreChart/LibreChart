@@ -90,6 +90,18 @@ final class FloorController extends ControllerBase {
   private const GRIMACE_ICON = '<svg class="floor-grimace" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48a208 208 0 1 0 0 416 208 208 0 1 0 0-416zM512 256a256 256 0 1 1 -512 0 256 256 0 1 1 512 0zM152 352c0 11.9 8.6 21.8 20 23.7l0-47.3c-11.4 1.9-20 11.8-20 23.7zm84 24l0-48-24 0 0 48 24 0zm64 0l0-48-24 0 0 48 24 0zm40-.3c11.4-1.9 20-11.8 20-23.7s-8.6-21.8-20-23.7l0 47.3zM176 288l160 0c35.3 0 64 28.7 64 64s-28.7 64-64 64l-160 0c-35.3 0-64-28.7-64-64s28.7-64 64-64zm0-112a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm128 32a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/></svg>';
 
   /**
+   * Inline FontAwesome 6 "flag" (solid, f024) icon, marking a flagged visit.
+   *
+   * Shown after the name when a visit has any station flagged for an unresolved
+   * issue or a required return.
+   * Matches the red flag toggled from the visit's station strip. Inlined as SVG
+   * for the same self-hosted reasons as the icons above, but with a fixed red
+   * fill (not currentColor) so it reads as an alert regardless of the name's
+   * background. Cleared automatically once every station flag is removed.
+   */
+  private const FLAG_ICON = '<svg class="floor-flag" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32L0 64 0 368 0 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128 64.3-16.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.4 141.4 6.4l8.1-3.2c12.2-4.9 20.2-16.7 20.2-29.7l0-247.7c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.5-17.8-76.5-22.4-115.2-13l-58.4 14.6L64 32z"/></svg>';
+
+  /**
    * Builds the board render array.
    */
   public function board(): array {
@@ -406,6 +418,23 @@ final class FloorController extends ControllerBase {
         $link['#attributes']['class'][] = 'has-specialty--split';
         $link['#attributes']['style'] = $this->splitBackgroundStyle($colors);
       }
+    }
+
+    // Append a red flag after the name when any station on this visit carries an
+    // issue flag (toggled from the station strip). It sits outside the name link
+    // so it stays red on the row's own background, and disappears on its own
+    // once every station flag has been cleared.
+    if (!$visit->get('flagged_stations')->isEmpty()) {
+      return [
+        'link' => $link,
+        'note' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['visually-hidden']],
+          '#value' => $this->t('Has a flagged station issue'),
+        ],
+        'flag' => ['#markup' => Markup::create(self::FLAG_ICON)],
+      ];
     }
 
     return $link;
