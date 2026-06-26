@@ -420,13 +420,13 @@ final class FloorController extends ControllerBase {
       }
     }
 
-    // Append a red flag after the name when any station on this visit carries an
-    // issue flag (toggled from the station strip). It sits outside the name link
-    // so it stays red on the row's own background, and disappears on its own
+    // Prepend a red flag before the name when any station on this visit carries
+    // an issue flag (toggled from the station strip). It sits outside the name
+    // link so it stays red on the row's own background, ahead of any stale
+    // ghost/grimace icon (those live inside the link). Disappears on its own
     // once every station flag has been cleared.
     if (!$visit->get('flagged_stations')->isEmpty()) {
       return [
-        'link' => $link,
         'note' => [
           '#type' => 'html_tag',
           '#tag' => 'span',
@@ -434,6 +434,7 @@ final class FloorController extends ControllerBase {
           '#value' => $this->t('Has a flagged station issue'),
         ],
         'flag' => ['#markup' => Markup::create(self::FLAG_ICON)],
+        'link' => $link,
       ];
     }
 
